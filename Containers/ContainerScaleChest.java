@@ -9,13 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
+import Reika.DragonAPI.Base.CoreContainer;
+import Reika.RotaryCraft.TileEntities.Storage.TileEntityScaleableChest;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
-import Reika.RotaryCraft.TileEntities.Storage.TileEntityScaleableChest;
 
-public class ContainerScaleChest extends ContainerIOMachine
+public class ContainerScaleChest extends CoreContainer
 {
 	private IInventory lowerScaleChestInventory;
 	private TileEntityScaleableChest chest;

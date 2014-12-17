@@ -9,14 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ICrafting;
+import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
 import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
 
-public class ContainerGearbox extends ContainerIOMachine
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ICrafting;
+
+public class ContainerGearbox extends CoreContainer
 {
 	private TileEntityGearbox gearbox;
 

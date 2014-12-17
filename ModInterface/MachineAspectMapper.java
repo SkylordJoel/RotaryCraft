@@ -9,14 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
+import Reika.DragonAPI.ModInteract.ReikaThaumHelper;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.HashMap;
 
 import net.minecraft.item.ItemStack;
+import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
-import Reika.DragonAPI.ModInteract.ReikaThaumHelper;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class MachineAspectMapper {
 
@@ -27,7 +29,7 @@ public class MachineAspectMapper {
 	private MachineAspectMapper() {
 
 		this.addAspect(MachineRegistry.BEDROCKBREAKER, Aspect.VOID, 2);
-		//this.addAspect(MachineRegistry.BEDROCKBREAKER, Aspect.STONE, 2);
+		this.addAspect(MachineRegistry.BEDROCKBREAKER, Aspect.STONE, 2);
 		this.addAspect(MachineRegistry.BEDROCKBREAKER, Aspect.MINE, 8);
 
 		this.addAspect(MachineRegistry.FERMENTER, Aspect.EXCHANGE, 2);
@@ -76,7 +78,7 @@ public class MachineAspectMapper {
 		this.addAspect(MachineRegistry.GPR, Aspect.SENSES, 8);
 
 		this.addAspect(MachineRegistry.OBSIDIAN, Aspect.DARKNESS, 2);
-		//this.addAspect(MachineRegistry.OBSIDIAN, Aspect.STONE, 5);
+		this.addAspect(MachineRegistry.OBSIDIAN, Aspect.STONE, 5);
 		this.addAspect(MachineRegistry.OBSIDIAN, Aspect.ARMOR, 2);
 
 		this.addAspect(MachineRegistry.PILEDRIVER, Aspect.MINE, 6);
@@ -147,7 +149,7 @@ public class MachineAspectMapper {
 		//this.addAspect(MachineRegistry.REFRESHER, Aspect.TIME, 4); not native to ThaumCraft
 
 		this.addAspect(MachineRegistry.FREEZEGUN, Aspect.WEAPON, 8);
-		this.addAspect(MachineRegistry.FREEZEGUN, Aspect.COLD, 6);
+		this.addAspect(MachineRegistry.FREEZEGUN, Aspect.ICE, 6);
 
 		this.addAspect(MachineRegistry.CAVESCANNER, Aspect.SENSES, 8);
 
@@ -206,7 +208,7 @@ public class MachineAspectMapper {
 
 		this.addAspect(MachineRegistry.TERRAFORMER, Aspect.EARTH, 4);
 		this.addAspect(MachineRegistry.TERRAFORMER, Aspect.WATER, 4);
-		this.addAspect(MachineRegistry.TERRAFORMER, Aspect.COLD, 4);
+		this.addAspect(MachineRegistry.TERRAFORMER, Aspect.ICE, 4);
 		this.addAspect(MachineRegistry.TERRAFORMER, Aspect.FIRE, 4);
 		this.addAspect(MachineRegistry.TERRAFORMER, Aspect.AIR, 4);
 
@@ -226,7 +228,7 @@ public class MachineAspectMapper {
 		this.addAspect(MachineRegistry.FERTILIZER, Aspect.WATER, 4);
 
 		this.addAspect(MachineRegistry.LAVAMAKER, Aspect.FIRE, 6);
-		//this.addAspect(MachineRegistry.LAVAMAKER, Aspect.STONE, 4);
+		this.addAspect(MachineRegistry.LAVAMAKER, Aspect.STONE, 4);
 
 		this.addAspect(MachineRegistry.AGGREGATOR, Aspect.WATER, 8);
 		this.addAspect(MachineRegistry.AGGREGATOR, Aspect.AIR, 4);
@@ -258,13 +260,13 @@ public class MachineAspectMapper {
 		this.addAspect(MachineRegistry.DEFOLIATOR, Aspect.AURA, 2);
 
 		this.addAspect(MachineRegistry.BIGFURNACE, Aspect.FIRE, 8);
-		//this.addAspect(MachineRegistry.BIGFURNACE, Aspect.STONE, 2);
+		this.addAspect(MachineRegistry.BIGFURNACE, Aspect.STONE, 2);
 		this.addAspect(MachineRegistry.BIGFURNACE, Aspect.CRAFT, 4);
 
 		this.addAspect(MachineRegistry.DISTILLER, Aspect.CRAFT, 3);
 
 		this.addAspect(MachineRegistry.CRYSTALLIZER, Aspect.CRYSTAL, 4);
-		this.addAspect(MachineRegistry.CRYSTALLIZER, Aspect.COLD, 8);
+		this.addAspect(MachineRegistry.CRYSTALLIZER, Aspect.ICE, 8);
 
 		this.addAspect(MachineRegistry.PARTICLE, Aspect.LIGHT, 2);
 		this.addAspect(MachineRegistry.PARTICLE, Aspect.SENSES, 4);
@@ -277,7 +279,7 @@ public class MachineAspectMapper {
 
 		this.addAspect(MachineRegistry.BLOWER, Aspect.TRAVEL, 8);
 
-		this.addAspect(MachineRegistry.REFRIGERATOR, Aspect.COLD, 8);
+		this.addAspect(MachineRegistry.REFRIGERATOR, Aspect.ICE, 8);
 		this.addAspect(MachineRegistry.REFRIGERATOR, Aspect.AIR, 4);
 
 		this.addAspect(MachineRegistry.GASTANK, Aspect.VOID, 12);
@@ -405,19 +407,19 @@ public class MachineAspectMapper {
 
 	public void register() {
 		for (int i = 0; i < MachineRegistry.machineList.length; i++) {
-			MachineRegistry m = MachineRegistry.machineList.get(i);
+			MachineRegistry m = MachineRegistry.machineList[i];
 			if (m.hasSubdivisions()) {
 				int n = m.getNumberSubtypes();
 				for (int k = 0; k < n; k++) {
 					ItemStack is = m.getCraftedMetadataProduct(i);
-					ReikaThaumHelper.addAspects(is, this.getAspects(m, k));
-					ReikaThaumHelper.addAspectsToBlockMeta(m.getBlock(), k, this.getAspects(m, k));
+					ThaumcraftApi.registerObjectTag(is.getItem(), is.getItemDamage(), this.getAspects(m, k));
+					ThaumcraftApi.registerObjectTag(m.getBlock(), k, this.getAspects(m, k));
 				}
 			}
 			else {
 				ItemStack is = m.getCraftedProduct();
-				ReikaThaumHelper.addAspects(is, this.getAspects(m, 0));
-				ReikaThaumHelper.addAspectsToBlockMeta(m.getBlock(), m.getMachineMetadata(), this.getAspects(m, 0));
+				ThaumcraftApi.registerObjectTag(is.getItem(), is.getItemDamage(), this.getAspects(m, 0));
+				ThaumcraftApi.registerObjectTag(m.getBlock(), m.getMachineMetadata(), this.getAspects(m, 0));
 			}
 		}
 	}

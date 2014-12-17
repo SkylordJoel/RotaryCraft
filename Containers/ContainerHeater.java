@@ -9,17 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
+import Reika.DragonAPI.Base.CoreContainer;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
-import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityHeater;
+import net.minecraft.tileentity.TileEntity;
 
-public class ContainerHeater extends ContainerIOMachine {
+public class ContainerHeater extends CoreContainer {
 
 	IInventory lowerInv;
 
-	public ContainerHeater(EntityPlayer player, TileEntityHeater te) {
+	public ContainerHeater(EntityPlayer player, TileEntity te) {
 		super(player, te);
 		lowerInv = (IInventory)te;
 		int numRows = lowerInv.getSizeInventory() / 9;

@@ -9,18 +9,7 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Processing;
 
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
-import Reika.DragonAPI.Auxiliary.Trackers.ItemMaterialController;
+import Reika.DragonAPI.Auxiliary.ItemMaterialController;
 import Reika.DragonAPI.Instantiable.HybridTank;
 import Reika.DragonAPI.Instantiable.ItemMaterial;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
@@ -39,8 +28,21 @@ import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
 
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
+
 public class TileEntityPulseFurnace extends InventoriedPowerReceiver implements TemperatureTE, PipeConnector, IFluidHandler, DiscreteFunction, ConditionalOperation {
 
+	/** The number of ticks that the current item has been cooking for */
 	public int pulseFurnaceCookTime;
 
 	public static final int CAPACITY = 3000;
@@ -245,14 +247,12 @@ public class TileEntityPulseFurnace extends InventoriedPowerReceiver implements 
 			if (temperature >= 980) //8x speed if about to fail
 				smelttick += tick*4;
 		}
-		else {
+		else
 			smelttick = 0;
-		}
 		if (smelttick < SMELTTICKS && !flag2)
 			return;
-		if (smelttick > SMELTTICKS)
-			smelttick = SMELTTICKS;
 		flag2 = true;
+		smelttick = 0;
 		//ModLoader.getMinecraftInstance().ingameGUI.addChatMessage(String.format("%d  %d  %d", this.power, this.omega, this.torque));
 		if (!worldObj.isRemote) {
 			flag1 = true;
@@ -263,7 +263,6 @@ public class TileEntityPulseFurnace extends InventoriedPowerReceiver implements 
 					pulseFurnaceCookTime = 0;
 					this.smeltItem();
 					flag1 = true;
-					smelttick = 0;
 					//flag2 = false;
 				}
 			}

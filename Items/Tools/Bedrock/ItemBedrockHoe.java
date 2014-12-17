@@ -9,6 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Bedrock;
 
+import Reika.DragonAPI.Interfaces.IndexedItemSprites;
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -16,11 +22,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemHoe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Interfaces.IndexedItemSprites;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Registry.ItemRegistry;
 
 public class ItemBedrockHoe extends ItemHoe implements IndexedItemSprites {
 
@@ -77,7 +78,7 @@ public class ItemBedrockHoe extends ItemHoe implements IndexedItemSprites {
 					boolean flag2 = super.onItemUse(is, ep, world, dx, y, dz, s, ax, bx, cx);
 					flag = flag2 || flag;
 					if (flag2) {
-						world.setBlockMetadataWithNotify(dx, y, dz, 2, 3);
+						//world.setBlockMetadataWithNotify(dx, y, dz, 2, 3);
 						//ReikaItemHelper.dropItem(world, dx+0.5, y+1.2, dz+0.5, new ItemStack(Items.wheat_seeds));
 					}
 					//ReikaJavaLibrary.pConsole((dx)+", "+y+", "+(dz);

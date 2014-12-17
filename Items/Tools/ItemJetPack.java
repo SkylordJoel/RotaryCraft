@@ -9,7 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools;
 
-import java.util.ArrayList;
+import Reika.DragonAPI.Auxiliary.KeyWatcher;
+import Reika.DragonAPI.Auxiliary.KeyWatcher.Key;
+import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.API.Fillable;
+import Reika.RotaryCraft.Base.ItemRotaryArmor;
+import Reika.RotaryCraft.Items.Tools.Bedrock.ItemBedrockArmor;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.SoundRegistry;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,56 +35,15 @@ import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
-import Reika.DragonAPI.Auxiliary.Trackers.KeyWatcher;
-import Reika.DragonAPI.Auxiliary.Trackers.KeyWatcher.Key;
-import Reika.DragonAPI.Interfaces.MultiLayerItemSprite;
-import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaArrayHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.API.Fillable;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Base.ItemRotaryArmor;
-import Reika.RotaryCraft.Items.Tools.Bedrock.ItemBedrockArmor;
-import Reika.RotaryCraft.Items.Tools.Steel.ItemSteelArmor;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.SoundRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayerItemSprite {
+public class ItemJetPack extends ItemRotaryArmor implements Fillable {
+
+	private static final HashMap<String, Long> onGround = new HashMap();
 
 	public ItemJetPack(ArmorMaterial mat, int tex, int render) {
 		super(mat, render, 1, tex);
-	}
-
-	public static enum PackUpgrades {
-		WING("Winged"),
-		JET("Thrust Boost"),
-		COOLING("Fin-Cooled");
-
-		public final String label;
-
-		private static final PackUpgrades[] list = values();
-
-		private PackUpgrades(String s) {
-			label = s;
-		}
-
-		public boolean existsOn(ItemStack is) {
-			return is.stackTagCompound != null && is.stackTagCompound.getBoolean(this.getNBT());
-		}
-
-		private String getNBT() {
-			return this.name().toLowerCase();
-		}
-
-		public void enable(ItemStack is, boolean set) {
-			if (is.stackTagCompound == null)
-				is.stackTagCompound = new NBTTagCompound();
-			is.stackTagCompound.setBoolean(this.getNBT(), set);
-		}
 	}
 
 	public int getFuel(ItemStack is) {
@@ -89,13 +58,68 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 		if (newFuel < 0)
 			newFuel = 0;
 
-		if (is.stackTagCompound == null)
+		NBTTagCompound nbt = is.stackTagCompound;
+		if (nbt == null)
 			is.stackTagCompound = new NBTTagCompound();
-		this.setFuel(is, this.getCurrentFluid(is), newFuel);
+		nbt.setInteger("fuel", newFuel);
 	}
-	/*
+
 	public Fluid getFuelType() {
 		return ConfigRegistry.JETFUELPACK.getState() ? FluidRegistry.getFluid("jet fuel") : FluidRegistry.getFluid("rc ethanol");
+	}
+	/*
+	public boolean useJetpack(EntityPlayer player)
+	{
+		int px = (int) Math.floor(player.posX);
+		int py = (int) Math.floor(player.posY);
+		double y = player.posY;
+		int pz = (int) Math.floor(player.posZ);
+
+		ItemStack jetpack = player.inventory.armorInventory[2];
+
+		int chg = this.getFuel(jetpack);
+		if (chg == 0)
+			return false;
+		if (player.ridingEntity != null)
+			return false;
+
+		float power = 0.03875F;
+
+		double max = this.getMaxFuel(jetpack);
+
+		int maxh = player.worldObj.provider.getActualHeight();
+		if (y > maxh)
+			power = 0.005F;
+		else if (maxh-y < 20) {
+			double factor = (maxh-y)/8D;
+			power = 0.005F+(float)(power*factor*factor);
+		}
+
+		boolean hover = false;
+		boolean fwd = false;
+
+		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT && Keyboard.isKeyDown(ReikaKeyHelper.getForwardKey())) {
+			//power += 100;
+			fwd = true;
+		}
+
+		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT && Keyboard.isKeyDown(ReikaKeyHelper.getSneakKey())) {
+			hover = true;
+		}
+
+		player.playSound(SoundRegistry.JETPACK.getPlayableReference(), 0.5F, 1);
+
+		int id = PacketRegistry.JETPACK.getMinValue();
+		if (hover && fwd)
+			ReikaPacketHelper.sendFloatPacket(RotaryCraft.packetChannel, id+2, player.worldObj, px, py, pz, power);
+		else if (hover)
+			ReikaPacketHelper.sendFloatPacket(RotaryCraft.packetChannel, id+1, player.worldObj, px, py, pz, power);
+		else
+			ReikaPacketHelper.sendFloatPacket(RotaryCraft.packetChannel, id, player.worldObj, px, py, pz, power);
+
+		//player.motionY = Math.min(player.motionY + power * 0.2F, 0.6000000238418579D);
+
+		return true;
 	}*/
 
 	@Override
@@ -103,7 +127,7 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 	{
 		boolean flying = this.useJetpack(player, is);
 
-		if (!PackUpgrades.COOLING.existsOn(is)) {
+		if (ConfigRegistry.EXPLODEPACK.getState()) {
 			if (this.getCurrentFillLevel(is) > 0) {
 				if (player.handleLavaMovement() && world.difficultySetting != EnumDifficulty.PEACEFUL) {
 					this.explode(world, player);
@@ -117,20 +141,10 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 
 	private boolean useJetpack(EntityPlayer ep, ItemStack is) {
 		boolean isFlying = KeyWatcher.instance.isKeyDown(ep, Key.JUMP);
-		boolean hoverMode = isFlying && ep.isSneaking();
-		boolean jetbonus = !ConfigRegistry.JETFUELPACK.getState() && this.isJetFueled(is);
-		boolean horiz = KeyWatcher.instance.isKeyDown(ep, Key.FOWARD) || KeyWatcher.instance.isKeyDown(ep, Key.BACK);
-		horiz = horiz || KeyWatcher.instance.isKeyDown(ep, Key.LEFT) || KeyWatcher.instance.isKeyDown(ep, Key.RIGHT);
-		float maxSpeed = jetbonus ? 3 : 1.25F;
+		boolean hoverMode = isFlying && KeyWatcher.instance.isKeyDown(ep, Key.SNEAK);
+		float maxSpeed = 1.25F;
 		double hspeed = ReikaMathLibrary.py3d(ep.motionX, 0, ep.motionZ);
-		boolean winged = PackUpgrades.WING.existsOn(is);
-		boolean propel = PackUpgrades.JET.existsOn(is) && this.isJetFueled(is);
-		boolean floatmode = !hoverMode;
-		float thrust = winged ? 0.15F : hoverMode ? 0.05F : 0.1F;
-		if (propel)
-			thrust *= hoverMode ? 2 : 4;
-		if (jetbonus)
-			thrust *= 1.25F;
+		float thrust = hoverMode ? 0.1F : 0.2F;
 
 		boolean canFly = !hoverMode || (!ep.onGround && ep.motionY < 0);
 		if (isFlying && canFly) {
@@ -148,9 +162,6 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 				}
 				else {
 					double deltav = ep.motionY > 0 ? Math.min(0.2, Math.max(0.05, (maxSpeed-ep.motionY)*0.25)) : 0.2;
-					if (jetbonus && !horiz) {
-						deltav *= 1.5;
-					}
 					ep.motionY = Math.min(ep.motionY+deltav, maxSpeed);
 				}
 
@@ -186,53 +197,17 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 
 				float pitch = 1+0.5F*(float)Math.sin((ep.worldObj.getWorldTime()*2)%360);
 				SoundRegistry.JETPACK.playSound(ep.worldObj, ep.posX, ep.posY, ep.posZ, 0.75F, pitch);
-				if (propel) {
-					SoundRegistry.SHORTJET.playSound(ep.worldObj, ep.posX, ep.posY, ep.posZ, 0.15F, 1F);
-				}
 			}
-		}
-
-		if (ep.motionY < 0 && winged && floatmode && !ep.isPlayerSleeping()) {
-			boolean sneak = ep.isSneaking();
-			double ang = Math.cos(Math.toRadians(ep.rotationPitch));
-			double d = ep.motionY <= -2 ? 0.0625 : ep.motionY <= -1 ? 0.125 : ep.motionY <= -0.5 ? 0.25 : 0.5; //gives curve
-			if (sneak)
-				d *= 0.125; //was 0.25
-			double fac = 1-(d*ang);
-			ep.motionY *= fac;
-			fac *= sneak ? 0.999 : 0.9;
-			ep.fallDistance *= fac;
-			//double diff = 0.5*ang*ep.motionY;
-			//double maxdecel = jetbonus ? 0.0625 : 0.03125;
-			//ep.motionY -= Math.min(diff, maxdecel);
-			double dv = /*sneak ? 0.15 :*/ 0.05;
-			double vh = ep.onGround ? 0 : dv*ang;
-			double vx = Math.cos(Math.toRadians(ep.rotationYawHead + 90))*vh;
-			double vz = Math.sin(Math.toRadians(ep.rotationYawHead + 90))*vh;
-			ep.motionX += vx;
-			ep.motionZ += vz;
 		}
 		return isFlying;
 	}
 
-	public ItemStack getMaterial() {
-		return this.isBedrock() ? ItemStacks.bedingot : ItemStacks.steelingot;
-	}
-
-	public boolean isBedrock() {
-		return this == ItemRegistry.BEDPACK.getItemInstance();
-	}
-
-	public boolean isSteel() {
-		return this == ItemRegistry.STEELPACK.getItemInstance();
-	}
-
 	private int getFuelUsageMultiplier() {
-		return this.isBedrock() ? 2 : 1;
+		return this == ItemRegistry.BEDPACK.getItemInstance() ? 2 : 1;
 	}
 
 	private void explode(World world, EntityPlayer player) {
-		ItemStack to = this.isBedrock() ? ItemRegistry.BEDCHEST.getEnchantedStack() : this.isSteel() ? ItemRegistry.STEELCHEST.getStackOf() : null;
+		ItemStack to = this == ItemRegistry.BEDPACK.getItemInstance() ? ItemRegistry.BEDCHEST.getEnchantedStack() : null;
 		player.setCurrentItemOrArmor(3, to);
 		world.createExplosion(player, player.posX, player.posY, player.posZ, 2, false);
 		double v = 4;
@@ -249,14 +224,10 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 
 	@Override
 	public void addInformation(ItemStack is, EntityPlayer ep, List li, boolean par4) {
-		for (int i = 0; i < PackUpgrades.list.length; i++) {
-			PackUpgrades pack = PackUpgrades.list[i];
-			if (pack.existsOn(is)) {
-				li.add(pack.label);
-			}
-		}
-		int ch = is.stackTagCompound != null ? is.stackTagCompound.getInteger("fuel") : 0;
-		li.add(ch > 0 ? String.format("Fuel: %d mB of %s", ch, this.getCurrentFluid(is).getLocalizedName()) : "No Fuel");
+		if (is.stackTagCompound == null)
+			return;
+		int ch = is.stackTagCompound.getInteger("fuel");
+		li.add(String.format("Fuel: %d mB", ch));
 	}
 
 	@Override
@@ -264,28 +235,16 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 	public void getSubItems(Item id, CreativeTabs cr, List li) //Adds the metadata blocks to the creative inventory
 	{
 		ItemStack is = new ItemStack(id, 1, 0);
-		if (this.isBedrock()) {
+		if (this == ItemRegistry.BEDPACK.getItemInstance()) {
 			HashMap<Enchantment, Integer> ench = ((ItemBedrockArmor)ItemRegistry.BEDCHEST.getItemInstance()).getDefaultEnchantments();
 			ReikaEnchantmentHelper.applyEnchantments(is, ench);
 		}
-		ItemStack is2 = is.copy();
-		ItemStack is3 = is.copy();
-		Fluid f = ConfigRegistry.JETFUELPACK.getState() ? FluidRegistry.getFluid("jet fuel") : FluidRegistry.getFluid("rc ethanol");
-		this.setFuel(is, f, this.getMaxFuel(is));
-		this.setFuel(is3, FluidRegistry.getFluid("jet fuel"), this.getMaxFuel(is3));
-		ItemStack is5 = is3.copy();
-		PackUpgrades.WING.enable(is3, true);
-		for (int i = 0; i < PackUpgrades.list.length; i++) {
-			PackUpgrades pack = PackUpgrades.list[i];
-			pack.enable(is3, true);
-		}
+		if (is.stackTagCompound == null)
+			is.stackTagCompound = new NBTTagCompound();
+		is.stackTagCompound.setInteger("fuel", this.getMaxFuel(is));
 		ItemRegistry ir = ItemRegistry.getEntry(is);
-		if (ir.isAvailableInCreativeInventory()) {
-			li.add(is2);
+		if (ir.isAvailableInCreativeInventory())
 			li.add(is);
-			li.add(is5);
-			li.add(is3);
-		}
 	}
 	/*
 	@Override
@@ -300,16 +259,7 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 
 	@Override
 	public boolean isValidFluid(Fluid f, ItemStack is) {
-		Fluid f2 = this.getCurrentFluid(is);
-		if (f2 != null && !f2.equals(f2))
-			return false;
-		if (f.equals(FluidRegistry.getFluid("jet fuel")))
-			return true;
-		if (f.equals(FluidRegistry.getFluid("rocket fuel")))
-			return true;
-		if (f.equals(FluidRegistry.getFluid("rc ethanol")))
-			return !ConfigRegistry.JETFUELPACK.getState();
-		return false;
+		return f.equals(this.getFuelType());
 	}
 
 	@Override
@@ -322,26 +272,14 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 		return this.getFuel(is);
 	}
 
-	private void setFuel(ItemStack is, Fluid f, int amt) {
-		if (is.stackTagCompound == null)
-			is.stackTagCompound = new NBTTagCompound();
-		is.stackTagCompound.setInteger("fuel", amt);
-		if (amt > 0) {
-			ReikaNBTHelper.writeFluidToNBT(is.stackTagCompound, f);
-		}
-		else {
-			ReikaNBTHelper.writeFluidToNBT(is.stackTagCompound, null);
-		}
-	}
-
 	@Override
 	public int addFluid(ItemStack is, Fluid f, int amt) {
-		if (f == null || !this.isValidFluid(f, is))
+		if (f == null || !f.equals(this.getFuelType()))
 			return 0;
 		NBTTagCompound nbt = is.stackTagCompound;
 		if (nbt == null) {
 			is.stackTagCompound = new NBTTagCompound();
-			this.setFuel(is, f, amt);
+			is.stackTagCompound.setInteger("fuel", amt);
 			return amt;
 		}
 		else {
@@ -349,31 +287,25 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 			int cur = nbt.getInteger("fuel");
 			int sum = cur+amt;
 			if (sum > cap) {
-				this.setFuel(is, f, cap);
+				is.stackTagCompound.setInteger("fuel", cap);
 				return cap-cur;
 			}
 			else {
-				this.setFuel(is, f, sum);
+				is.stackTagCompound.setInteger("fuel", sum);
 				return amt;
 			}
 		}
 	}
-	/*
+
 	@Override
 	public int getItemSpriteIndex(ItemStack item) {
 		ItemRegistry ir = ItemRegistry.getEntry(item);
 		return ir != null ? ir.getTextureIndex() : 0;
 	}
-	 *//*
-	@Override
-	public int getItemSpriteIndex(ItemStack item) {
-		int a = this.isWinged(item) ? 32 : 0;
-		return a+super.getItemSpriteIndex(item);
-	}*/
 
 	@Override
 	public boolean providesProtection() {
-		return this.isBedrock() || this.isSteel();
+		return this == ItemRegistry.BEDPACK.getItemInstance();
 	}
 
 	@Override
@@ -383,12 +315,8 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 
 	@Override
 	public double getDamageMultiplier(DamageSource src) {
-		if (this.isBedrock())
-			return ((ItemBedrockArmor)ItemRegistry.BEDCHEST.getItemInstance()).getDamageMultiplier(src);
-		else if (this.isSteel())
-			return ((ItemSteelArmor)ItemRegistry.STEELCHEST.getItemInstance()).getDamageMultiplier(src);
-		else
-			return 1;
+		ItemBedrockArmor arm = (ItemBedrockArmor)ItemRegistry.BEDCHEST.getItemInstance();
+		return this == ItemRegistry.BEDPACK.getItemInstance() ? arm.getDamageMultiplier(src) : 1;
 	}
 
 	@Override
@@ -398,30 +326,6 @@ public class ItemJetPack extends ItemRotaryArmor implements Fillable, MultiLayer
 
 	@Override
 	public Fluid getCurrentFluid(ItemStack is) {
-		if (is.stackTagCompound == null)
-			return null;
-		int lvl = this.getCurrentFillLevel(is);
-		Fluid f = ReikaNBTHelper.getFluidFromNBT(is.stackTagCompound);
-		if (lvl > 0 && f == null) {
-			this.setFuel(is, null, 0);
-			return null;
-		}
-		return lvl > 0 ? f : null;
-	}
-
-	public boolean isJetFueled(ItemStack is) {
-		Fluid f = this.getCurrentFluid(is);
-		return f != null && f.equals(FluidRegistry.getFluid("jet fuel"));
-	}
-
-	@Override
-	public int[] getIndices(ItemStack is) {
-		ArrayList li = new ArrayList();
-		li.add(this.getItemSpriteIndex(is));
-		if (PackUpgrades.WING.existsOn(is)) {
-			int w = this.isBedrock() ? 59 : this.isSteel() ? 61 : 60;
-			li.add(w);
-		}
-		return ReikaArrayHelper.intListToArray(li);
+		return this.getCurrentFillLevel(is) > 0 ? this.getFuelType() : null;
 	}
 }

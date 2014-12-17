@@ -9,15 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Processing;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Instantiable.StepTimer;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
@@ -33,7 +24,15 @@ import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerLiquidReceiver;
 import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
+
+import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 
 public class TileEntityCrystallizer extends InventoriedPowerLiquidReceiver implements TemperatureTE, DiscreteFunction, ConditionalOperation {
 
@@ -43,7 +42,7 @@ public class TileEntityCrystallizer extends InventoriedPowerLiquidReceiver imple
 
 	private int temperature;
 
-	public int freezeTick;
+	public int smeltTick;
 
 	@Override
 	public boolean canExtractItem(int i, ItemStack itemstack, int j) {
@@ -78,9 +77,9 @@ public class TileEntityCrystallizer extends InventoriedPowerLiquidReceiver imple
 			}
 			else
 				timer.reset();
-
-			freezeTick = timer.getTick();
 		}
+
+		smeltTick = timer.getTick();
 
 		sound.update();
 		if (omega > 0) {
@@ -116,7 +115,7 @@ public class TileEntityCrystallizer extends InventoriedPowerLiquidReceiver imple
 	}
 
 	public int getProgressScaled(int s) {
-		return s * freezeTick / timer.getCap();
+		return s * smeltTick / timer.getCap();
 	}
 
 	public int getLiquidScaled(int s) {
@@ -145,7 +144,7 @@ public class TileEntityCrystallizer extends InventoriedPowerLiquidReceiver imple
 
 	@Override
 	public boolean isValidFluid(Fluid f) {
-		return RecipesCrystallizer.getRecipes().isValidFluid(f);
+		return true;
 	}
 
 	@Override
@@ -194,8 +193,7 @@ public class TileEntityCrystallizer extends InventoriedPowerLiquidReceiver imple
 		if (ReikaWorldHelper.checkForAdjMaterial(world, x, y, z, Material.ice) != null)
 			Tamb -= 30;
 
-		ItemStack cryo = GameRegistry.findItemStack(ModList.THERMALFOUNDATION.modLabel, "dustCryotheum", 1);
-		if (ReikaItemHelper.matchStacks(ItemStacks.dryice, inv[1]) || (cryo != null && ReikaItemHelper.matchStacks(cryo, inv[1]))) {
+		if (ReikaItemHelper.matchStacks(ItemStacks.dryice, inv[1])) {
 			Tamb -= 40;
 			if (temperature > Tamb+4 || rand.nextInt(20) == 0)
 				ReikaInventoryHelper.decrStack(1, inv);

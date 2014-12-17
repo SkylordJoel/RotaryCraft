@@ -9,19 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.DragonAPI.ModInteract.ReikaBuildCraftHelper;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 import cofh.api.energy.IEnergyHandler;
-@Strippable(value = {"cofh.api.energy.IEnergyHandler"})
+
 public class TileEntityDynamo extends TileEntityPowerReceiver implements IEnergyHandler {
 
 	private ForgeDirection facingDir;
@@ -73,7 +73,7 @@ public class TileEntityDynamo extends TileEntityPowerReceiver implements IEnergy
 					TileEntity tile = world.getTileEntity(writex, writey, writez);
 					if (tile instanceof IEnergyHandler) {
 						IEnergyHandler rc = (IEnergyHandler)tile;
-						if (rc.canConnectEnergy(facingDir.getOpposite())) {
+						if (rc.canInterface(facingDir.getOpposite())) {
 							int rf = this.getGenRF();
 							float used = rc.receiveEnergy(facingDir.getOpposite(), rf, false);
 						}
@@ -122,7 +122,7 @@ public class TileEntityDynamo extends TileEntityPowerReceiver implements IEnergy
 
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
-		if (this.canConnectEnergy(from)) {
+		if (this.canInterface(from)) {
 			int rf = (int)((float)(power*10/ReikaBuildCraftHelper.getWattsPerMJ()));
 			//return rf;
 		}
@@ -130,7 +130,7 @@ public class TileEntityDynamo extends TileEntityPowerReceiver implements IEnergy
 	}
 
 	@Override
-	public boolean canConnectEnergy(ForgeDirection from) {
+	public boolean canInterface(ForgeDirection from) {
 		return from == facingDir;
 	}
 

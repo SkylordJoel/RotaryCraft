@@ -9,14 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
-import java.util.ArrayList;
-
-import net.minecraft.block.material.Material;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import Reika.DragonAPI.Interfaces.XPProducer;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.Java.ReikaRandomHelper;
@@ -36,6 +28,15 @@ import Reika.RotaryCraft.Base.TileEntity.InventoriedRCTileEntity;
 import Reika.RotaryCraft.Registry.DifficultyEffects;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.RotaryAchievements;
+
+import java.util.ArrayList;
+
+import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityBlastFurnace extends InventoriedRCTileEntity implements TemperatureTE, XPProducer, FrictionHeatable, DiscreteFunction, ConditionalOperation {
 
@@ -146,8 +147,6 @@ public class TileEntityBlastFurnace extends InventoriedRCTileEntity implements T
 						return;
 
 		xp += out.stackSize*bc.xp;
-		if (this.getPlacer() != null)
-			out.onCrafting(worldObj, this.getPlacer(), out.stackSize);
 
 		for (int i = 1; i < 10; i++) {
 			if (inv[i] != null)
@@ -302,13 +301,12 @@ public class TileEntityBlastFurnace extends InventoriedRCTileEntity implements T
 		}
 		ForgeDirection fireside = ReikaWorldHelper.checkForAdjBlock(world, x, y, z, Blocks.fire);
 		if (fireside != null) {
-			Tamb += Tamb >= 300 ? 100 : 200;
+			Tamb += 200;
 		}
 		ForgeDirection lavaside = ReikaWorldHelper.checkForAdjMaterial(world, x, y, z, Material.lava);
 		if (lavaside != null) {
-			Tamb += Tamb >= 300 ? 400 : 600;
+			Tamb += 600;
 		}
-
 		if (temperature > Tamb)
 			temperature--;
 		if (temperature > Tamb*2)

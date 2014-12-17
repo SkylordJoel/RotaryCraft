@@ -9,6 +9,20 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Storage;
 
+import Reika.DragonAPI.Instantiable.HybridTank;
+import Reika.DragonAPI.Instantiable.StepTimer;
+import Reika.DragonAPI.Libraries.ReikaAABBHelper;
+import Reika.DragonAPI.Libraries.ReikaNBTHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.Auxiliary.Interfaces.NBTMachine;
+import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
+import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.ArrayList;
 
 import net.minecraft.block.material.Material;
@@ -23,19 +37,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
-import Reika.DragonAPI.Instantiable.HybridTank;
-import Reika.DragonAPI.Instantiable.StepTimer;
-import Reika.DragonAPI.Libraries.ReikaAABBHelper;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.Auxiliary.Interfaces.NBTMachine;
-import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
-import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityReservoir extends RotaryCraftTileEntity implements PipeConnector, IFluidHandler, NBTMachine {
 
@@ -115,7 +116,6 @@ public class TileEntityReservoir extends RotaryCraftTileEntity implements PipeCo
 				boolean flammable = f.equals(FluidRegistry.getFluid("rc ethanol")) || f.equals(FluidRegistry.getFluid("jet fuel"));
 				flammable = flammable || f.equals(FluidRegistry.getFluid("oil")) || f.equals(FluidRegistry.getFluid("fuel"));
 				flammable = flammable || f.equals(FluidRegistry.getFluid("ethanol")) || f.equals(FluidRegistry.getFluid("creosote"));
-				flammable = flammable || f.equals(FluidRegistry.getFluid("biofuel")) || f.equals(FluidRegistry.getFluid("bioethanol"));
 				if (flammable) {
 					world.setBlockToAir(x, y, z);
 					world.newExplosion(null, x+0.5, y+0.5, z+0.5, 4, true, true);
@@ -158,6 +158,10 @@ public class TileEntityReservoir extends RotaryCraftTileEntity implements PipeCo
 		return false;
 	}
 
+
+	/**
+	 * Writes a tile entity to NBT.
+	 */
 	@Override
 	protected void writeSyncTag(NBTTagCompound NBT)
 	{
@@ -202,7 +206,7 @@ public class TileEntityReservoir extends RotaryCraftTileEntity implements PipeCo
 
 	@Override
 	public boolean canConnectToPipe(MachineRegistry m) {
-		return m.isStandardPipe() || m == MachineRegistry.HOSE || m == MachineRegistry.FUELLINE || m == MachineRegistry.VALVE;
+		return m == MachineRegistry.PIPE || m == MachineRegistry.HOSE || m == MachineRegistry.FUELLINE || m == MachineRegistry.VALVE;
 	}
 
 	@Override
@@ -322,10 +326,9 @@ public class TileEntityReservoir extends RotaryCraftTileEntity implements PipeCo
 
 	@Override
 	public NBTTagCompound getTagsToWriteToStack() {
-		NBTTagCompound NBT = new NBTTagCompound();
-		NBT.setBoolean("cover", isCovered);
 		if (this.isEmpty())
-			return NBT;
+			return null;
+		NBTTagCompound NBT = new NBTTagCompound();
 		Fluid f = this.getFluid();
 		int level = this.getLevel();
 		ReikaNBTHelper.writeFluidToNBT(NBT, f);
@@ -343,8 +346,8 @@ public class TileEntityReservoir extends RotaryCraftTileEntity implements PipeCo
 		int level = NBT.getInteger("lvl");
 		tank.setContents(level, f);
 
-		//isCreative = NBT.getBoolean("creative");
-		isCovered = NBT.getBoolean("cover");
+		if (NBT.getBoolean("creative"))
+			isCreative = true;
 	}
 
 	public ArrayList<String> getDisplayTags(NBTTagCompound nbt) {
@@ -359,8 +362,6 @@ public class TileEntityReservoir extends RotaryCraftTileEntity implements PipeCo
 				li.add(contents);
 			}
 		}
-		if (nbt.getBoolean("cover"))
-			li.add("Covered");
 		return li;
 	}
 

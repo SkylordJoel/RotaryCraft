@@ -9,6 +9,9 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.RotaryCraft.Auxiliary.WorldEditHelper;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Container;
@@ -19,8 +22,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.RotaryCraft.Auxiliary.WorldEditHelper;
 
 public class ContainerWorldEdit extends Container
 {

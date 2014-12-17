@@ -9,19 +9,7 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
-import java.awt.Color;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import Reika.DragonAPI.DragonAPICore;
-import Reika.DragonAPI.Instantiable.BlockKey;
 import Reika.DragonAPI.Libraries.IO.ReikaColorAPI;
 import Reika.DragonAPI.Libraries.Registry.ReikaDyeHelper;
 import Reika.DragonAPI.Libraries.Registry.ReikaOreHelper;
@@ -32,6 +20,18 @@ import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.API.BlockColorInterface;
 import Reika.RotaryCraft.Registry.BlockRegistry;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 
 public class BlockColorMapper {
 
@@ -253,10 +253,10 @@ this.addBlockColor(Blocks.packedIce, ReikaColorAPI.RGBtoHex(165, 195, 247)); //m
 	}
 
 	private void loadModData() {
-		Set<BlockKey> keys = BlockColorInterface.getMappedBlocks();
-		for (BlockKey key : keys) {
-			Block id = key.blockID;
-			int meta = key.metadata;
+		Set<ItemStack> keys = BlockColorInterface.getMappedBlocks();
+		for (ItemStack li : keys) {
+			Block id = Block.getBlockFromItem(li.getItem());
+			int meta = li.getItemDamage();
 			int color = BlockColorInterface.getColor(id, meta);
 			RotaryCraft.logger.log("Received mod request for block "+id+":"+meta+" to have color mapping "+color);
 			this.addOrSetColorMapping(id, meta, color, false);
@@ -326,8 +326,9 @@ this.addBlockColor(Blocks.packedIce, ReikaColorAPI.RGBtoHex(165, 195, 247)); //m
 		for (int i = 0; i < ModOreList.oreList.length; i++) {
 			ModOreList ore = ModOreList.oreList[i];
 			int color = ore.oreColor;
-			Collection<ItemStack> li = ore.getAllOreBlocks();
-			for (ItemStack is : li) {
+			ArrayList<ItemStack> li = ore.getAllOreBlocks();
+			for (int k = 0; k < li.size(); k++) {
+				ItemStack is = li.get(k);
 				Block id = Block.getBlockFromItem(is.getItem());
 				int meta = is.getItemDamage();
 				this.addOrSetColorMapping(id, meta, color, true);

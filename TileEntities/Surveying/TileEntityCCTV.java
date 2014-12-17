@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Surveying;
 
+import Reika.DragonAPI.Libraries.MathSci.ReikaPhysicsHelper;
+import Reika.RotaryCraft.Base.TileEntity.RemoteControlMachine;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,10 +23,6 @@ import net.minecraft.world.World;
 
 import org.lwjgl.input.Keyboard;
 
-import Reika.DragonAPI.Libraries.MathSci.ReikaPhysicsHelper;
-import Reika.RotaryCraft.Base.TileEntity.RemoteControlMachine;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 

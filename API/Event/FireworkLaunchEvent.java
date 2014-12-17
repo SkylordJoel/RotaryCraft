@@ -9,15 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.API.Event;
 
-import net.minecraft.entity.item.EntityFireworkRocket;
-import net.minecraft.tileentity.TileEntity;
 import Reika.DragonAPI.Instantiable.Event.TileEntityEvent;
+import Reika.RotaryCraft.TileEntities.Decorative.TileEntityFireworkMachine;
+
+import net.minecraft.entity.item.EntityFireworkRocket;
 
 public class FireworkLaunchEvent extends TileEntityEvent {
 
 	public final EntityFireworkRocket entity;
 
-	public FireworkLaunchEvent(TileEntity te, EntityFireworkRocket fw) {
+	public FireworkLaunchEvent(TileEntityFireworkMachine te, EntityFireworkRocket fw) {
 		super(te);
 
 		entity = fw;

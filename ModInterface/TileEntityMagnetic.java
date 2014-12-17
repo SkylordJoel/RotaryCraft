@@ -9,22 +9,22 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
-import java.awt.Color;
-
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.DragonAPI.ModInteract.ReikaBuildCraftHelper;
 import Reika.RotaryCraft.Base.TileEntity.EnergyToPowerBase;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
+
+import java.awt.Color;
+
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 import cofh.api.energy.IEnergyHandler;
 import cofh.api.energy.IEnergyStorage;
-@Strippable(value = {"cofh.api.energy.IEnergyHandler"})
+
 public class TileEntityMagnetic extends EnergyToPowerBase implements IEnergyHandler {
 
 	@Override
@@ -86,7 +86,7 @@ public class TileEntityMagnetic extends EnergyToPowerBase implements IEnergyHand
 
 	@Override
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
-		if (this.canConnectEnergy(from) && maxReceive >= this.getMinimumCurrent()) {
+		if (this.canInterface(from)) {
 			int amt = Math.min(maxReceive, this.getMaxStorage()-storedEnergy);
 			if (!simulate)
 				storedEnergy += amt;
@@ -95,32 +95,13 @@ public class TileEntityMagnetic extends EnergyToPowerBase implements IEnergyHand
 		return 0;
 	}
 
-	private int getMinimumCurrent() {
-		switch(this.getTier()) {
-		case 0:
-			return 1;
-		case 1:
-			return 3;
-		case 2:
-			return 24;
-		case 3:
-			return 187;
-		case 4:
-			return 1491;
-		case 5:
-			return 11925;
-		default:
-			return 0;
-		}
-	}
-
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
 		return 0;
 	}
 
 	@Override
-	public boolean canConnectEnergy(ForgeDirection from) {
+	public boolean canInterface(ForgeDirection from) {
 		return from == this.getFacing() && this.isValidSupplier(this.getAdjacentTileEntity(from));
 	}
 
@@ -136,16 +117,16 @@ public class TileEntityMagnetic extends EnergyToPowerBase implements IEnergyHand
 
 	@Override
 	public int getMaxStorage() {
-		return 1+this.getMinimumCurrent()*4;//ReikaMathLibrary.intpow2(10, this.getTier());//TileEntityPneumaticEngine.maxMJ*10;
+		return TileEntityPneumaticEngine.maxMJ*10;
 	}
 
 	@Override
-	protected int getIdealConsumedUnitsPerTick() {
-		return MathHelper.ceiling_double_int(this.getRFPerTick());
+	public int getConsumedUnitsPerTick() {
+		return MathHelper.ceiling_float_int(this.getRFPerTick());
 	}
 
-	private double getRFPerTick() {
-		return this.getPowerLevel()*10D/ReikaBuildCraftHelper.getWattsPerMJ();
+	public float getRFPerTick() {
+		return (float)(this.getPowerLevel()*10/ReikaBuildCraftHelper.getWattsPerMJ());
 	}
 
 	@Override

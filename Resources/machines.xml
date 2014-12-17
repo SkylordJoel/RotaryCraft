@@ -2,7 +2,7 @@
 <machines>
 	<bedrockbreaker>
 		<desc>
-			The bedrock breaker will, when sufficiently powered, gradually grind away at the bedrock blocks in front of it and move on to the next block. When each block is consumed, it will expel some bedrock dust, which can be used to make the highest tier of tools or shafts and gears - bedrock. This machine's operational speed goes up as the input speed does. This machine will NOT break the bedrock at layer 0.
+			The bedrock breaker will, when sufficiently powered, gradually grind away at the bedrock blocks in front of it with a 4-block range. When each block is consumed, it will expel some bedrock dust, which can be used to make the highest tier of tools or shafts and gears - bedrock. This machine's operational speed goes up as the input speed does. This machine will NOT break the bedrock at layer 0.
 		</desc>
 		<note>
 			Required Power: %dW
@@ -243,7 +243,7 @@
 	</playerdetector>
 	<spawnercontroller>
 		<desc>
-			The spawner controller hacks into the functioning of a monster spawner, allowing you to either shut it down completely, or to adjust the spawn rate as you see fit. The minimum allowable spawn rate is determined by the speed input.
+			The spawner controller hacks into the functioning of a monster spawner, allowing you to either shut it down completely, or to adjust the spawn rate as you see fit. The minimum allowable spawn rate is determined by the power input.
 		</desc>
 		<note>
 			Required Power: %dW
@@ -265,7 +265,7 @@
 		</desc>
 		<note>
 			Required Power: %dW
-			Range = 8+(Power*4)/%d m
+			Range = 8+Power/%d m
 			Power Input: Any side
 		</note>
 	</vacuum>
@@ -281,7 +281,7 @@
 	</woodcutter>
 	<ecu>
 		<desc>
-			The engine controller can throttle down the fuel-powered engines. When throttled down, they output their usual torque, but at a fraction of the speed. The benefit of this is that they consume fuel more slowly; slower speeds have greater efficiencies than faster ones, though turbine engines do not see as large a benefit. Modes are changed by right-clicking the ECU with a screwdriver. The ECU can also accept a redstone input, which will shut the engine down entirely.
+			The engine controller can throttle down the fuel-powered engines. When throttled down, they output their usual torque, but at a fraction of the speed. The benefit of this is that they consume fuel more slowly; slower speeds have greater efficiencies than faster ones. Modes are changed by right-clicking the ECU with a screwdriver. The ECU can also accept a redstone input, which will shut the engine down entirely.
 		</desc>
 		<note>
 			Available Modes:
@@ -332,7 +332,7 @@
 	</sonicweapon>
 	<blastfurnace>
 		<desc>
-			The blast furnace is the main way to make steel. Simply supply carbon (in the form of coal or coke) at the left, gunpowder at the bottom-left, sand in the top-left, and fill any or all of the middle nine slots with iron ingots. Heat the machine to %dC to start the alloying process. The machine will operate more efficiently with coke and with more slots full of iron. The coal is not fuel - an external heat source is required. This machine is also used to make bedrock ingots. To make that, put 4 bedrock dust in the left, one steel ingot in the top-left of the grid, and heat the machine to %dC.
+			The blast furnace is the main way to make steel. Simply supply carbon (in the form of coal or coke) at the left, gunpowder at the bottom-left, sand in the top-right, and fill any or all of the middle nine slots with iron ingots. Heat the machine to %dC to start the alloying process. The machine will operate more efficiently with coke and with more slots full of iron. The coal is not fuel - an external heat source is required. This machine is also used to make bedrock ingots. To make that, put 4 bedrock dust in the left, one steel ingot in the top-left of the grid, and heat the machine to 1000C.
 		</desc>
 		<note>
 			Steel Requirements: Coal/coke in left slot, gunpowder in bottom-left, sand in top-left, iron in middle slots
@@ -676,7 +676,7 @@
 	</terraformer>
 	<fuelenhancer>
 		<desc>
-			The fuel enhancer can take standard petroleum fuel, like that used by Combustion Engines, and then purify and refine it further, ultimately producing jet fuel. Note that the purification process causes an fourfold decrease in fuel volume, and that the machine still needs magma cream, blaze powder, netherrack dust, and tar.
+			The fuel enhancer can take standard petroleum fuel, like that used by Combustion Engines, and then purify and refine it further, ultimately producing jet fuel. Note that the purification process causes an twofold decrease in fuel volume, and that the machine still needs magma cream, blaze powder, netherrack dust, and tar.
 		</desc>
 		<note>
 			Required Power: %dW
@@ -759,7 +759,7 @@
 	</lavamaker>
 	<generator>
 		<desc>
-			The electric generator takes in shaft power and produces IC2 electrical power at a rate of %.0f W/EU. The total power output as well as EU packet size scales with the amount of power going in.
+			The electric generator takes in shaft power and produces electrical power. The voltage remains constant at %dV, but the current scales with the amount of power going in.
 		</desc>
 		<note>
 			Power Input: Back
@@ -767,7 +767,7 @@
 	</generator>
 	<electricmotor>
 		<desc>
-			The electric motor uses IC2 electrical power to produce shaft power. Use its GUI to choose the speed output. Higher power outputs will require more electrical power and a higher supply voltage.
+			The electric motor uses UE electrical power to produce shaft power. Use its GUI to choose the speed output. Higher power outputs will require more electrical power and a higher supply voltage.
 		</desc>
 		<note>
 			Wire Connection: Back
@@ -815,17 +815,9 @@
 		<note>
 		</note>
 	</separation>
-	<bedpipe>
-		<desc>
-			The bedrock pipe is identical to the steel pipe except that it is able to withstand far higher pressures and temperatures.
-		</desc>
-		<note>
-
-		</note>
-	</bedpipe>
 	<aggregator>
 		<desc>
-			The dew point aggregator centrifuges water vapor out of the air, collecting it and if possible, sending it into nearby piping or liquid containers. This machine even works in the Nether, though it will be slowed. It must be cooled to below ambient temperature to function. More torque means more water per cycle while more speed means faster cycles.
+			The dew point aggregator centrifuges water vapor out of the air, collecting it and if possible, sending it into nearby piping or liquid containers. This machine even works in the Nether, though it will be slowed. It must be cooled to below ambient temperature to function.
 		</desc>
 		<note>
 			Required Power: %dW
@@ -858,9 +850,9 @@
 			The sonic borer uses shock waves to dig tunnels. This allows it to be aimed in any direction and work more quickly than the standard borer. The only disadvantage is the sonic borer drops the blocks at their original locations, rather than transporting them to the machine for easy collection. If you supply too much power, this machine will suffer a violent failure.
 		</desc>
 		<note>
-			Required Power: %dW
-			Required Torque: %d Nm
-			Power Input: Back
+		Required Power: %dW
+		Required Torque: %d Nm
+		Power Input: Back
 		</note>
 	</sonicborer>
 	<sorting>
@@ -936,7 +928,7 @@
 	</dynamo>
 	<magnetic>
 		<desc>
-			The magnetostatic engine functions much like the pneumatic engine. It accepts RF provided to it, and its output speed can be selected to choose the total power output.
+			The magnetostatic engine functions much like the pneumatic engine. It accumulates RF provided to it, and its output speed can be selected to choose the total power output.
 		</desc>
 		<note>
 			Conduit Input: Back
@@ -1013,12 +1005,11 @@
 			Power Input: Bottom
 			Required Power: %dW
 			Required Torque: %d Nm
-			Storage Capacity: f*10^(0.5*log_2(torque))/40 mB, f = 1 for liquids and 8 for gases
 		</note>
 	</gastank>
 	<crafter>
 		<desc>
-			The autocrafter allows you to automate crafting of anything from the vanilla crafting table. It has two modes: In autonomous mode, it continuously crafts as long as it has ingredients to do so; in request mode, it will craft one cycle of the requested items and then sit idle. It can read any inventory above it or it can draw from an Applied Energistics network for its ingredient supply. This machine can store 18 patterns, and thus can craft 18 recipes in parallel.
+			The autocrafter allows you to automate crafting of anything from the vanilla crafting table or the worktable, with an infinite capacity for ingredients. It has two modes: In autonomous mode, it continuously crafts as long as it has ingredients to do so; in request mode, it will craft the requested items and then sit idle. Ingredients can be pumped in any side, and products can be pumped out any side. Ingredients can only be extracted from the bottom. The machine can store up to 54 crafting recipe patterns.
 		</desc>
 		<note>
 			Power Input: Any Side
@@ -1055,12 +1046,4 @@
 			Power Input: Bottom
 		</note>
 	</centrifuge>
-	<drying>
-		<desc>
-			The drying bed is where some liquids can evaporate or coagulate to leave other items behind.
-		</desc>
-		<note>
-			
-		</note>
-	</drying>
 </machines>

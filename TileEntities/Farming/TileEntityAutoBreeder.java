@@ -9,6 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Farming;
 
+import Reika.DragonAPI.Libraries.ReikaEntityHelper;
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
+import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
+import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.List;
 
 import net.minecraft.entity.passive.EntityAnimal;
@@ -19,14 +28,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.ReikaEntityHelper;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
-import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
-import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityAutoBreeder extends InventoriedPowerReceiver implements RangedEffect, ConditionalOperation {
 
@@ -78,7 +79,7 @@ public class TileEntityAutoBreeder extends InventoriedPowerReceiver implements R
 		if (power < MINPOWER)
 			return;
 		this.testIdle();
-		List<EntityAnimal> inrange = this.getEntities(world, x, y, z);
+		List inrange = this.getEntities(world, x, y, z, EntityAnimal.class);
 		this.breed(world, x, y, z, inrange);
 	}
 
@@ -110,13 +111,14 @@ public class TileEntityAutoBreeder extends InventoriedPowerReceiver implements R
 		ReikaInventoryHelper.decrStack(slot, inv);
 	}
 
-	private void breed(World world, int x, int y, int z, List<EntityAnimal> inroom) {
+	private void breed(World world, int x, int y, int z, List inroom) {
 		boolean pathing = false;
 		if (tickcount >= 20) {
 			tickcount = 0;
 			pathing = true;
 		}
-		for (EntityAnimal ent : inroom) {
+		for (int i = 0; i < inroom.size(); i++) {
+			EntityAnimal ent = (EntityAnimal)inroom.get(i);
 			//ReikaJavaLibrary.pConsole(this.canBreed(ent)+" for "+ent.getCommandSenderName());
 			if (this.canBreed(ent)) {
 				if (!(ent instanceof EntityTameable) || (ent instanceof EntityTameable && !((EntityTameable)ent).isSitting())) {
@@ -147,9 +149,9 @@ public class TileEntityAutoBreeder extends InventoriedPowerReceiver implements R
 		}
 	}
 
-	private List<EntityAnimal> getEntities(World world, int x, int y, int z) {
+	private List getEntities(World world, int x, int y, int z, Class entity) {
 		AxisAlignedBB room = this.getBox(x, y, z, this.getRange());
-		List inroom = world.getEntitiesWithinAABB(EntityAnimal.class, room);
+		List inroom = world.getEntitiesWithinAABB(entity, room);
 		return inroom;
 	}
 

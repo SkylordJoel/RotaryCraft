@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft;
 
+import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
+import Reika.RotaryCraft.Auxiliary.Interfaces.ConnectedTextureGlass;
+import Reika.RotaryCraft.Registry.BlockRegistry;
+import Reika.RotaryCraft.TileEntities.TileEntityDecoTank;
+
 import java.util.ArrayList;
 
 import net.minecraft.block.Block;
@@ -21,10 +26,6 @@ import net.minecraftforge.fluids.Fluid;
 
 import org.lwjgl.opengl.GL11;
 
-import Reika.DragonAPI.Interfaces.ConnectedTextureGlass;
-import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
-import Reika.RotaryCraft.Registry.BlockRegistry;
-import Reika.RotaryCraft.TileEntities.TileEntityDecoTank;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
 
@@ -303,13 +304,13 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 					v5.setNormal(0, 1, 0);
 					ReikaLiquidRenderer.bindFluidTexture(f);
 					if (f.getLuminosity() > 0) {
+						v5.setColorOpaque(255, 255, 255);
 						v5.setBrightness(240);
 						//ReikaRenderHelper.disableLighting();
 					}
 					else {
 						v5.setBrightness(mix);
 					}
-					v5.setColorOpaque_I(f.getColor());
 					IIcon ico = f.getIcon();
 					float u = ico.getMinU();
 					float du = ico.getMaxU();
@@ -379,10 +380,6 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 			//ReikaRenderHelper.enableLighting();
 		}
 
-		v5.addVertex(0, 0, 0);
-		v5.addVertex(0, 0, 0);
-		v5.addVertex(0, 0, 0);
-		v5.addVertex(0, 0, 0);
 		v5.addTranslation(-x, -y, -z);
 		return true;
 	}

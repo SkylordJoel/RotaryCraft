@@ -9,16 +9,7 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper;
 import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.DragonAPI.Libraries.World.ReikaRedstoneHelper;
@@ -29,31 +20,31 @@ import Reika.RotaryCraft.Base.ItemChargedArmor;
 import Reika.RotaryCraft.Base.ItemChargedTool;
 import Reika.RotaryCraft.Base.TileEntity.InventoriedRCTileEntity;
 import Reika.RotaryCraft.Containers.ContainerWorktable;
-import Reika.RotaryCraft.Items.Tools.ItemJetPack;
-import Reika.RotaryCraft.Items.Tools.ItemJetPack.PackUpgrades;
-import Reika.RotaryCraft.Items.Tools.Bedrock.ItemBedrockArmor.HelmetUpgrades;
-import Reika.RotaryCraft.Registry.EngineType;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 public class TileEntityWorktable extends InventoriedRCTileEntity {
 
 	public boolean craftable = false;
 	private ItemStack toCraft;
 	private boolean lastPower;
-	private boolean hasProgram;
 
 	@Override
 	public void updateEntity(World world, int x, int y, int z, int meta) {
 		if (!world.isRemote) {
 			this.chargeTools();
 			this.makeJetplate();
-			this.makeJetPropel();
-			this.coolJetpacks();
-			this.wingJetpacks();
 			this.makeBedjump();
-			this.makeNightHelmet();
 
 			if (!world.isRemote && ReikaRedstoneHelper.isPositiveEdge(world, x, y, z, lastPower)) {
 				if (!this.craft()) {
@@ -62,80 +53,6 @@ public class TileEntityWorktable extends InventoriedRCTileEntity {
 				}
 			}
 			lastPower = world.isBlockIndirectlyGettingPowered(x, y, z);
-		}
-	}
-
-	private void makeNightHelmet() {
-		int armorslot = ReikaInventoryHelper.locateInInventory(ItemRegistry.BEDHELM.getItemInstance(), inv);
-		int visslot = ReikaInventoryHelper.locateInInventory(ItemRegistry.NVG.getItemInstance(), inv);
-		if (visslot != -1 && armorslot != -1 && ReikaInventoryHelper.hasNEmptyStacks(inv, 25)) {
-			inv[visslot] = null;
-			inv[armorslot] = null;
-			ItemStack is = inv[armorslot].copy();
-			HelmetUpgrades.NIGHTVISION.enable(is, true);
-			inv[9] = is;
-		}
-	}
-
-	private void coolJetpacks() {
-		ItemStack is = inv[4];
-		if (is != null) {
-			Item item = is.getItem();
-			if (item instanceof ItemJetPack) {
-				ItemJetPack pack = (ItemJetPack)item;
-				if (!PackUpgrades.COOLING.existsOn(is)) {
-					boolean items = ReikaItemHelper.matchStacks(inv[3], MachineRegistry.COOLINGFIN.getCraftedProduct());
-					items &= ReikaItemHelper.matchStacks(inv[5], MachineRegistry.COOLINGFIN.getCraftedProduct());
-					if (items) {
-						ReikaInventoryHelper.decrStack(3, inv);
-						ReikaInventoryHelper.decrStack(5, inv);
-						PackUpgrades.COOLING.enable(is, true);
-						inv[13] = is.copy();
-						inv[4] = null;
-					}
-				}
-			}
-		}
-	}
-
-	private void makeJetPropel() {
-		ItemStack is = inv[4];
-		if (is != null) {
-			Item item = is.getItem();
-			if (item instanceof ItemJetPack) {
-				ItemJetPack pack = (ItemJetPack)item;
-				if (!PackUpgrades.JET.existsOn(is)) {
-					if (ReikaItemHelper.matchStacks(inv[7], EngineType.JET.getCraftedProduct())) {
-						ReikaInventoryHelper.decrStack(7, inv);
-						PackUpgrades.JET.enable(is, true);
-						inv[13] = is.copy();
-						inv[4] = null;
-					}
-				}
-			}
-		}
-	}
-
-	private void wingJetpacks() {
-		ItemStack is = inv[4];
-		if (is != null) {
-			Item item = is.getItem();
-			if (item instanceof ItemJetPack) {
-				ItemJetPack pack = (ItemJetPack)item;
-				if (!PackUpgrades.WING.existsOn(is)) {
-					ItemStack ingot = pack.getMaterial();
-					for (int i = 0; i < 3; i++) {
-						if (!ReikaItemHelper.matchStacks(inv[i], ingot))
-							return;
-					}
-					for (int i = 0; i < 3; i++) {
-						ReikaInventoryHelper.decrStack(i, inv);
-					}
-					PackUpgrades.WING.enable(is, true);
-					inv[13] = is.copy();
-					inv[4] = null;
-				}
-			}
 		}
 	}
 
@@ -169,7 +86,7 @@ public class TileEntityWorktable extends InventoriedRCTileEntity {
 	private void makeBedjump() {
 		int armorslot = ReikaInventoryHelper.locateInInventory(ItemRegistry.BEDBOOTS.getItemInstance(), inv);
 		int jumpslot = ReikaInventoryHelper.locateInInventory(ItemRegistry.JUMP.getItemInstance(), inv);
-		if (jumpslot != -1 && armorslot != -1 && ReikaInventoryHelper.hasNEmptyStacks(inv, 25)) {
+		if (jumpslot != -1 && armorslot != -1 && ReikaInventoryHelper.hasNEmptyStacks(inv, 16)) {
 			inv[jumpslot] = null;
 			inv[armorslot] = null;
 			ItemStack is = ItemRegistry.BEDJUMP.getEnchantedStack();
@@ -229,10 +146,6 @@ public class TileEntityWorktable extends InventoriedRCTileEntity {
 			return true;
 		if (is.stackTagCompound.hasKey("ench"))
 			return true;
-		if (ir == ItemRegistry.MACHINE) {
-			MachineRegistry r = MachineRegistry.machineList.get(is.getItemDamage());
-			return !r.isUncraftable();
-		}
 		return false;
 	}
 
@@ -281,27 +194,16 @@ public class TileEntityWorktable extends InventoriedRCTileEntity {
 			coilslot = ReikaInventoryHelper.locateInInventory(ItemRegistry.STRONGCOIL.getItemInstance(), inv);
 		Item toolid = this.getTool();
 		int toolslot = ReikaInventoryHelper.locateInInventory(toolid, inv);
-		if (toolslot != -1 && coilslot != -1 && ReikaInventoryHelper.hasNEmptyStacks(inv, 25)) {
+		if (toolslot != -1 && coilslot != -1 && ReikaInventoryHelper.hasNEmptyStacks(inv, 16)) {
 			Item coilid = inv[coilslot].getItem();
+			int toolmeta = inv[toolslot].getItemDamage();
 			int coilmeta = inv[coilslot].getItemDamage();
-			if (toolid instanceof ChargeableTool) {
-				ItemStack tool = inv[toolslot];
-				int newcoilcharge = ((ChargeableTool)toolid).setCharged(tool, coilmeta, coilid == ItemRegistry.STRONGCOIL.getItemInstance());
-				ItemStack newcoil = new ItemStack(coilid, 1, newcoilcharge);
-				inv[toolslot] = null;
-				inv[coilslot] = null;
-				inv[9] = tool.copy();
-				inv[10] = newcoil;
-			}
-			else {
-				int toolmeta = inv[toolslot].getItemDamage();
-				ItemStack newtool = new ItemStack(toolid, 1, coilmeta);
-				ItemStack newcoil = new ItemStack(coilid, 1, toolmeta);
-				inv[toolslot] = null;
-				inv[coilslot] = null;
-				inv[9] = newtool;
-				inv[10] = newcoil;
-			}
+			ItemStack newtool = new ItemStack(toolid, 1, coilmeta);
+			ItemStack newcoil = new ItemStack(coilid, 1, toolmeta);
+			inv[toolslot] = null;
+			inv[coilslot] = null;
+			inv[9] = newtool;
+			inv[10] = newcoil;
 		}
 	}
 
@@ -317,30 +219,24 @@ public class TileEntityWorktable extends InventoriedRCTileEntity {
 	}
 
 	private void makeJetplate() {
-		boolean bed = false;
 		int plateslot = ReikaInventoryHelper.locateInInventory(ItemRegistry.BEDCHEST.getItemInstance(), inv);
-		if (plateslot == -1)
-			plateslot = ReikaInventoryHelper.locateInInventory(ItemRegistry.STEELCHEST.getItemInstance(), inv);
-		else
-			bed = true;
-		//ReikaJavaLibrary.pConsole(plateslot, Side.SERVER);
 		int jetslot = ReikaInventoryHelper.locateInInventory(ItemRegistry.JETPACK.getItemInstance(), inv);
-		if (jetslot != -1 && plateslot != -1 && ReikaInventoryHelper.hasNEmptyStacks(inv, 25)) {
+		if (jetslot != -1 && plateslot != -1 && ReikaInventoryHelper.hasNEmptyStacks(inv, 16)) {
 			ItemStack jet = inv[jetslot];
-			NBTTagCompound tag = jet.stackTagCompound != null ? (NBTTagCompound)jet.stackTagCompound.copy() : null;
+			int original = jet.stackTagCompound != null ? jet.stackTagCompound.getInteger("fuel") : 0;
 			inv[jetslot] = null;
 			inv[plateslot] = null;
-			ItemStack is = bed ? ItemRegistry.BEDPACK.getEnchantedStack() : ItemRegistry.STEELPACK.getStackOf();
+			ItemStack is = ItemRegistry.BEDPACK.getEnchantedStack();
 			if (is.stackTagCompound == null)
 				is.stackTagCompound = new NBTTagCompound();
-			ReikaNBTHelper.combineNBT(is.stackTagCompound, tag);
+			is.stackTagCompound.setInteger("charge", original);
 			inv[9] = is;
 		}
 	}
 
 	@Override
 	public int getSizeInventory() {
-		return 27;
+		return 18;
 	}
 
 	@Override
@@ -352,12 +248,12 @@ public class TileEntityWorktable extends InventoriedRCTileEntity {
 	public boolean isItemValidForSlot(int i, ItemStack itemstack) {
 		if (i >= 9)
 			return false;
-		return hasProgram ? inv[i+18] != null && ReikaItemHelper.matchStacks(inv[i+18], itemstack) : true;
+		return i < 9;
 	}
 
 	@Override
 	public boolean canExtractItem(int i, ItemStack itemstack, int j) {
-		return i >= 9 && i < 18;
+		return i >= 9;
 	}
 
 	public ItemStack getToCraft() {
@@ -379,7 +275,6 @@ public class TileEntityWorktable extends InventoriedRCTileEntity {
 		super.writeSyncTag(NBT);
 
 		NBT.setBoolean("lastpwr", lastPower);
-		NBT.setBoolean("prog", hasProgram);
 	}
 
 	@Override
@@ -388,32 +283,8 @@ public class TileEntityWorktable extends InventoriedRCTileEntity {
 		super.readSyncTag(NBT);
 
 		lastPower = NBT.getBoolean("lastpwr");
-		hasProgram = NBT.getBoolean("prog");
 	}
 
 	@Override
-	public void onEMP() {
-
-	}
-
-	public ItemStack getProgrammedSlot(int i, int k) {
-		ItemStack is = inv[18+i*3+k];
-		return is != null ? is.copy() : null;
-	}
-
-	public void setMapping(int slot, ItemStack is) {
-		inv[slot] = is != null ? is.copy() : null;
-	}
-
-	@Override
-	public void markDirty() {
-		super.markDirty();
-
-		hasProgram = false;
-		for (int i = 18; i < 27; i++) {
-			if (inv[i] != null) {
-				hasProgram = true;
-			}
-		}
-	}
+	public void onEMP() {}
 }

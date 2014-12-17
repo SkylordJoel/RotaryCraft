@@ -9,18 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
 import Reika.DragonAPI.Interfaces.InertIInv;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
@@ -42,6 +30,19 @@ import Reika.RotaryCraft.Registry.DifficultyEffects;
 import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.RotaryAchievements;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.init.Blocks;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 
@@ -221,21 +222,19 @@ public class TileEntityBedrockBreaker extends InventoriedPowerReceiver implement
 					}
 					RotaryAchievements.BEDROCKBREAKER.triggerAchievement(this.getPlacer());
 					MinecraftForge.EVENT_BUS.post(new BedrockDigEvent(this, x, y, z));
-					if (!world.isRemote)
-						this.incrementStep(world, mx, my, mz);
+					this.incrementStep(world, mx, my, mz);
 				}
 			}
 		}
 		else {
 			Block b = world.getBlock(x, y, z);
-			if (b != Blocks.air && b.getBlockHardness(world, x, y, z) >= 0) {
+			if (b != Blocks.air) {
 				ReikaSoundHelper.playBreakSound(world, x, y, z, b);
 				if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
 					ReikaRenderHelper.spawnDropParticles(world, x, y, z, b, world.getBlockMetadata(x, y, z));
 				world.setBlockToAir(x, y, z);
 			}
-			if (!world.isRemote)
-				this.incrementStep(world, mx, my, mz);
+			this.incrementStep(world, mx, my, mz);
 		}
 	}
 

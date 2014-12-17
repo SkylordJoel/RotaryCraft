@@ -9,6 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities;
 
+import Reika.DragonAPI.Libraries.ReikaPotionHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaArrayHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
+import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
+import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,14 +31,6 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionHelper;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.ReikaPotionHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaArrayHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
-import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
-import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 
@@ -223,19 +224,23 @@ public class TileEntityAerosolizer extends InventoriedPowerReceiver implements R
 			List effects = Items.potionitem.getEffects(potionDamage[i]);
 			//ModLoader.getMinecraftInstance().ingameGUI.addChatMessage(String.format("%d", this.potionDamage[i]));
 			if (effects != null && !effects.isEmpty()) {
-				List<EntityLivingBase> inroom = worldObj.getEntitiesWithinAABB(EntityLivingBase.class, room);
+				List inroom = worldObj.getEntitiesWithinAABB(EntityLivingBase.class, room);
 				//ModLoader.getMinecraftInstance().ingameGUI.addChatMessage(String.format("%d", inroom.size()));
-				for (EntityLivingBase mob : inroom) {
-					Iterator potioneffects = effects.iterator();
-					while (potioneffects.hasNext()) {
-						PotionEffect effect = (PotionEffect)potioneffects.next();
-						int id = effect.getPotionID();
-						if (!Potion.potionTypes[id].isInstant()) {
-							int bonus = this.getMultiplier(i) - 1;  //-1 since adding
-							if (effect.getAmplifier() == 1)
-								bonus *= 2;
-							mob.addPotionEffect(new PotionEffect(id, 100, effect.getAmplifier()+bonus));
-							//ModLoader.getMinecraftInstance().thePlayer.addChatMessage(String.format("%d", effect.getAmplifier()));
+				if (inroom != null && !inroom.isEmpty()) {
+					Iterator iter = inroom.iterator();
+					while (iter.hasNext()) {
+						EntityLivingBase mob = (EntityLivingBase)iter.next();
+						Iterator potioneffects = effects.iterator();
+						while (potioneffects.hasNext()) {
+							PotionEffect effect = (PotionEffect)potioneffects.next();
+							int id = effect.getPotionID();
+							if (!Potion.potionTypes[id].isInstant()) {
+								int bonus = this.getMultiplier(i) - 1;  //-1 since adding
+								if (effect.getAmplifier() == 1)
+									bonus *= 2;
+								mob.addPotionEffect(new PotionEffect(id, 100, effect.getAmplifier()+bonus));
+								//ModLoader.getMinecraftInstance().thePlayer.addChatMessage(String.format("%d", effect.getAmplifier()));
+							}
 						}
 					}
 				}

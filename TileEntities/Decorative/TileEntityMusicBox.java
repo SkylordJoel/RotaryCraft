@@ -9,24 +9,8 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Decorative;
 
-import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.MinecraftForge;
 import Reika.DragonAPI.IO.ReikaFileReader;
 import Reika.DragonAPI.Interfaces.GuiController;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper.NBTTypes;
 import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
 import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
@@ -39,6 +23,21 @@ import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.PacketRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
+
+import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
 
 public class TileEntityMusicBox extends TileEntityPowerReceiver implements GuiController {
 
@@ -95,13 +94,7 @@ public class TileEntityMusicBox extends TileEntityPowerReceiver implements GuiCo
 	}
 
 	public List<Note> getNotesInChannel(int channel) {
-		return Collections.unmodifiableList(musicQueue[channel]);
-	}
-
-	@Override
-	protected void onFirstTick(World world, int x, int y, int z) {
-		if (this.hasSavedFile())
-			this.read();
+		return ReikaJavaLibrary.copyList(musicQueue[channel]);
 	}
 
 	@Override
@@ -109,6 +102,11 @@ public class TileEntityMusicBox extends TileEntityPowerReceiver implements GuiCo
 		super.updateTileEntity();
 		this.getSummativeSidedPower();
 		//ReikaJavaLibrary.pConsole(Arrays.toString(musicQueue), Side.SERVER);
+
+		if (this.getTicksExisted() == 0) {
+			if (this.hasSavedFile())
+				this.read();
+		}
 
 		if (power < LOOPPOWER) {
 			if (ReikaRedstoneHelper.isPositiveEdge(world, x, y, z, lastPower)) {
@@ -190,7 +188,7 @@ public class TileEntityMusicBox extends TileEntityPowerReceiver implements GuiCo
 		}
 		playDelay[channel] = n.length.tickLength;
 		playIndex[channel]++;
-		NoteEvent e = new NoteEvent(this, n.pitch, n.getTickLength(), channel);
+		NoteEvent e = new NoteEvent(this, n, channel);
 		MinecraftForge.EVENT_BUS.post(e);
 	}
 
@@ -360,7 +358,7 @@ public class TileEntityMusicBox extends TileEntityPowerReceiver implements GuiCo
 		try {
 			for (int i = 0; i < 16; i++) {
 				if (is.stackTagCompound.hasKey("ch"+i)) {
-					NBTTagList li = is.stackTagCompound.getTagList("ch"+i, NBTTypes.COMPOUND.ID);
+					NBTTagList li = is.stackTagCompound.getTagList("ch"+i, is.stackTagCompound.getId());
 					for (int k = 0; k < li.tagCount(); k++) {
 						NBTTagCompound nbt = li.getCompoundTagAt(k);
 						//ReikaJavaLibrary.pConsole(i+":"+k+":"+nbt, Side.SERVER);

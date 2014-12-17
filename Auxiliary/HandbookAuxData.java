@@ -9,8 +9,44 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
+import Reika.DragonAPI.ModList;
+import Reika.DragonAPI.Exception.RegistrationException;
+import Reika.DragonAPI.Instantiable.ItemReq;
+import Reika.DragonAPI.Instantiable.Data.ArrayMap;
+import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
+import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
+import Reika.DragonAPI.Libraries.IO.ReikaRenderHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.DragonAPI.Libraries.Java.ReikaStringParser;
+import Reika.DragonAPI.Libraries.Registry.ReikaDyeHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaOreHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaTreeHelper;
+import Reika.DragonAPI.Libraries.World.ReikaBiomeHelper;
+import Reika.DragonAPI.ModInteract.Lua.LuaMethod;
+import Reika.DragonAPI.ModRegistry.ModOreList;
+import Reika.DragonAPI.ModRegistry.ModWoodList;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.RecipeManagers.ExtractorModOres;
+import Reika.RotaryCraft.Auxiliary.RecipeManagers.MachineRecipeRenderer;
+import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesBlastFurnace;
+import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesBlastFurnace.BlastRecipe;
+import Reika.RotaryCraft.Registry.BlockRegistry;
+import Reika.RotaryCraft.Registry.DurationRegistry;
+import Reika.RotaryCraft.Registry.HandbookRegistry;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.Registry.MobBait;
+import Reika.RotaryCraft.Registry.PlantMaterials;
+import Reika.RotaryCraft.Registry.PowerReceivers;
+import Reika.RotaryCraft.TileEntities.Production.TileEntityFermenter;
+import Reika.RotaryCraft.TileEntities.World.TileEntityTerraformer;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.NavigableSet;
 
@@ -27,41 +63,6 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fluids.FluidStack;
 
 import org.lwjgl.opengl.GL11;
-
-import Reika.DragonAPI.Exception.RegistrationException;
-import Reika.DragonAPI.Instantiable.Alert;
-import Reika.DragonAPI.Instantiable.ItemReq;
-import Reika.DragonAPI.Instantiable.Data.ArrayMap;
-import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
-import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
-import Reika.DragonAPI.Libraries.IO.ReikaRenderHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
-import Reika.DragonAPI.Libraries.Java.ReikaStringParser;
-import Reika.DragonAPI.Libraries.Registry.ReikaDyeHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaOreHelper;
-import Reika.DragonAPI.Libraries.World.ReikaBiomeHelper;
-import Reika.DragonAPI.ModInteract.Lua.LuaMethod;
-import Reika.DragonAPI.ModRegistry.ModOreList;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.RecipeManagers.ExtractorModOres;
-import Reika.RotaryCraft.Auxiliary.RecipeManagers.MachineRecipeRenderer;
-import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesBlastFurnace;
-import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesBlastFurnace.BlastRecipe;
-import Reika.RotaryCraft.Items.Tools.ItemJetPack.PackUpgrades;
-import Reika.RotaryCraft.Registry.BlockRegistry;
-import Reika.RotaryCraft.Registry.DurationRegistry;
-import Reika.RotaryCraft.Registry.EngineType;
-import Reika.RotaryCraft.Registry.HandbookRegistry;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.Registry.MobBait;
-import Reika.RotaryCraft.Registry.PowerReceivers;
-import Reika.RotaryCraft.TileEntities.Production.TileEntityFermenter;
-import Reika.RotaryCraft.TileEntities.World.TileEntityTerraformer;
-import Reika.RotaryCraft.TileEntities.World.TileEntityTerraformer.BiomeTransform;
 
 import com.google.common.collect.TreeMultimap;
 
@@ -99,7 +100,7 @@ public final class HandbookAuxData {
 
 	public static void addPowerData() {
 		for (int i = 0; i < MachineRegistry.machineList.length; i++) {
-			MachineRegistry m = MachineRegistry.machineList.get(i);
+			MachineRegistry m = MachineRegistry.machineList[i];
 			if (!m.isDummiedOut()) {
 				if (m.isPowerReceiver() && !m.isModConversionEngine() && !m.isPoweredTransmissionMachine()) {
 					PowerReceivers p = m.getPowerReceiverEntry();
@@ -200,15 +201,77 @@ public final class HandbookAuxData {
 		ItemStack[] in = new ItemStack[2];
 		ItemStack[] args;
 		out = (ItemRegistry.YEAST.getStackOf());
-		in = new ItemStack[]{new ItemStack(Items.sugar), new ItemStack(Blocks.dirt)};
+		in = (new ItemStack[]{new ItemStack(Items.sugar), new ItemStack(Blocks.dirt)});
 		args = new ItemStack[]{out, in[0], in[1]};
 		fermenter.add(args);
 
-		List<ItemStack> li = TileEntityFermenter.getAllValidPlants();
-		for (ItemStack plant : li) {
-			int num = TileEntityFermenter.getPlantValue(plant);
-			out = ReikaItemHelper.getSizedItemStack(ItemRegistry.ETHANOL.getStackOf(), num);
-			fermenter.add(new ItemStack[]{out, ItemRegistry.YEAST.getStackOf(), plant});
+		for (int i = 0; i < PlantMaterials.plantList.length; i++) {
+			if (PlantMaterials.plantList[i] == PlantMaterials.SAPLING || PlantMaterials.plantList[i] == PlantMaterials.LEAVES) {
+				for (int j = 0; j < ReikaTreeHelper.treeList.length; j++) {
+					ItemStack icon = PlantMaterials.plantList[i] == PlantMaterials.SAPLING ? new ItemStack(Blocks.sapling, 1, j) : new ItemStack(Blocks.leaves, 1, j);
+					out = (ReikaItemHelper.getSizedItemStack(ItemStacks.sludge, PlantMaterials.plantList[i].getPlantValue()));
+					in = (new ItemStack[]{ItemRegistry.YEAST.getStackOf(), icon});
+					args = new ItemStack[]{out, in[0], in[1]};
+					fermenter.add(args);
+				}
+			}
+			else {
+				out = (ReikaItemHelper.getSizedItemStack(ItemStacks.sludge, PlantMaterials.plantList[i].getPlantValue()));
+				in = (new ItemStack[]{ItemRegistry.YEAST.getStackOf(), PlantMaterials.plantList[i].getPlantItemForIcon()});
+				args = new ItemStack[]{out, in[0], in[1]};
+				fermenter.add(args);
+			}
+		}
+
+		for (int i = 0; i < ModWoodList.woodList.length; i++) {
+			if (ModWoodList.woodList[i].exists()) {
+				out = (ReikaItemHelper.getSizedItemStack(ItemStacks.sludge, PlantMaterials.SAPLING.getPlantValue()*TileEntityFermenter.getModWoodValue(ModWoodList.woodList[i])));
+				in = (new ItemStack[]{ItemRegistry.YEAST.getStackOf(), ModWoodList.woodList[i].getCorrespondingSapling()});
+				args = new ItemStack[]{out, in[0], in[1]};
+				fermenter.add(args);
+
+				out = (ReikaItemHelper.getSizedItemStack(ItemStacks.sludge, PlantMaterials.LEAVES.getPlantValue()*TileEntityFermenter.getModWoodValue(ModWoodList.woodList[i])));
+				in = (new ItemStack[]{ItemRegistry.YEAST.getStackOf(), ModWoodList.woodList[i].getCorrespondingLeaf()});
+				args = new ItemStack[]{out, in[0], in[1]};
+				fermenter.add(args);
+			}
+		}
+
+		if (ModList.DYETREES.isLoaded()) {
+			try {
+				Class tree = Class.forName("Reika.DyeTrees.API.TreeGetter");
+				Method sapling = tree.getMethod("getDyeSapling", int.class);
+				Method leaf = tree.getMethod("getHeldDyeLeaf", int.class);
+				for (int j = 0; j < 16; j++) {
+					out = (ReikaItemHelper.getSizedItemStack(ItemStacks.sludge, PlantMaterials.SAPLING.getPlantValue()));
+					in = (new ItemStack[]{ItemRegistry.YEAST.getStackOf(), (ItemStack)sapling.invoke(null, j)});
+					args = new ItemStack[]{out, in[0], in[1]};
+					fermenter.add(args);
+
+					out = (ReikaItemHelper.getSizedItemStack(ItemStacks.sludge, PlantMaterials.LEAVES.getPlantValue()));
+					in = (new ItemStack[]{ItemRegistry.YEAST.getStackOf(), (ItemStack)leaf.invoke(null, j)});
+					args = new ItemStack[]{out, in[0], in[1]};
+					fermenter.add(args);
+				}
+			}
+			catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+			catch (SecurityException e) {
+				e.printStackTrace();
+			}
+			catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+			catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			}
+			catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -239,9 +302,6 @@ public final class HandbookAuxData {
 		else if (h.isSmelting()) {
 			ItemStack out = h.getSmelting();
 			ReikaGuiAPI.instance.drawSmelting(ri, f, out, dx+87, dy+36, dx+141, dy+32);
-			if (h == HandbookRegistry.TUNGSTEN) {
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, ItemStacks.tungstenflakes, dx+87, dy+28);
-			}
 		}
 		else if (h == HandbookRegistry.EXTRACTS) {
 			int time = 1000000000;
@@ -292,52 +352,16 @@ public final class HandbookAuxData {
 			ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, BlockRegistry.BLASTGLASS.getStackOf(), dx+145, dy+28);
 		}
 		else if (h == HandbookRegistry.JETPACK) {
-			int k = (int)((System.nanoTime()/6000000000L)%5);
-			int k2 = (int)((System.nanoTime()/3000000000L)%2);
-			int k3 = (int)((System.nanoTime()/2000000000L)%3);
+			int k = (int)((System.nanoTime()/2000000000)%2);
 			if (k == 0) {
 				ItemStack out = ItemRegistry.JETPACK.getEnchantedStack();
 				ArrayList li = ReikaRecipeHelper.getAllRecipesByOutput(CraftingManager.getInstance().getRecipeList(), out);
 				ReikaGuiAPI.instance.drawCustomRecipeList(ri, f, li, dx+72, dy+18, dx+162, dy+32);
 			}
-			else if (k == 1) {
-				ItemStack plate = k2 == 0 ? ItemRegistry.STEELCHEST.getStackOf() : ItemRegistry.BEDCHEST.getEnchantedStack();
-				ItemStack out = k2 == 0 ? ItemRegistry.STEELPACK.getStackOf() : ItemRegistry.BEDPACK.getEnchantedStack();
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, plate, dx+72, dy+10);
+			else {
+				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, ItemRegistry.BEDCHEST.getEnchantedStack(), dx+72, dy+10);
 				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, ItemRegistry.JETPACK.getStackOf(), dx+90, dy+10);
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, out, dx+166, dy+28);
-			}
-			else if (k == 2) { //wing
-				ItemStack ing = k3 != 2 ? ItemStacks.steelingot : ItemStacks.bedingot;
-				ItemStack pack = k3 == 0 ? ItemRegistry.JETPACK.getStackOf() : k3 == 1 ? ItemRegistry.STEELPACK.getStackOf() : ItemRegistry.BEDPACK.getEnchantedStack();
-				ItemStack out = k3 == 0 ? ItemRegistry.JETPACK.getStackOf() : k3 == 1 ? ItemRegistry.STEELPACK.getStackOf() : ItemRegistry.BEDPACK.getEnchantedStack();
-				PackUpgrades.WING.enable(out, true);
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, ing, dx+72, dy+10);
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, ing, dx+90, dy+10);
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, ing, dx+108, dy+10);
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, pack, dx+90, dy+28);
-				ReikaGuiAPI.instance.drawItemStack(ri, f, out, dx+166, dy+28);
-				ReikaGuiAPI.instance.drawMultilineTooltip(out, dx+166, dy+28);
-			}
-			else if (k == 3) { //cooling
-				ItemStack pack = k3 == 0 ? ItemRegistry.JETPACK.getStackOf() : k3 == 1 ? ItemRegistry.STEELPACK.getStackOf() : ItemRegistry.BEDPACK.getEnchantedStack();
-				ItemStack out = k3 == 0 ? ItemRegistry.JETPACK.getStackOf() : k3 == 1 ? ItemRegistry.STEELPACK.getStackOf() : ItemRegistry.BEDPACK.getEnchantedStack();
-				PackUpgrades.COOLING.enable(out, true);
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, MachineRegistry.COOLINGFIN.getCraftedProduct(), dx+72, dy+28);
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, MachineRegistry.COOLINGFIN.getCraftedProduct(), dx+108, dy+28);
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, pack, dx+90, dy+28);
-				ReikaGuiAPI.instance.drawItemStack(ri, f, out, dx+166, dy+28);
-				ReikaGuiAPI.instance.drawMultilineTooltip(out, dx+166, dy+28);
-
-			}
-			else if (k == 4) { //thrust boost
-				ItemStack pack = k3 == 0 ? ItemRegistry.JETPACK.getStackOf() : k3 == 1 ? ItemRegistry.STEELPACK.getStackOf() : ItemRegistry.BEDPACK.getEnchantedStack();
-				ItemStack out = k3 == 0 ? ItemRegistry.JETPACK.getStackOf() : k3 == 1 ? ItemRegistry.STEELPACK.getStackOf() : ItemRegistry.BEDPACK.getEnchantedStack();
-				PackUpgrades.JET.enable(out, true);
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, EngineType.JET.getCraftedProduct(), dx+90, dy+46);
-				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, pack, dx+90, dy+28);
-				ReikaGuiAPI.instance.drawItemStack(ri, f, out, dx+166, dy+28);
-				ReikaGuiAPI.instance.drawMultilineTooltip(out, dx+166, dy+28);
+				ReikaGuiAPI.instance.drawItemStackWithTooltip(ri, f, ItemRegistry.BEDPACK.getEnchantedStack(), dx+166, dy+28);
 			}
 		}
 		else if (h == HandbookRegistry.JUMPBOOTS) {
@@ -533,16 +557,16 @@ public final class HandbookAuxData {
 			}
 			else if (h == HandbookRegistry.TERRA && subpage == 1) {
 				RenderItem ri = item;
-				ArrayList<BiomeTransform> transforms = TileEntityTerraformer.getTransformList();
+				ArrayList<Object[]> transforms = TileEntityTerraformer.getTransformList();
 				int time = 2000000000;
 				int k = (int)((System.nanoTime()/time)%transforms.size());
 				String tex = "/Reika/RotaryCraft/Textures/GUI/biomes.png";
 				ReikaTextureHelper.bindTexture(RotaryCraft.class, tex);
-				BiomeTransform data = transforms.get(k);
-				BiomeGenBase from = data.change.start;
+				Object[] data = transforms.get(k);
+				BiomeGenBase from = (BiomeGenBase)data[0];
 				BiomeGenBase from_ = from;
 				from = ReikaBiomeHelper.getParentBiomeType(from);
-				BiomeGenBase to = data.change.finish;
+				BiomeGenBase to = (BiomeGenBase)data[1];
 				ReikaGuiAPI.instance.drawTexturedModalRect(posX+16, posY+22, 32*(from.biomeID%8), 32*(from.biomeID/8), 32, 32);
 				ReikaGuiAPI.instance.drawTexturedModalRect(posX+80, posY+22, 32*(to.biomeID%8), 32*(to.biomeID/8), 32, 32);
 				String name = ReikaStringParser.splitCamelCase(from_.biomeName);
@@ -555,8 +579,8 @@ public final class HandbookAuxData {
 				for (int i = 0; i < words2.length; i++) {
 					ReikaGuiAPI.instance.drawCenteredStringNoShadow(font, words2[i], posX+97, posY+57+i*font.FONT_HEIGHT, 0);
 				}
-				font.drawString(String.format("%.3f kW", data.power/1000D), posX+116, posY+22, 0);
-				FluidStack liq = data.getFluid();
+				font.drawString(String.format("%.3f kW", (Integer)data[2]/1000D), posX+116, posY+22, 0);
+				FluidStack liq = (FluidStack)data[3];
 				if (liq != null) {
 					GL11.glColor4f(1, 1, 1, 1);
 					ReikaLiquidRenderer.bindFluidTexture(liq.getFluid());
@@ -567,12 +591,10 @@ public final class HandbookAuxData {
 					//ReikaGuiAPI.instance.drawItemStack(ri, fontRenderer, liq.asItemStack(), posX+116+16, posY+38);
 					ReikaGuiAPI.instance.drawCenteredStringNoShadow(font, String.format("%d", liq.amount), posX+116+16, posY+38+5, 0);
 				}
-				Collection<ItemReq> li = data.getItems();
-				int i = 0;
-				for (ItemReq r : li) {
-					ItemStack is = r.asItemStack();
+				List<ItemReq> li = (List<ItemReq>)data[4];
+				for (int i = 0; i < li.size(); i++) {
+					ItemStack is = li.get(i).asItemStack();
 					ReikaGuiAPI.instance.drawItemStack(ri, font, is, posX+190, posY+8+i*18);
-					i++;
 				}
 			}
 			else if (h == HandbookRegistry.TIERS) {
@@ -633,11 +655,11 @@ public final class HandbookAuxData {
 			}
 			else if (h == HandbookRegistry.COMPUTERCRAFT) {
 				if (subpage > 0) {
-					Collection<LuaMethod> li = LuaMethod.getMethods();
+					List<LuaMethod> li = LuaMethod.getMethods();
 					int di = (subpage-1)*36;
 					int max = Math.min(di+36, MachineRegistry.machineList.length);
 					for (int i = di; i < max; i++) {
-						MachineRegistry m = MachineRegistry.machineList.get(i);
+						MachineRegistry m = MachineRegistry.machineList[i];
 						ItemStack is = m.getCraftedProduct();
 						if (m.hasSubdivisions()) {
 							int meta = m.getNumberSubtypes();
@@ -651,7 +673,8 @@ public final class HandbookAuxData {
 						ReikaGuiAPI.instance.drawItemStackWithTooltip(item, font, is, x, y);
 						if (ReikaGuiAPI.instance.isMouseInBox(x, x+17, y, y+17)) {
 							int k = 0;
-							for (LuaMethod cur : li) {
+							for (int j = 0; j < li.size(); j++) {
+								LuaMethod cur = li.get(j);
 								if (cur.isClassInstanceOf(m.getTEClass())) {
 									ReikaRenderHelper.disableLighting();
 									String s = cur.getReturnType().displayName+" "+cur.displayName+"("+cur.getArgsAsString()+")";
@@ -660,28 +683,6 @@ public final class HandbookAuxData {
 								}
 							}
 						}
-					}
-				}
-			}
-			else if (h == HandbookRegistry.ALERTS) {
-				String title = "These are the config settings that have been changed from the defaults, and may have significant "+
-						"changes to the gameplay. If you have further questions, or you wish for these changes to be undone, contact "+
-						"your server admin or modpack creator.";
-				font.drawSplitString(title, posX+8, posY+20, 220, 0x333333);
-				List<Alert> li = HandbookNotifications.getNewAlerts();
-				if (li.isEmpty()) {
-					font.drawSplitString("All config settings are identical to defaults.", posX+10, posY+88, 245, 0xffffff);
-					font.drawSplitString("Your gameplay is in line with what has been intended.", posX+10, posY+98, 245, 0xffffff);
-				}
-				else {
-					int dy = 0;
-					int base = subpage*3;
-					int max = Math.min(base+3, li.size());
-					for (int i = base; i < max; i++) {
-						Alert a = li.get(i);
-						String msg = a.getMessage();
-						font.drawSplitString(msg, posX+10, posY+88+dy*44, 245, 0xffffff);
-						dy++;
 					}
 				}
 			}

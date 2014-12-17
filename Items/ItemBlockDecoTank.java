@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items;
 
+import Reika.DragonAPI.Libraries.ReikaNBTHelper;
+import Reika.RotaryCraft.API.Fillable;
+import Reika.RotaryCraft.Registry.BlockRegistry;
+import Reika.RotaryCraft.TileEntities.TileEntityDecoTank;
+
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -21,10 +26,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper;
-import Reika.RotaryCraft.API.Fillable;
-import Reika.RotaryCraft.Registry.BlockRegistry;
-import Reika.RotaryCraft.TileEntities.TileEntityDecoTank;
 
 public class ItemBlockDecoTank extends ItemBlock implements Fillable {
 

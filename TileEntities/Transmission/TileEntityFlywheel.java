@@ -9,13 +9,8 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Transmission;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
-import Reika.ChromatiCraft.API.WorldRift;
-import Reika.DragonAPI.Instantiable.Data.WorldLocation;
+import Reika.ChromatiCraft.API.SpaceRift;
+import Reika.DragonAPI.Instantiable.WorldLocation;
 import Reika.DragonAPI.Libraries.MathSci.ReikaEngLibrary;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.MathSci.ReikaPhysicsHelper;
@@ -33,6 +28,12 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntityTransmissionMachine;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityFlywheel extends TileEntityTransmissionMachine implements SimpleProvider, PowerGenerator, ShaftMerger {
 
@@ -172,8 +173,7 @@ public class TileEntityFlywheel extends TileEntityTransmissionMachine implements
 			power = 0;
 			return;
 		}
-		if (read != null && write != null)
-			this.process(world, x, y, z);
+		this.process(world, x, y, z);
 		power = omega*torque;
 		this.testFailure();
 		this.playSounds();
@@ -222,7 +222,7 @@ public class TileEntityFlywheel extends TileEntityTransmissionMachine implements
 	}
 
 	public void getIOSides(World world, int x, int y, int z, int metadata) {
-		switch(metadata%4) {
+		switch(metadata) {
 		case 0:
 			read = ForgeDirection.WEST;
 			break;
@@ -288,8 +288,8 @@ public class TileEntityFlywheel extends TileEntityTransmissionMachine implements
 				}
 			}
 		}
-		else if (te instanceof WorldRift) {
-			WorldRift sr = (WorldRift)te;
+		else if (te instanceof SpaceRift) {
+			SpaceRift sr = (SpaceRift)te;
 			WorldLocation loc = sr.getLinkTarget();
 			if (loc != null)
 				this.process(loc.getWorld(), loc.xCoord, loc.yCoord, loc.zCoord);
@@ -476,10 +476,7 @@ public class TileEntityFlywheel extends TileEntityTransmissionMachine implements
 
 	@Override
 	public PowerSourceList getPowerSources(TileEntityIOMachine io, ShaftMerger caller) {
-		/*return new PowerSourceList().addSource(this);*/
-		PowerSourceList pwr = new PowerSourceList();
-		pwr.addAll(pwr.getAllFrom(worldObj, read, xCoord+read.offsetX, yCoord+read.offsetY, zCoord+read.offsetZ, this, caller));
-		return pwr;
+		return new PowerSourceList().addSource(this);
 	}
 
 	@Override

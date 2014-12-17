@@ -9,6 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Charged;
 
+import Reika.DragonAPI.Libraries.ReikaEntityHelper;
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.Base.ItemChargedTool;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.RotaryAchievements;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,17 +37,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.ReikaEntityHelper;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.Base.ItemChargedTool;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.RotaryAchievements;
 
 public class ItemGravelGun extends ItemChargedTool {
 
@@ -98,7 +99,7 @@ public class ItemGravelGun extends ItemChargedTool {
 							ed.attackEntityFromPart(ed.dragonPartBody, DamageSource.causePlayerDamage(ep), this.getAttackDamage(is.getItemDamage()));
 						}
 						else {
-							float dmg = this.getAttackDamage(is.getItemDamage());
+							int dmg = this.getAttackDamage(is.getItemDamage());
 							if (ent instanceof EntityPlayer) {
 								for (int n = 1; n < 5; n++) {
 									ItemRegistry ir = ItemRegistry.getEntry(ent.getEquipmentInSlot(n));
@@ -126,7 +127,7 @@ public class ItemGravelGun extends ItemChargedTool {
 			if (infov.size() > 0) {
 				if (!ep.capabilities.isCreativeMode)
 					ReikaInventoryHelper.findAndDecrStack(Blocks.gravel, -1, ep.inventory.mainInventory);
-				return new ItemStack(is.getItem(), is.stackSize, is.getItemDamage()-this.getChargeConsumed(is.getItemDamage()));
+				return new ItemStack(is.getItem(), is.stackSize, is.getItemDamage()-1);
 			}
 		}
 		return is;
@@ -167,29 +168,15 @@ public class ItemGravelGun extends ItemChargedTool {
 		}
 	}
 
-	private int getChargeConsumed(int charge) {
-		return Math.max(1, ReikaMathLibrary.logbase2(1+charge));
-	}
-
-	private float getAttackDamage(int charge) {
-		if (charge == 1)
-			return 1;
+	private int getAttackDamage(int charge) {
 		long pow = ReikaMathLibrary.longpow(charge/2, 3); //fits in long (^6 does not)
-		double base = this.getExpBase()+Math.pow(charge, this.getPowR())/150000D;
-		return (float)(1+(ReikaMathLibrary.logbase(pow, 2)/2)*ReikaMathLibrary.doubpow(base, charge));
-	}
-
-	private double getPowR() {
-		return ConfigRegistry.HARDGRAVELGUN.getState() ? 0.15 : 0.1875;
-	}
-
-	private double getExpBase() {
-		return ConfigRegistry.HARDGRAVELGUN.getState() ? 1.00005 : 1.0001;
+		double base = 1.0001+Math.pow(charge, 0.1875)/150000D;
+		return (int)(1+(ReikaMathLibrary.logbase(pow, 2)/2)*ReikaMathLibrary.doubpow(base, charge));
 	}
 
 	@Override
 	public void addInformation(ItemStack is, EntityPlayer ep, List li, boolean par4) {
-		float dmg = this.getAttackDamage(is.getItemDamage());
+		int dmg = this.getAttackDamage(is.getItemDamage());
 		li.add(String.format("Dealing %.1f hearts of damage per shot", dmg/2F));
 	}
 

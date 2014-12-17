@@ -9,7 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Surveying;
 
-import java.util.Collections;
+import Reika.DragonAPI.Libraries.Java.ReikaArrayHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.BlockColorMapper;
+import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
+import Reika.RotaryCraft.Base.TileEntity.RemoteControlMachine;
+import Reika.RotaryCraft.Registry.GuiRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -20,14 +28,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.Java.ReikaArrayHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.BlockColorMapper;
-import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
-import Reika.RotaryCraft.Base.TileEntity.RemoteControlMachine;
-import Reika.RotaryCraft.Registry.GuiRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntitySpyCam extends RemoteControlMachine implements RangedEffect {
 
@@ -38,11 +38,7 @@ public class TileEntitySpyCam extends RemoteControlMachine implements RangedEffe
 	private int[][] topBlocks = new int[2*MAXRANGE+1][2*MAXRANGE+1];
 	private int[][] mobs = new int[2*MAXRANGE+1][2*MAXRANGE+1];
 	private int[][] topY = new int[2*MAXRANGE+1][2*MAXRANGE+1];
-	private List<EntityLivingBase> inzone;
-
-	public List<EntityLivingBase> getEntities() {
-		return Collections.unmodifiableList(inzone);
-	}
+	public List inzone;
 
 	@Override
 	protected void animateWithTick(World world, int x, int y, int z) {
@@ -79,7 +75,8 @@ public class TileEntitySpyCam extends RemoteControlMachine implements RangedEffe
 		int maxrange = this.getMaxRange();
 		AxisAlignedBB zone = AxisAlignedBB.getBoundingBox(x-range, 0, z-range, x+1+range, y+1, z+1+range);
 		inzone = world.getEntitiesWithinAABB(EntityLivingBase.class, zone);
-		for (EntityLivingBase ent : inzone) {
+		for (int i = 0; i < inzone.size(); i++) {
+			EntityLivingBase ent = (EntityLivingBase)inzone.get(i);
 			int ex = (int)ent.posX-x;
 			int ey = (int)ent.posY-y;
 			int ez = (int)ent.posZ-z;

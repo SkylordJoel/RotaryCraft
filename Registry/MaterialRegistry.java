@@ -9,11 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemPickaxe;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 import Reika.DragonAPI.Libraries.MathSci.ReikaEngLibrary;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
@@ -21,6 +16,12 @@ import Reika.DragonAPI.ModInteract.MekToolHandler;
 import Reika.DragonAPI.ModInteract.RedstoneArsenalHandler;
 import Reika.DragonAPI.ModInteract.TinkerToolHandler;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
+
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemPickaxe;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
 
 public enum MaterialRegistry {
 
@@ -75,15 +76,11 @@ public enum MaterialRegistry {
 	}
 
 	public boolean isInfiniteStrength() {
-		return this == BEDROCK;
-	}
-
-	public boolean needsLubricant() {
-		return this != WOOD && this.isDamageableGear();
+		return (this == BEDROCK);
 	}
 
 	public boolean consumesLubricant() {
-		return /*this == WOOD ||*/ this == STONE || this == STEEL;
+		return this == WOOD || this == STONE || this == STEEL;
 	}
 
 	public boolean isFlammable() {

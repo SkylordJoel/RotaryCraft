@@ -9,14 +9,7 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Transmission;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import Reika.DragonAPI.Instantiable.StepTimer;
-import Reika.DragonAPI.Interfaces.Connectable;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.RotaryCraft.API.PowerGenerator;
@@ -30,8 +23,14 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
 
-public class TileEntityBeltHub extends TileEntityPowerReceiver implements PowerGenerator, SimpleProvider, TransmissionReceiver,
-Connectable {
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+
+public class TileEntityBeltHub extends TileEntityPowerReceiver implements PowerGenerator, SimpleProvider, TransmissionReceiver {
 
 	public boolean isEmitting;
 	private int wetTimer = 0;
@@ -179,7 +178,7 @@ Connectable {
 		}
 	}
 
-	public final boolean setTarget(World world, int x, int y, int z) {
+	public final boolean setTarget(int x, int y, int z) {
 		if (!this.canConnect(x, y, z))
 			return false;
 		if (target[0] != Integer.MIN_VALUE && target[1] != Integer.MIN_VALUE && target[2] != Integer.MIN_VALUE)
@@ -193,7 +192,7 @@ Connectable {
 		return true;
 	}
 
-	public final boolean setSource(World world, int x, int y, int z) {
+	public final boolean setSource(int x, int y, int z) {
 		if (!this.canConnect(x, y, z))
 			return false;
 		if (source[0] != Integer.MIN_VALUE && source[1] != Integer.MIN_VALUE && source[2] != Integer.MIN_VALUE)
@@ -316,7 +315,7 @@ Connectable {
 	public final PowerSourceList getPowerSources(TileEntityIOMachine io, ShaftMerger caller) {
 		if (isEmitting) {
 			TileEntityBeltHub tile = (TileEntityBeltHub)worldObj.getTileEntity(source[0], source[1], source[2]);
-			return tile != null ? tile.getPowerSources(io, caller) : new PowerSourceList();
+			return tile.getPowerSources(io, caller);
 		}
 		else {
 			return PowerSourceList.getAllFrom(worldObj, read, xCoord+read.offsetX, yCoord+read.offsetY, zCoord+read.offsetZ, this, caller);
@@ -441,11 +440,6 @@ Connectable {
 
 	public ItemStack getBeltItem() {
 		return ItemStacks.belt.copy();
-	}
-
-	@Override
-	public boolean isEmitting() {
-		return isEmitting;
 	}
 
 }

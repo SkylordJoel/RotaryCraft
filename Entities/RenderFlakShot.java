@@ -9,6 +9,9 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Entities;
 
+import Reika.RotaryCraft.ClientProxy;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
@@ -20,8 +23,6 @@ import net.minecraftforge.client.IItemRenderer.ItemRenderType;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import Reika.RotaryCraft.ClientProxy;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

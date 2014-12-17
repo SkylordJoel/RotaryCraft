@@ -9,6 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
+import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.RotaryNames;
+import Reika.RotaryCraft.Auxiliary.HandbookAuxData;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.Auxiliary.RotaryDescriptions;
+import Reika.RotaryCraft.Auxiliary.Interfaces.HandbookEntry;
+import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,35 +28,24 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.RotaryNames;
-import Reika.RotaryCraft.Auxiliary.HandbookAuxData;
-import Reika.RotaryCraft.Auxiliary.HandbookNotifications;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Auxiliary.RotaryDescriptions;
-import Reika.RotaryCraft.Auxiliary.Interfaces.HandbookEntry;
-import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
 
 public enum HandbookRegistry implements HandbookEntry {
 
 	//---------------------TOC--------------------//
 	TOC("Table of Contents", "TOC"),
-	MISC("Misc"),
-	ENGINES("Engines"),
-	TRANS("Transmission"),
-	PRODMACHINES("Production"),
-	PROCMACHINES("Processing"),
-	FARMMACHINES("Farming"),
-	ACCMACHINES("Accessory"),
-	WEPMACHINES("Weaponry"),
-	SURVMACHINES("Surveying"),
-	COSMACHINES("Cosmetic"),
-	UTILMACHINES("Utility"),
-	TOOLS("Tools"),
-	RESOURCE("Resources"),
+	MISC(),
+	ENGINES(),
+	TRANS(),
+	PRODMACHINES(),
+	PROCMACHINES(),
+	FARMMACHINES(),
+	ACCMACHINES(),
+	WEPMACHINES(),
+	SURVMACHINES(),
+	COSMACHINES(),
+	UTILMACHINES(),
+	TOOLS(),
+	RESOURCE(),
 	//---------------------INFO--------------------//
 	TERMS("Basic Terms", "Terms and Physics Explanations"),
 	PHYSICS("Relevant Physics"),
@@ -55,7 +55,6 @@ public enum HandbookRegistry implements HandbookEntry {
 	TRANSFER("Basics of Power Transfer"),
 	TIERS("Machine Tiers"),
 	TIMING("Duration Time"),
-	ALERTS("Config Alerts"),
 	//---------------------MISC--------------------//
 	MISCDESC("Important Notes", "Important Notes"),
 	LUBE("Lubricant"),
@@ -133,7 +132,6 @@ public enum HandbookRegistry implements HandbookEntry {
 	CRYSTAL(MachineRegistry.CRYSTALLIZER),
 	COMPOST(MachineRegistry.COMPOSTER),
 	CENTRIFUGE(MachineRegistry.CENTRIFUGE),
-	DRYING(MachineRegistry.DRYING),
 
 	FARMMACHINEDESC("Farming Machines", "Farming"),
 	FAN(MachineRegistry.FAN),
@@ -276,8 +274,7 @@ public enum HandbookRegistry implements HandbookEntry {
 	ALUMINUM("Aluminum Powder"),
 	RAILGUNAMMO("Railgun Ammunition"),
 	SLIDES("Projector Slides"),
-	EXPLOSIVES("Explosive Shells"),
-	TUNGSTEN("Tungsten");
+	EXPLOSIVES("Explosive Shells");
 
 	private MachineRegistry machine;
 	private ItemRegistry item;
@@ -645,8 +642,6 @@ public enum HandbookRegistry implements HandbookEntry {
 			return false;
 		if (this == TIMING)
 			return false;
-		if (this == ALERTS)
-			return false;
 		if (this.getParent() == TERMS)
 			return true;
 		if (isParent)
@@ -931,8 +926,6 @@ public enum HandbookRegistry implements HandbookEntry {
 	public boolean isSmelting() {
 		if (this == ETHANOL)
 			return true;
-		if (this == TUNGSTEN)
-			return true;
 		return false;
 	}
 
@@ -941,8 +934,6 @@ public enum HandbookRegistry implements HandbookEntry {
 			return null;
 		if (this == ETHANOL)
 			return ItemRegistry.ETHANOL.getStackOf();
-		if (this == TUNGSTEN)
-			return ItemStacks.tungsteningot;
 		return ItemStacks.barrel;
 	}
 
@@ -1073,8 +1064,6 @@ public enum HandbookRegistry implements HandbookEntry {
 			return true;
 		if (this == COMPUTERCRAFT)
 			return true;
-		if (this == ALERTS)
-			return !HandbookNotifications.getNewAlerts().isEmpty();
 		return false;
 	}
 
@@ -1087,11 +1076,6 @@ public enum HandbookRegistry implements HandbookEntry {
 	@Override
 	public boolean hasMachineRender() {
 		return this.isEngine() || this.isTrans() || this.isMachine();
-	}
-
-	@Override
-	public boolean isConfigDisabled() {
-		return machine != null && machine.isConfigDisabled();
 	}
 
 }

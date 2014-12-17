@@ -9,12 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Renders.MI;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.client.MinecraftForgeClient;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
 import Reika.DragonAPI.Interfaces.RenderFetcher;
 import Reika.RotaryCraft.Auxiliary.IORenderer;
 import Reika.RotaryCraft.Base.RotaryTERenderer;
@@ -22,10 +16,19 @@ import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
 import Reika.RotaryCraft.Models.Animated.ModelDefoliator;
 import Reika.RotaryCraft.TileEntities.World.TileEntityDefoliator;
 
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.client.MinecraftForgeClient;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
 public class RenderDefoliator extends RotaryTERenderer
 {
 	private ModelDefoliator DefoliatorModel = new ModelDefoliator();
 
+	/**
+	 * Renders the TileEntity for the position.
+	 */
 	public void renderTileEntityDefoliatorAt(TileEntityDefoliator tile, double par2, double par4, double par6, float par8)
 	{
 		ModelDefoliator var14;

@@ -9,15 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
-import net.minecraft.entity.player.EntityPlayer;
 import Reika.DragonAPI.Libraries.IO.ReikaFormatHelper;
 import Reika.RotaryCraft.Base.GuiNonPoweredMachine;
 import Reika.RotaryCraft.Containers.ContainerPerformance;
 import Reika.RotaryCraft.TileEntities.Engine.TileEntityPerformanceEngine;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 public class GuiPerformance extends GuiNonPoweredMachine
 {
-	private TileEntityPerformanceEngine engine;
+	private TileEntityPerformanceEngine Engine;
 	//private World worldObj = ModLoader.getMinecraftInstance().theWorld;
 
 	int x;
@@ -26,7 +27,7 @@ public class GuiPerformance extends GuiNonPoweredMachine
 	public GuiPerformance(EntityPlayer p5ep, TileEntityPerformanceEngine te)
 	{
 		super(new ContainerPerformance(p5ep, te), te);
-		engine = te;
+		Engine = te;
 		xSize = 176;
 		ySize = 166;
 		ep = p5ep;
@@ -41,7 +42,7 @@ public class GuiPerformance extends GuiNonPoweredMachine
 		int x = api.getMouseRealX();
 		int y = api.getMouseRealY();
 		if (api.isMouseInBox(j+81, j+88, k+16, k+71)) {
-			int time = engine.getFuelDuration();
+			int time = Engine.getFuelDuration();
 			String sg = String.format("Fuel: %s", ReikaFormatHelper.getSecondsAsClock(time));
 			api.drawTooltipAt(fontRendererObj, sg, x-j, y-k);
 		}
@@ -58,19 +59,19 @@ public class GuiPerformance extends GuiNonPoweredMachine
 		int j = (width - xSize) / 2;
 		int k = (height - ySize) / 2;
 
-		int i2 = engine.getWaterScaled(54);
-		int i3 = engine.getTempScaled(54);
+		int i2 = Engine.getWaterScaled(54);
+		int i3 = Engine.getTempScaled(54);
 		this.drawTexturedModalRect(j+41, k+71-i2, 193, 55-i2, 5, i2);
 		this.drawTexturedModalRect(j+128, k+71-i3, 177, 99-i3, 9, i3);
 
-		int i1 = engine.getFuelScaled(54);
+		int i1 = Engine.getFuelScaled(54);
 		this.drawTexturedModalRect(j+82, k+71-i1, 200, 55-i1, 6, i1);
-		int i4 = engine.getAdditivesScaled(54);
+		int i4 = Engine.getAdditivesScaled(54);
 		this.drawTexturedModalRect(j+89, k+71-i4, 207, 55-i4, 6, i4);
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "perfgui";
 	}
 }

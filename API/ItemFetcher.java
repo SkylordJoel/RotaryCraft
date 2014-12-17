@@ -13,7 +13,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-/** For fetching ItemRegistry items from the enum.
+/** For fetching ItemRegistry items, not direct-coded ones
  * See source code to know which are which */
 public class ItemFetcher {
 
@@ -50,7 +50,7 @@ public class ItemFetcher {
 
 	/** For fetching items by enum ordinal */
 	public static Item getItemByOrdinal(int ordinal) {
-		return itemList != null ? itemList[ordinal] : null;
+		return itemList[ordinal];
 	}
 
 	public static Item getItemByUnlocalizedName(String name) {

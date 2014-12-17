@@ -9,9 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base.TileEntity;
 
+import Reika.DragonAPI.Libraries.ReikaEntityHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaPhysicsHelper;
+import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
+import Reika.RotaryCraft.Auxiliary.Interfaces.DiscreteFunction;
+import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -22,15 +31,6 @@ import net.minecraft.world.World;
 
 import org.lwjgl.input.Keyboard;
 
-import Reika.DragonAPI.Libraries.ReikaEntityHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaPhysicsHelper;
-import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
-import Reika.RotaryCraft.Auxiliary.Interfaces.DiscreteFunction;
-import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 
@@ -79,7 +79,7 @@ public abstract class TileEntityAimedCannon extends TileEntityPowerReceiver impl
 		super.updateTileEntity();
 		tickcount++;
 		if (worldObj.isRemote)
-			;//return;
+			return;
 		switch(this.getBlockMetadata()) {
 		case 0:
 			this.getPowerBelow();
@@ -189,7 +189,6 @@ public abstract class TileEntityAimedCannon extends TileEntityPowerReceiver impl
 	{
 		super.writeSyncTag(NBT);
 		NBT.setFloat("theta", theta);
-		NBT.setFloat("phi", phi);
 		NBT.setInteger("direction", dir);
 	}
 
@@ -226,7 +225,6 @@ public abstract class TileEntityAimedCannon extends TileEntityPowerReceiver impl
 	{
 		super.readSyncTag(NBT);
 		theta = NBT.getFloat("theta");
-		phi = NBT.getFloat("phi");
 		dir = NBT.getInteger("direction");
 	}
 
@@ -285,7 +283,7 @@ public abstract class TileEntityAimedCannon extends TileEntityPowerReceiver impl
 	}
 
 	public List<String> getCopyOfSafePlayerList() {
-		return Collections.unmodifiableList(safePlayers);
+		return ReikaJavaLibrary.copyList(safePlayers);
 	}
 
 	public int getOperationTime() {

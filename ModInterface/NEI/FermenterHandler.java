@@ -9,6 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
+import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
+import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiFermenter;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.TileEntities.Production.TileEntityFermenter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,16 +31,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 
 import org.lwjgl.opengl.GL11;
 
-import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
-import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiFermenter;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.TileEntities.Production.TileEntityFermenter;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 
@@ -42,7 +43,7 @@ public class FermenterHandler extends TemplateRecipeHandler {
 
 		public FermenterRecipe(ItemStack in, ItemStack out) {
 			this(out);
-			input = ReikaItemHelper.getSizedItemStack(in, 1);
+			input = in;
 		}
 
 		public FermenterRecipe(ItemStack out) {
@@ -52,10 +53,7 @@ public class FermenterHandler extends TemplateRecipeHandler {
 		@Override
 		public PositionedStack getResult() {
 			ItemStack in = input != null ? input : this.getEntry(this.getBottomSlot());
-			int amt = TileEntityFermenter.getPlantValue(in);
-			if (amt <= 0)
-				amt = 41;
-			ItemStack is = output.getItem() == ItemRegistry.YEAST.getItemInstance() ? output : ReikaItemHelper.getSizedItemStack(output, amt);
+			ItemStack is = output.getItem() == ItemRegistry.YEAST.getItemInstance() ? output : ReikaItemHelper.getSizedItemStack(output, TileEntityFermenter.getPlantValue(in));
 			return new PositionedStack(is, 111, 36);
 		}
 
@@ -103,8 +101,7 @@ public class FermenterHandler extends TemplateRecipeHandler {
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		ReikaTextureHelper.bindTexture(RotaryCraft.class, this.getGuiTexture());
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		ReikaGuiAPI.instance.drawTexturedModalRectWithDepth(0, 6, 5, 5, 166, 76, ReikaGuiAPI.NEI_DEPTH);
+		ReikaGuiAPI.instance.drawTexturedModalRect(0, 6, 5, 5, 166, 76);
 	}
 
 	@Override
@@ -147,13 +144,7 @@ public class FermenterHandler extends TemplateRecipeHandler {
 
 	@Override
 	public void loadUsageRecipes(ItemStack ingredient) {
-		if (ItemRegistry.YEAST.matchItem(ingredient)) {
-			List<ItemStack> li = TileEntityFermenter.getAllValidPlants();
-			for (int i = 0; i < li.size(); i++) {
-				arecipes.add(new FermenterRecipe(li.get(i), ItemStacks.sludge.copy()));
-			}
-		}
-		else if (this.isEthanolIngredient(ingredient) || this.isYeastIngredient(ingredient)) {
+		if (this.isEthanolIngredient(ingredient) || this.isYeastIngredient(ingredient)) {
 			if (this.isYeastIngredient(ingredient))
 				arecipes.add(new FermenterRecipe(ingredient, ItemRegistry.YEAST.getStackOf()));
 			else

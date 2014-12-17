@@ -9,6 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
+import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.DragonAPI.ModInteract.MekToolHandler;
+import Reika.DragonAPI.ModInteract.RedstoneArsenalHandler;
+import Reika.DragonAPI.ModInteract.TinkerToolHandler;
+import Reika.RotaryCraft.GuiHandler;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
+import Reika.RotaryCraft.Registry.GuiRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.TileEntities.Transmission.TileEntitySplitter;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,18 +35,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.DragonAPI.ModInteract.MekToolHandler;
-import Reika.DragonAPI.ModInteract.RedstoneArsenalHandler;
-import Reika.DragonAPI.ModInteract.TinkerToolHandler;
-import Reika.RotaryCraft.GuiHandler;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
-import Reika.RotaryCraft.Registry.GuiRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.TileEntities.Transmission.TileEntitySplitter;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 
@@ -43,8 +44,6 @@ public class RotaryAux {
 
 	public static final Color[] sideColors = {Color.CYAN, Color.BLUE, Color.YELLOW, Color.BLACK, new Color(255, 120, 0), Color.MAGENTA};
 	public static final String[] sideColorNames = {"CYAN", "BLUE", "YELLOW", "BLACK", "ORANGE", "MAGENTA"};
-
-	public static final boolean getPowerOnClient = false;
 
 	private static List<Class<? extends TileEntity>> shaftPowerBlacklist = new ArrayList<Class<? extends TileEntity>>();
 

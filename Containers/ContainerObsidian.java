@@ -9,23 +9,28 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
+import Reika.DragonAPI.Base.CoreContainer;
+import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.TileEntities.Production.TileEntityObsidianMaker;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
-import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
-import Reika.RotaryCraft.TileEntities.Production.TileEntityObsidianMaker;
 
-public class ContainerObsidian extends ContainerIOMachine
+public class ContainerObsidian extends CoreContainer
 {
 	private TileEntityObsidianMaker obsidian;
 	private int lastObsidianCookTime;
+	private int lastObsidianBurnTime;
+	private int lastObsidianItemBurnTime;
 
 	public ContainerObsidian(EntityPlayer player, TileEntityObsidianMaker par2TileEntityObsidian)
 	{
 		super(player, par2TileEntityObsidian);
 		lastObsidianCookTime = 0;
+		lastObsidianBurnTime = 0;
+		lastObsidianItemBurnTime = 0;
 		obsidian = par2TileEntityObsidian;
 
 		int var3; int var4;

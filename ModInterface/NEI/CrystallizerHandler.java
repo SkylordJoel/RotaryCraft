@@ -9,6 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
+import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesCrystallizer;
+import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiCrystallizer;
+import Reika.RotaryCraft.TileEntities.Processing.TileEntityCrystallizer;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -21,12 +28,6 @@ import net.minecraftforge.fluids.FluidStack;
 
 import org.lwjgl.opengl.GL11;
 
-import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesCrystallizer;
-import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiCrystallizer;
-import Reika.RotaryCraft.TileEntities.Processing.TileEntityCrystallizer;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 
@@ -44,7 +45,7 @@ public class CrystallizerHandler extends TemplateRecipeHandler {
 		public PositionedStack getResult() {
 			if (input != null) {
 				ItemStack is = RecipesCrystallizer.getRecipes().getFreezingResult(this.getEntry());
-				return new PositionedStack(is, 75, 25);
+				return new PositionedStack(is, 75, 24);
 			}
 			return null;
 		}
@@ -75,8 +76,7 @@ public class CrystallizerHandler extends TemplateRecipeHandler {
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		ReikaTextureHelper.bindTexture(RotaryCraft.class, this.getGuiTexture());
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		ReikaGuiAPI.instance.drawTexturedModalRectWithDepth(0, 1, 5, 11, 166, 70, ReikaGuiAPI.NEI_DEPTH);
+		ReikaGuiAPI.instance.drawTexturedModalRect(0, 1, 5, 11, 166, 70);
 	}
 
 	@Override

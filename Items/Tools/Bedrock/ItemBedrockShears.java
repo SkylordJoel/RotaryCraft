@@ -9,11 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Bedrock;
 
+import Reika.DragonAPI.Interfaces.IndexedItemSprites;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.ModRegistry.ModWoodList;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+
 import java.util.ArrayList;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.material.Material;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -25,11 +30,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IShearable;
-import Reika.DragonAPI.Interfaces.IndexedItemSprites;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.ModRegistry.ModWoodList;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Registry.ItemRegistry;
 
 public class ItemBedrockShears extends ItemShears implements IndexedItemSprites {
 
@@ -124,8 +124,6 @@ public class ItemBedrockShears extends ItemShears implements IndexedItemSprites 
 			return 0;
 		if (id == Blocks.sapling)
 			return meta&3;
-		if (id instanceof BlockDoublePlant)
-			return meta%BlockDoublePlant.field_149892_a.length;
 		ModWoodList wood = ModWoodList.getModWoodFromLeaf(id, meta);
 		if (wood != null) {
 			return wood.getLeafMetadatas().get(0);

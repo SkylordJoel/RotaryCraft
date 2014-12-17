@@ -9,12 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import Reika.DragonAPI.Exception.RegistrationException;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.RotaryCraft.RotaryCraft;
@@ -30,16 +24,23 @@ import Reika.RotaryCraft.TileEntities.Engine.TileEntityPerformanceEngine;
 import Reika.RotaryCraft.TileEntities.Engine.TileEntitySteamEngine;
 import Reika.RotaryCraft.TileEntities.Engine.TileEntityWindEngine;
 
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+
 public enum EngineType {
-	DC(		256, 	4, 		EngineClass.ELECTRIC,	TileEntityDCEngine.class),
-	WIND(	1024, 	4, 		EngineClass.KINETIC,	TileEntityWindEngine.class),
-	STEAM(	512, 	32, 	EngineClass.THERMAL,	TileEntitySteamEngine.class),
-	GAS(	512, 	128, 	EngineClass.PISTON,		TileEntityGasEngine.class),
-	AC(		256, 	512, 	EngineClass.ELECTRIC,	TileEntityACEngine.class),
-	SPORT(	1024, 	256, 	EngineClass.PISTON,		TileEntityPerformanceEngine.class),
-	HYDRO(	32, 	16384, 	EngineClass.KINETIC,	TileEntityHydroEngine.class), //double speed, add new lava engine as 524kW?
-	MICRO(	131072, 16, 	EngineClass.TURBINE,	TileEntityMicroturbine.class),
-	JET(	65536, 	1024, 	EngineClass.TURBINE,	TileEntityJetEngine.class);
+	DC(256, 4, TileEntityDCEngine.class),
+	WIND(1024, 4, TileEntityWindEngine.class),
+	STEAM(512, 32, TileEntitySteamEngine.class),
+	GAS(512, 128, TileEntityGasEngine.class),
+	AC(256, 512, TileEntityACEngine.class),
+	SPORT(1024, 256, TileEntityPerformanceEngine.class),
+	HYDRO(32, 16384, TileEntityHydroEngine.class), //double speed, add new lava engine as 524kW?
+	MICRO(131072, 16, TileEntityMicroturbine.class),
+	JET(65536, 1024, TileEntityJetEngine.class);
 
 	/** Standard Motor TorqueSpeeds:
 	 * DC Engine = 1-4Nm @ 1600-2400 rpm (168 - 251 rad/s) 			-> 0.672kW - 1.004kW
@@ -56,15 +57,13 @@ public enum EngineType {
 	private final int omega;
 	public final Class<? extends TileEntityEngine> engineClass;
 	private TileEntity renderInstance;
-	public final EngineClass type;
 
 	public static final EngineType[] engineList = values();
 
-	private EngineType(int rpm, int tq, EngineClass type, Class c)
+	private EngineType(int rpm, int tq, Class c)
 	{
 		omega = rpm;
 		torque = tq;
-		this.type = type;
 		engineClass = c;
 	}
 
@@ -77,15 +76,15 @@ public enum EngineType {
 	}
 
 	public long getPower() {
-		return (long)torque*(long)omega;
+		return torque*omega;
 	}
 
 	public double getPowerKW() {
-		return this.getPower()/1000D;
+		return (torque*omega)/1000D;
 	}
 
 	public double getPowerMW() {
-		return this.getPower()/1000000D;
+		return (torque*omega)/1000000D;
 	}
 
 	public String getStringPowerMW() {
@@ -101,23 +100,23 @@ public enum EngineType {
 	}
 
 	public boolean isJetFueled() {
-		return this == JET || this == MICRO;
+		return (this == JET || this == MICRO);
 	}
 
 	public boolean isEthanolFueled() {
-		return this == GAS || this == SPORT;
+		return (this == GAS || this == SPORT);
 	}
 
 	public boolean isWaterPiped() {
-		return this == STEAM || this == SPORT;
+		return (this == STEAM || this == SPORT);
 	}
 
 	public boolean hasGui() {
-		return this == STEAM || this == GAS || this == AC || this == SPORT || this == MICRO || this == JET;
+		return (this == STEAM || this == GAS || this == AC || this == SPORT || this == MICRO || this == JET);
 	}
 
 	public boolean burnsFuel() {
-		return this == STEAM || this == GAS || this == SPORT || this == MICRO || this == JET;
+		return (this == STEAM || this == GAS || this == SPORT || this == MICRO || this == JET);
 	}
 
 	public static EngineType setType(int type) {
@@ -150,39 +149,39 @@ public enum EngineType {
 	}
 
 	public boolean isCooled() {
-		return this == STEAM || this == SPORT;
+		return (this == STEAM || this == SPORT);
 	}
 
 	public boolean isAirBreathing() {
-		return this == GAS || this == SPORT || this == MICRO || this == JET;
+		return (this == GAS || this == SPORT || this == MICRO || this == JET);
 	}
 
 	public boolean electricNoise() {
-		return type == EngineClass.ELECTRIC;
+		return (this == DC || this == AC);
 	}
 
 	public boolean carNoise() {
-		return this == GAS || this == SPORT;
+		return (this == GAS || this == SPORT);
 	}
 
 	public boolean waterNoise() {
-		return this == HYDRO;
+		return (this == HYDRO);
 	}
 
 	public boolean steamNoise() {
-		return this == STEAM;
+		return (this == STEAM);
 	}
 
 	public boolean jetNoise() {
-		return this == JET;
+		return (this == JET);
 	}
 
 	public boolean turbineNoise() {
-		return this == JET || this == MICRO;
+		return (this == JET || this == MICRO);
 	}
 
 	public boolean windNoise() {
-		return this == WIND;
+		return (this == WIND);
 	}
 
 	public boolean canHurtPlayer() {
@@ -228,9 +227,9 @@ public enum EngineType {
 		case SPORT:
 			return 6;
 		case MICRO:
-			return 48;
+			return 24;
 		case JET:
-			return 2;
+			return 4;
 		default:
 			return 0;
 		}
@@ -245,7 +244,15 @@ public enum EngineType {
 	}
 
 	public boolean isECUControllable() {
-		return type.isECUControllable();
+		switch(this) {
+		case DC:
+		case HYDRO:
+		case STEAM:
+		case WIND:
+			return false;
+		default:
+			return true;
+		}
 	}
 
 	public boolean canReceiveFluid(Fluid fluid) {
@@ -319,6 +326,10 @@ public enum EngineType {
 		}
 	}
 
+	public ItemStack getItem() {
+		return MachineRegistry.ENGINE.getCraftedMetadataProduct(this.ordinal());
+	}
+
 	public boolean usesAdditives() {
 		return this == SPORT;
 	}
@@ -350,17 +361,5 @@ public enum EngineType {
 			renderInstance = this.newTileEntity();
 		}
 		return renderInstance;
-	}
-
-	public static enum EngineClass {
-		KINETIC(),
-		THERMAL(),
-		ELECTRIC(),
-		PISTON(),
-		TURBINE();
-
-		public boolean isECUControllable() {
-			return this == PISTON || this == TURBINE;
-		}
 	}
 }

@@ -9,6 +9,24 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
+import Reika.DragonAPI.Instantiable.HybridTank;
+import Reika.DragonAPI.Instantiable.StepTimer;
+import Reika.DragonAPI.Instantiable.Data.BlockArray;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.RotaryConfig;
+import Reika.RotaryCraft.API.PowerGenerator;
+import Reika.RotaryCraft.API.ShaftMerger;
+import Reika.RotaryCraft.Auxiliary.PowerSourceList;
+import Reika.RotaryCraft.Auxiliary.Interfaces.MultiBlockMachine;
+import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
+import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityMirror;
+
 import java.util.List;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -23,22 +41,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
-import Reika.DragonAPI.Instantiable.HybridTank;
-import Reika.DragonAPI.Instantiable.StepTimer;
-import Reika.DragonAPI.Instantiable.Data.BlockArray;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.API.PowerGenerator;
-import Reika.RotaryCraft.API.ShaftMerger;
-import Reika.RotaryCraft.Auxiliary.PowerSourceList;
-import Reika.RotaryCraft.Auxiliary.Interfaces.MultiBlockMachine;
-import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
-import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityMirror;
 
 public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMachine, SimpleProvider, PipeConnector, PowerGenerator, IFluidHandler {
 
@@ -75,10 +77,11 @@ public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMa
 		for (int i = -3; i <= 3; i++) {
 			for (int j = -3; j <= 3; j++) {
 				if (ConfigRegistry.BLOCKDAMAGE.getState())
-					ReikaWorldHelper.temperatureEnvironment(world, x+i, y+1, z+j, Math.min(temp, 1750));
+					ReikaWorldHelper.temperatureEnvironment(world, x+i, y+1, z+j, temp);
 				AxisAlignedBB above = AxisAlignedBB.getBoundingBox(x+i, y+1, z+j, x+i+1, y+2, z+j+1);
-				List<EntityLivingBase> in = world.getEntitiesWithinAABB(EntityLivingBase.class, above);
-				for (EntityLivingBase e : in) {
+				List in = world.getEntitiesWithinAABB(EntityLivingBase.class, above);
+				for (int k = 0; k < in.size(); k++) {
+					EntityLivingBase e = (EntityLivingBase)in.get(k);
 					if (temp > 400)
 						e.setFire(3);
 				}
@@ -200,6 +203,9 @@ public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMa
 		tank.setContents(water, FluidRegistry.WATER);
 	}
 
+	/**
+	 * Writes a tile entity to NBT.
+	 */
 	@Override
 	protected void writeSyncTag(NBTTagCompound NBT)
 	{
@@ -208,6 +214,9 @@ public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMa
 		tank.writeToNBT(NBT);
 	}
 
+	/**
+	 * Reads a tile entity from NBT.
+	 */
 	@Override
 	protected void readSyncTag(NBTTagCompound NBT)
 	{

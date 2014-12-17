@@ -9,7 +9,22 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
-import micdoodle8.mods.galacticraft.api.world.IAtmosphericGas;
+import Reika.DragonAPI.Instantiable.HybridTank;
+import Reika.DragonAPI.Instantiable.StepTimer;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.API.PowerGenerator;
+import Reika.RotaryCraft.API.ShaftMerger;
+import Reika.RotaryCraft.Auxiliary.PowerSourceList;
+import Reika.RotaryCraft.Auxiliary.RotaryAux;
+import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
+import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.Registry.SoundRegistry;
+import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityEngineController;
+
 import micdoodle8.mods.galacticraft.api.world.IGalacticraftWorldProvider;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -19,27 +34,9 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
-import Reika.DragonAPI.Instantiable.HybridTank;
-import Reika.DragonAPI.Instantiable.StepTimer;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.DragonAPI.ModRegistry.InterfaceCache;
-import Reika.RotaryCraft.API.PowerGenerator;
-import Reika.RotaryCraft.API.ShaftMerger;
-import Reika.RotaryCraft.Auxiliary.PowerSourceList;
-import Reika.RotaryCraft.Auxiliary.RotaryAux;
-import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
-import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
-import Reika.RotaryCraft.Registry.EngineType.EngineClass;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.Registry.SoundRegistry;
-import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityEngineController;
 import buildcraft.api.transport.IPipeConnection;
 import buildcraft.api.transport.IPipeTile.PipeType;
-@Strippable(value = {"buildcraft.api.transport.IPipeConnection"})
+
 public class TileEntityFuelEngine extends TileEntityIOMachine implements IFluidHandler, SimpleProvider, PowerGenerator, IPipeConnection,
 TemperatureTE {
 
@@ -61,9 +58,9 @@ TemperatureTE {
 	private boolean canEmitPower(World world, int x, int y, int z) {
 		if (tank.isEmpty())
 			return false;
-		if (InterfaceCache.IGALACTICWORLD.instanceOf(world.provider)) {
+		if (world.provider instanceof IGalacticraftWorldProvider) {
 			IGalacticraftWorldProvider ig = (IGalacticraftWorldProvider)world.provider;
-			if (!ig.hasBreathableAtmosphere() || !ig.isGasPresent(IAtmosphericGas.OXYGEN))
+			if (ig.getSoundVolReductionAmount() > 1)
 				return false;
 		}
 		MachineRegistry m = MachineRegistry.getMachine(world, x, y-1, z);
@@ -97,7 +94,7 @@ TemperatureTE {
 		MachineRegistry m = MachineRegistry.getMachine(world, x, y-1, z);
 		if (m == MachineRegistry.ECU) {
 			TileEntityEngineController te = (TileEntityEngineController)world.getTileEntity(x, y-1, z);
-			return 36*te.getFuelMultiplier(EngineClass.PISTON);
+			return 36*te.getFuelMultiplier();
 		}
 		return 36;
 	}
@@ -392,10 +389,8 @@ TemperatureTE {
 	@Override
 	public void overheat(World world, int x, int y, int z) {
 		world.setBlockToAir(x, y, z);
-		if (!world.isRemote) {
-			world.newExplosion(null, x+0.5, y+0.5, z+0.5, 4, true, true);
-			world.newExplosion(null, x+0.5, y+0.5, z+0.5, 8, true, true);
-		}
+		world.newExplosion(null, x+0.5, y+0.5, z+0.5, 4, true, true);
+		world.newExplosion(null, x+0.5, y+0.5, z+0.5, 8, true, true);
 	}
 
 }

@@ -9,17 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
+import Reika.DragonAPI.Base.BlockTEBase;
+
 import java.util.Random;
 
-import mcp.mobius.waila.api.IWailaDataProvider;
+import mcp.mobius.waila.api.IWailaBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.util.ForgeDirection;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
-import Reika.DragonAPI.Base.BlockTEBase;
 
-@Strippable(value = {"mcp.mobius.waila.api.IWailaDataProvider"})
-public abstract class BlockRotaryCraftMachine extends BlockTEBase implements IWailaDataProvider {
+public abstract class BlockRotaryCraftMachine extends BlockTEBase implements IWailaBlock {
 
 	protected Random par5Random = new Random();
 

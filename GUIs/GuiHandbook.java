@@ -9,26 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
 import Reika.DragonAPI.DragonAPICore;
 import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
 import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
@@ -36,20 +16,33 @@ import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
 import Reika.DragonAPI.Libraries.IO.ReikaRenderHelper;
 import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
 import Reika.DragonAPI.Libraries.Java.ReikaObfuscationHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.RotaryNames;
 import Reika.RotaryCraft.Auxiliary.HandbookAuxData;
-import Reika.RotaryCraft.Auxiliary.HandbookNotifications;
 import Reika.RotaryCraft.Auxiliary.RotaryDescriptions;
 import Reika.RotaryCraft.Auxiliary.Interfaces.HandbookEntry;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.EngineType;
 import Reika.RotaryCraft.Registry.HandbookRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.MaterialRegistry;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
 public class GuiHandbook extends GuiScreen
 {
@@ -85,6 +78,7 @@ public class GuiHandbook extends GuiScreen
 	protected float renderq = 22.5F;
 
 	protected static final RenderBlocks rb = new RenderBlocks();
+
 	protected static final RenderItem ri = new RenderItem();
 
 	public GuiHandbook(EntityPlayer p5ep, World world, int s, int p)
@@ -137,6 +131,9 @@ public class GuiHandbook extends GuiScreen
 		HandbookRegistry.addRelevantButtons(j, k, screen, buttonList);
 	}
 
+	/**
+	 * Returns true if this GUI should pause the game when it is displayed in single-player
+	 */
 	@Override
 	public final boolean doesGuiPauseGame()
 	{
@@ -153,13 +150,11 @@ public class GuiHandbook extends GuiScreen
 			return HandbookAuxData.getPowerDataSize()-1;
 		if (h == HandbookRegistry.COMPUTERCRAFT)
 			return MachineRegistry.machineList.length/36+1;
-		if (h == HandbookRegistry.ALERTS)
-			return HandbookNotifications.getNewAlerts().size()/3;
 		return 1;
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) {
+	public void actionPerformed(GuiButton button) {
 		if (button.id == 12) {
 			mc.thePlayer.closeScreen();
 			return;
@@ -190,6 +185,11 @@ public class GuiHandbook extends GuiScreen
 		if (button.id == 11) {
 			if (screen < this.getMaxPage()) {
 				screen++;
+				page = 0;
+				subpage = 0;
+			}
+			else {
+				screen = 0;
 				page = 0;
 				subpage = 0;
 			}
@@ -268,6 +268,7 @@ public class GuiHandbook extends GuiScreen
 		int lastx = mx;
 		int lasty = my;
 		mc.thePlayer.closeScreen();
+		//ModLoader.openGUI(player, new GuiHandbook(player, worldObj));
 		Mouse.setCursorPosition(lastx, lasty);
 	}
 
@@ -291,8 +292,6 @@ public class GuiHandbook extends GuiScreen
 			return PageType.GREYBOX;
 		if (h == HandbookRegistry.TIMING)
 			return PageType.GREYBOX;
-		if (h == HandbookRegistry.ALERTS)
-			return PageType.BLACKBOX;
 		if (subpage == 1)
 			return PageType.PLAIN;
 		if (h == HandbookRegistry.STEELINGOT)
@@ -304,8 +303,6 @@ public class GuiHandbook extends GuiScreen
 		if (h == HandbookRegistry.COMPACTS)
 			return PageType.COMPACTOR;
 		if (h == HandbookRegistry.GLASS)
-			return PageType.SMELTING;
-		if (h == HandbookRegistry.TUNGSTEN)
 			return PageType.SMELTING;
 		if (h == HandbookRegistry.NETHERDUST)
 			return PageType.SMELTING;
@@ -348,8 +345,7 @@ public class GuiHandbook extends GuiScreen
 		ANIMALBAIT("k"),
 		TERRAFORMER("l"),
 		MACHINERENDER("m"),
-		GREYBOX("n"),
-		BLACKBOX("o");
+		GREYBOX("n");
 
 		private final String endString;
 
@@ -407,82 +403,12 @@ public class GuiHandbook extends GuiScreen
 
 		if (!this.isLimitedView()) {
 			ReikaRenderHelper.disableLighting();
-			int msx = ReikaGuiAPI.instance.getMouseRealX();
-			int msy = ReikaGuiAPI.instance.getMouseRealY();
 			String s = String.format("Page %d/%d", screen, this.getMaxPage());
 			//ReikaGuiAPI.instance.drawCenteredStringNoShadow(fontRendererObj, s, posX+xSize+23, posY+5, 0xffffff);
-			ReikaGuiAPI.instance.drawTooltipAt(fontRendererObj, s, posX+24+xSize+fontRendererObj.getStringWidth(s), posY+20);
-			if (ReikaGuiAPI.instance.isMouseInBox(posX-18, posX+2, posY+0, posY+220)) {
-				String sg = "";
-				List<HandbookEntry> li = this.getAllTabsOnScreen();
-				int idx = (msy-posY)/20;
-				if (idx >= 8) {
-					int diff = idx-8;
-					switch(diff) {
-					case 0:
-						sg = "Next";
-						break;
-					case 1:
-						sg = "Back";
-						break;
-					case 2:
-						sg = "Return";
-						break;
-					}
-				}
-				else if (idx < li.size()) {
-					HandbookEntry h = li.get(idx);
-					sg = h.getTitle();
-				}
-				if (!sg.isEmpty())
-					ReikaGuiAPI.instance.drawTooltipAt(fontRendererObj, sg, msx+fontRendererObj.getStringWidth(sg)+30, msy);
-			}
-		}
-
-		if (HandbookNotifications.newAlerts()) {
-			ReikaTextureHelper.bindFinalTexture(DragonAPICore.class, "Resources/warning.png");
-			GL11.glEnable(GL11.GL_BLEND);
-			Tessellator v5 = Tessellator.instance;
-			int x = posX+257;
-			int y = posY+18;
-			int alpha = (int)(155+100*Math.sin(Math.toRadians(System.currentTimeMillis()/8%360)));
-			v5.startDrawingQuads();
-			v5.setColorRGBA_I(0xffffff, alpha);
-			v5.addVertexWithUV(x, y+24, 0, 0, 1);
-			v5.addVertexWithUV(x+24, y+24, 0, 1, 1);
-			v5.addVertexWithUV(x+24, y, 0, 1, 0);
-			v5.addVertexWithUV(x, y, 0, 0, 0);
-			v5.draw();
-			GL11.glDisable(GL11.GL_BLEND);
-
-			int i = Mouse.getX() * width / mc.displayWidth;
-			int j = height - Mouse.getY() * height / mc.displayHeight - 1;
-			int dx = i-posX;
-			int dy = j-posY;
-			if (ReikaMathLibrary.isValueInsideBoundsIncl(261, 377, dx) && ReikaMathLibrary.isValueInsideBoundsIncl(22, 36, dy)) {
-				ReikaGuiAPI.instance.drawTooltip(fontRendererObj, "Some config settings have been changed.");
-			}
+			ReikaGuiAPI.instance.drawTooltipAt(fontRendererObj, s, posX+12+xSize+fontRendererObj.getStringWidth(s), posY+20);
 		}
 
 		this.drawAuxGraphics(posX, posY);
-	}
-
-	@Override
-	protected final void mouseClicked(int x, int y, int a) {
-		super.mouseClicked(x, y, a);
-		int j = (width - xSize) / 2-2;
-		int k = (height - ySize) / 2-8;
-		if (a == 0) {
-			int dx = x-j;
-			int dy = y-k;
-			if (ReikaMathLibrary.isValueInsideBoundsIncl(261, 377, dx) && ReikaMathLibrary.isValueInsideBoundsIncl(22, 36, dy)) {
-				mc.getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
-				screen = HandbookRegistry.ALERTS.getScreen();
-				page = HandbookRegistry.ALERTS.getPage();
-				this.initGui();
-				HandbookNotifications.clearAlert();
-			}
-		}
 	}
 
 	protected void drawAuxGraphics(int posX, int posY) {
@@ -509,26 +435,17 @@ public class GuiHandbook extends GuiScreen
 		int xo = 0;
 		int yo = 0;
 		HandbookEntry h = this.getEntry();
-		boolean disable = h.isConfigDisabled();
-		String s = h.getTitle()+(disable ? " (Disabled)" : "");
-		fontRendererObj.drawString(s, posX+xo+6, posY+yo+6, disable ? 0xff0000 : 0x000000);
-		int c = disable ? 0x777777 : 0xffffff;
-		int px = posX+descX;
+		fontRendererObj.drawString(h.getTitle(), posX+xo+6, posY+yo+6, 0x000000);
 		if (subpage == 0 || h.sameTextAllSubpages()) {
-			fontRendererObj.drawSplitString(String.format("%s", h.getData()), px, posY+descY, 242, c);
+			fontRendererObj.drawSplitString(String.format("%s", h.getData()), posX+descX, posY+descY, 242, 0xffffff);
 		}
 		else {
-			fontRendererObj.drawSplitString(String.format("%s", h.getNotes()), px, posY+descY, 242, c);
-		}
-		if (disable) {
-			fontRendererObj.drawSplitString("This machine has been disabled by your server admin or modpack creator.", px, posY+descY, 242, 0xffffff);
-			fontRendererObj.drawSplitString("Contact them for further information or to request that they remove this restriction.", px, posY+descY+27, 242, 0xffffff);
-			fontRendererObj.drawSplitString("If you are the server admin or pack creator, use the configuration files to change this setting.", px, posY+descY+54, 242, 0xffffff);
+			fontRendererObj.drawSplitString(String.format("%s", h.getNotes()), posX+descX, posY+descY, 242, 0xffffff);
 		}
 
 		super.drawScreen(x, y, f);
 
-		if (subpage == 0 && !disable)
+		if (subpage == 0)
 			this.drawRecipes();
 
 		if (!this.isLimitedView()) {
@@ -568,10 +485,7 @@ public class GuiHandbook extends GuiScreen
 		float variable = 0;
 		if (h.isEngine() && h != HandbookRegistry.SOLAR) {
 			//((TileEntityEngine)te).type = EngineType.engineList[h.getOffset()];
-			//variable = -1000F*(h.getOffset()+1);
-			EngineType type = EngineType.engineList[h.getOffset()];
-			te = type.getTEInstanceForRender();
-			((TileEntityEngine)te).setType(type.getCraftedProduct());
+			variable = -1000F*(h.getOffset()+1);
 		}
 		if (h == HandbookRegistry.SHAFT) {
 			variable = -1000F*(timeStep+1);
@@ -596,7 +510,6 @@ public class GuiHandbook extends GuiScreen
 			variable = -3000F;
 		}
 		double sc = 48;
-		GL11.glPushMatrix();
 		if (m.hasModel() && !m.isPipe()) {
 			double dx = x;
 			double dy = y+21;
@@ -606,6 +519,10 @@ public class GuiHandbook extends GuiScreen
 			GL11.glRotatef(renderq, 1, 0, 0);
 			GL11.glRotatef(r, 0, 1, 0);
 			TileEntityRendererDispatcher.instance.renderTileEntityAt(te, -0.5, 0, -0.5, variable);
+			GL11.glRotatef(-r, 0, 1, 0);
+			GL11.glRotatef(-renderq, 1, 0, 0);
+			GL11.glTranslated(-dx, -dy, -dz);
+			GL11.glScaled(1D/sc, -1D/sc, 1D/sc);
 		}
 		else {
 			double dx = x;
@@ -617,8 +534,11 @@ public class GuiHandbook extends GuiScreen
 			GL11.glRotatef(r, 0, 1, 0);
 			ReikaTextureHelper.bindTerrainTexture();
 			rb.renderBlockAsItem(m.getBlock(), m.getMachineMetadata(), 1);
+			GL11.glRotatef(-r, 0, 1, 0);
+			GL11.glRotatef(-renderq, 1, 0, 0);
+			GL11.glScaled(1D/sc, -1D/sc, 1D/sc);
+			GL11.glTranslated(-dx, -dy, -dz);
 		}
-		GL11.glPopMatrix();
 	}
 
 	private void drawMachineRender(int posX, int posY) {
@@ -643,9 +563,7 @@ public class GuiHandbook extends GuiScreen
 		y -= 8*Math.sin(Math.abs(Math.toRadians(renderq)));
 
 		if (h.hasMachineRender()) {
-			GL11.glEnable(GL11.GL_BLEND);
 			this.doRenderMachine(x, y, h);
-			GL11.glDisable(GL11.GL_BLEND);
 		}
 		GL11.glTranslated(0, 0, -32);
 	}

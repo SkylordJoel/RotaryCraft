@@ -9,10 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine;
 
-import net.minecraft.entity.player.EntityPlayer;
 import Reika.RotaryCraft.Base.GuiNonPoweredMachine;
 import Reika.RotaryCraft.Containers.ContainerGearbox;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
+
+import net.minecraft.entity.player.EntityPlayer;
 
 public class GuiGearbox extends GuiNonPoweredMachine
 {
@@ -89,7 +90,7 @@ public class GuiGearbox extends GuiNonPoweredMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "gearboxgui";
 	}
 }

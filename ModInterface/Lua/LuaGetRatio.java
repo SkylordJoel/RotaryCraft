@@ -9,11 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.Lua;
 
-import net.minecraft.tileentity.TileEntity;
 import Reika.DragonAPI.ModInteract.Lua.LuaMethod;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear.GearType;
-import dan200.computercraft.api.lua.LuaException;
+
+import net.minecraft.tileentity.TileEntity;
 
 public class LuaGetRatio extends LuaMethod {
 
@@ -22,7 +22,7 @@ public class LuaGetRatio extends LuaMethod {
 	}
 
 	@Override
-	public Object[] invoke(TileEntity te, Object[] args) throws LuaException, InterruptedException {
+	public Object[] invoke(TileEntity te, Object[] args) throws Exception {
 		TileEntityAdvancedGear adv = (TileEntityAdvancedGear) te;
 		return adv.getGearType() == GearType.CVT ? new Object[]{adv.getRatio()} : null;
 	}

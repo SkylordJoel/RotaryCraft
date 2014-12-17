@@ -9,11 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
-import net.minecraft.entity.player.EntityPlayer;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
+import Reika.DragonAPI.Base.CoreContainer;
 import Reika.RotaryCraft.TileEntities.World.TileEntityDefoliator;
 
-public class ContainerDefoliator extends ContainerIOMachine
+import net.minecraft.entity.player.EntityPlayer;
+
+public class ContainerDefoliator extends CoreContainer
 {
 	private TileEntityDefoliator te;
 

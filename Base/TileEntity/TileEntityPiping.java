@@ -9,7 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base.TileEntity;
 
-import java.util.Arrays;
+import Reika.DragonAPI.Instantiable.StepTimer;
+import Reika.DragonAPI.Libraries.ReikaNBTHelper;
+import Reika.RotaryCraft.Auxiliary.Interfaces.CachedConnection;
+import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
+import Reika.RotaryCraft.Auxiliary.Interfaces.PipeRenderConnector;
+import Reika.RotaryCraft.Auxiliary.Interfaces.RenderableDuct;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -23,57 +30,10 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidHandler;
-import Reika.ChromatiCraft.API.WorldRift;
-import Reika.DragonAPI.APIPacketHandler.PacketIDs;
-import Reika.DragonAPI.DragonAPIInit;
-import Reika.DragonAPI.Instantiable.StepTimer;
-import Reika.DragonAPI.Instantiable.Data.WorldLocation;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
-import Reika.RotaryCraft.Auxiliary.Interfaces.CachedConnection;
-import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
-import Reika.RotaryCraft.Auxiliary.Interfaces.PipeRenderConnector;
-import Reika.RotaryCraft.Auxiliary.Interfaces.RenderableDuct;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public abstract class TileEntityPiping extends RotaryCraftTileEntity implements RenderableDuct, CachedConnection {
 
-	public static final int UPPRESSURE = 40;
-	public static final int HORIZPRESSURE = 20;
-	public static final int DOWNPRESSURE = 0;
-
-	private static final int MAXPRESSURE = 2400000;
-
 	private boolean[] connections = new boolean[6];
-
-	public final int getPressure() {
-		Fluid f = this.getFluidType();
-		int amt = this.getFluidLevel();
-		if (f == null || amt <= 0)
-			return 101300;
-		//p = rho*R*T approximation
-		if (f.isGaseous())
-			return 101300+(128*(int)(amt/1000D*f.getTemperature()*Math.abs(f.getDensity())/1000D));
-		else
-			return 101300+amt*24;
-	}
-
-	public int getMaxPressure() {
-		return MAXPRESSURE;
-	}
-
-	private void overpressure(World world, int x, int y, int z) {
-		Fluid f = this.getFluidType();
-		if (f.canBePlacedInWorld()) {
-			world.setBlock(x, y, z, f.getBlock());
-		}
-		else {
-			world.setBlockToAir(x, y, z);
-		}
-		world.markBlockForUpdate(x, y, z);
-		world.notifyBlockOfNeighborChange(x, y, z, f.getBlock());
-	}
 
 	public abstract int getFluidLevel();
 
@@ -114,35 +74,16 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 
 	@Override
 	public void updateEntity(World world, int x, int y, int z, int meta) {
-		if (this.getTicksExisted() < 5) {
-			this.syncAllData(true);
-			world.markBlockForUpdate(x, y, z);
+		if (!world.isRemote) {
+			flowTimer.update();
+			if (flowTimer.checkCap()) {
+				this.intakeFluid(world, x, y, z);
+				this.dumpContents(world, x, y, z);
+			}
 		}
-		Fluid f = this.getFluidType();
-		//if (!world.isRemote) {
-		flowTimer.update();
-		if (flowTimer.checkCap()) {
-			this.intakeFluid(world, x, y, z);
-			this.dumpContents(world, x, y, z);
-		}
-		//}
 		if (this.getFluidLevel() <= 0) {
 			this.setLevel(0);
 			this.setFluid(null);
-		}
-		Fluid f2 = this.getFluidType();
-		if (f != f2) {
-			this.syncAllData(true);
-			world.markBlockForUpdate(x, y, z);
-		}
-
-		if (this.getPressure() > this.getMaxPressure()) {
-			if (world.isRemote) {
-				ReikaPacketHelper.sendUpdatePacket(DragonAPIInit.packetChannel, PacketIDs.EXPLODE.ordinal(), this);
-			}
-			else {
-				this.overpressure(world, x, y, z);
-			}
 		}
 	}
 
@@ -169,11 +110,7 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 		MachineRegistry m = MachineRegistry.getMachine(world, dx, dy, dz);
 		if (m != null && m.isPipe())
 			return this.canConnectToPipe(m);
-		TileEntity te = this.getAdjacentTileEntity(side);
-		if (te instanceof WorldRift) {
-			return true;
-		}
-		return this.interactsWithMachines() && this.isInteractableTile(te, side);
+		return this.interactsWithMachines() && this.isInteractableTile(this.getAdjacentTileEntity(side), side);
 	}
 
 	private boolean isInteractableTile(TileEntity te, ForgeDirection side) {
@@ -197,7 +134,7 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 		return Math.min(TransferAmount.QUARTER.getTransferred(max), this.getFluidLevel()-5);
 	}
 
-	private final void dumpContents(World world, int x, int y, int z) {
+	public void dumpContents(World world, int x, int y, int z) {
 		Fluid f = this.getFluidType();
 		if (this.getFluidLevel() <= 1 || f == null)
 			return;
@@ -213,18 +150,6 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 				int dy = y+dir.offsetY;
 				int dz = z+dir.offsetZ;
 				TileEntity te = world.getTileEntity(dx, dy, dz);
-
-				if (te instanceof WorldRift) {
-					WorldLocation loc = ((WorldRift)te).getLinkTarget();
-					if (loc != null) {
-						te = ((WorldRift)te).getTileEntityFrom(dir);
-						dx = loc.xCoord;
-						dy = loc.yCoord;
-						dz = loc.zCoord;
-						world = loc.getWorld();
-					}
-				}
-
 				if (te instanceof TileEntityPiping) {
 					TileEntityPiping tp = (TileEntityPiping)te;
 					if (this.canConnectToPipe(tp.getMachine()) && this.canEmitToPipeOn(dir) && tp.canReceiveFromPipeOn(dir.getOpposite())) {
@@ -281,7 +206,7 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 		this.setLevel(this.getFluidLevel()+toadd);
 	}
 
-	private final void intakeFluid(World world, int x, int y, int z) {
+	public void intakeFluid(World world, int x, int y, int z) {
 		for (int i = 0; i < 6; i++) {
 			ForgeDirection dir = dirs[i];
 			if (this.canInteractWith(world, x, y, z, dir)) {
@@ -289,18 +214,6 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 				int dy = y+dir.offsetY;
 				int dz = z+dir.offsetZ;
 				TileEntity te = world.getTileEntity(dx, dy, dz);
-
-				if (te instanceof WorldRift) {
-					WorldLocation loc = ((WorldRift)te).getLinkTarget();
-					if (loc != null) {
-						te = ((WorldRift)te).getTileEntityFrom(dir);
-						dx = loc.xCoord;
-						dy = loc.yCoord;
-						dz = loc.zCoord;
-						world = loc.getWorld();
-					}
-				}
-
 				if (te instanceof TileEntityPiping) {
 					TileEntityPiping tp = (TileEntityPiping)te;
 					if (this.canConnectToPipe(tp.getMachine()) && this.canReceiveFromPipeOn(dir) && tp.canEmitToPipeOn(dir.getOpposite())) {
@@ -371,10 +284,6 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 		return connections[dir.ordinal()];
 	}
 
-	public boolean isConnectedDirectly(ForgeDirection dir) {
-		return connections[dir.ordinal()];
-	}
-
 	@Override
 	public final AxisAlignedBB getRenderBoundingBox() {
 		return AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord+1, yCoord+1, zCoord+1);
@@ -394,8 +303,6 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 			connections[i] = this.shouldTryToConnect(dirs[i]);
 			world.func_147479_m(x+dirs[i].offsetX, y+dirs[i].offsetY, z+dirs[i].offsetZ);
 		}
-		this.syncAllData(true);
-		world.markBlockForUpdate(x, y, z);
 		world.func_147479_m(x, y, z);
 	}
 
@@ -438,9 +345,6 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 		if (m != null && !m.isPipe() && m == m2)
 			return true;
 		TileEntity tile = worldObj.getTileEntity(x, y, z);
-		if (tile instanceof WorldRift) {
-			return true;
-		}
 		if (tile instanceof TileEntityPiping)
 			return ((TileEntityPiping) tile).canConnectToPipe(m);
 		else if (tile instanceof PipeConnector) {
@@ -470,22 +374,12 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 	{
 		super.readSyncTag(NBT);
 
-		boolean update = false;
-
-		boolean[] old = new boolean[connections.length];
-		System.arraycopy(connections, 0, old, 0, old.length);
 		for (int i = 0; i < 6; i++) {
 			connections[i] = NBT.getBoolean("conn"+i);
 		}
-		update = !Arrays.equals(old, connections);
 
-		Fluid f = ReikaNBTHelper.getFluidFromNBT(NBT);
-		update = update || f != this.getFluidType();
-		this.setFluid(f);
+		this.setFluid(ReikaNBTHelper.getFluidFromNBT(NBT));
 		this.setLevel(NBT.getInteger("level"));
-
-		if (worldObj != null && update)
-			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 
 	public boolean isConnectedToNonSelf(ForgeDirection dir) {
@@ -500,6 +394,11 @@ public abstract class TileEntityPiping extends RotaryCraftTileEntity implements 
 		Block b = world.getBlock(dx, dy, dz);
 		int meta = world.getBlockMetadata(dx, dy, dz);
 		return b != this.getMachine().getBlock() || meta != this.getMachine().getMachineMetadata();
+	}
+
+	@Override
+	public boolean needsToCauseBlockUpdates() {
+		return true;
 	}
 
 	@Override

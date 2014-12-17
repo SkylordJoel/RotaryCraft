@@ -9,6 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary.RecipeManagers;
 
+import Reika.DragonAPI.Instantiable.Data.ItemHashMap;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.Registry.DifficultyEffects;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.TileEntities.Processing.TileEntityCompactor;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,12 +24,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import Reika.DragonAPI.Instantiable.Data.ItemHashMap;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Registry.DifficultyEffects;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.TileEntities.Processing.TileEntityCompactor;
 
 public class RecipesCompactor
 {

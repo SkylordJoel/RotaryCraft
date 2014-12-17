@@ -9,6 +9,21 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
+import Reika.DragonAPI.Instantiable.HybridTank;
+import Reika.DragonAPI.Instantiable.Data.BlockArray;
+import Reika.DragonAPI.Libraries.ReikaEntityHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.RotaryConfig;
+import Reika.RotaryCraft.Auxiliary.Interfaces.DiscreteFunction;
+import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
+import Reika.RotaryCraft.Registry.DurationRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.Registry.RotaryAchievements;
+import Reika.RotaryCraft.Registry.SoundRegistry;
+
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -24,19 +39,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
-import Reika.DragonAPI.Instantiable.HybridTank;
-import Reika.DragonAPI.Instantiable.Data.BlockArray;
-import Reika.DragonAPI.Libraries.ReikaEntityHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.Auxiliary.Interfaces.DiscreteFunction;
-import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
-import Reika.RotaryCraft.Registry.DurationRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.Registry.RotaryAchievements;
-import Reika.RotaryCraft.Registry.SoundRegistry;
 
 public class TileEntityPump extends TileEntityPowerReceiver implements PipeConnector, IFluidHandler, DiscreteFunction {
 
@@ -86,18 +88,19 @@ public class TileEntityPump extends TileEntityPowerReceiver implements PipeConne
 			//ModLoader.getMinecraftInstance().ingameGUI.addChatMessage(String.format("%d", this.liquidID));
 		}
 
-		if (power > MINPOWER && torque >= MINTORQUE && soundtick >= 100) {
+		if (power > MINPOWER && soundtick >= 100) {
 			soundtick = 0;
 			SoundRegistry.PUMP.playSoundAtBlock(world, x, y, z, 0.5F, 1);
 		}
-		if (power > MINPOWER && torque >= MINTORQUE)
+		if (power > MINPOWER)
 			this.suckUpMobs(world, x, y, z);
 	}
 
 	private void suckUpMobs(World world, int x, int y, int z) {
 		AxisAlignedBB box = AxisAlignedBB.getBoundingBox(x, y-1, z, x+1, y, z+1);
-		List<EntityLivingBase> inbox = world.getEntitiesWithinAABB(EntityLivingBase.class, box);
-		for (EntityLivingBase e : inbox) {
+		List inbox = world.getEntitiesWithinAABB(EntityLivingBase.class, box);
+		for (int i = 0; i < inbox.size(); i++) {
+			EntityLivingBase e = (EntityLivingBase)inbox.get(i);
 			e.attackEntityFrom(DamageSource.generic, 5);
 		}
 		if (inbox.size() > 0 && !ReikaEntityHelper.allAreDead(inbox, false))
@@ -215,7 +218,7 @@ public class TileEntityPump extends TileEntityPowerReceiver implements PipeConne
 			phi = 0;
 			return;
 		}
-		if (power < MINPOWER || torque < MINTORQUE)
+		if (power < MINPOWER)
 			return;
 		phi += ReikaMathLibrary.doubpow(ReikaMathLibrary.logbase(omega+1, 2), 1.05);
 	}
@@ -232,7 +235,7 @@ public class TileEntityPump extends TileEntityPowerReceiver implements PipeConne
 
 	@Override
 	public boolean canConnectToPipe(MachineRegistry m) {
-		return m.isStandardPipe();
+		return m == MachineRegistry.PIPE;
 	}
 
 	@Override

@@ -9,14 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
-import java.util.HashMap;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 import Reika.DragonAPI.Base.BlockTEBase;
 import Reika.DragonAPI.Exception.RegistrationException;
 import Reika.DragonAPI.Instantiable.Data.PluralMap;
@@ -53,6 +45,15 @@ import Reika.RotaryCraft.Blocks.BlockSolar;
 import Reika.RotaryCraft.Blocks.BlockTrans;
 import Reika.RotaryCraft.Items.ItemBlockDeco;
 import Reika.RotaryCraft.Items.ItemBlockDecoTank;
+
+import java.util.HashMap;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
 
 public enum BlockRegistry implements BlockEnum {
 

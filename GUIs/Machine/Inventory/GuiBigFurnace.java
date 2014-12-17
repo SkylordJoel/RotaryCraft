@@ -9,16 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
+import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
+import Reika.RotaryCraft.Base.GuiPowerOnlyMachine;
+import Reika.RotaryCraft.Containers.ContainerBigFurnace;
+import Reika.RotaryCraft.TileEntities.Processing.TileEntityBigFurnace;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.fluids.FluidRegistry;
 
 import org.lwjgl.opengl.GL11;
-
-import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
-import Reika.RotaryCraft.Base.GuiPowerOnlyMachine;
-import Reika.RotaryCraft.Containers.ContainerBigFurnace;
-import Reika.RotaryCraft.TileEntities.Processing.TileEntityBigFurnace;
 
 public class GuiBigFurnace extends GuiPowerOnlyMachine
 {
@@ -82,7 +82,7 @@ public class GuiBigFurnace extends GuiPowerOnlyMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "bigfurngui";
 	}
 }

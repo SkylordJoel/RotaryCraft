@@ -9,64 +9,62 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
+import Reika.DragonAPI.Instantiable.WorldLocation;
+import Reika.DragonAPI.Interfaces.SoundEnum;
+import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.RotaryCraft.RotaryCraft;
+
 import java.net.URL;
 
 import net.minecraft.client.audio.SoundCategory;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Instantiable.Data.WorldLocation;
-import Reika.DragonAPI.Interfaces.SoundEnum;
-import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
-import Reika.RotaryCraft.RotaryCraft;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 
 public enum SoundRegistry implements SoundEnum {
 
-	ELECTRIC("#elecengine"),
-	WIND("#windengine"),
-	STEAM("#steamengine"),
-	CAR("#gasengine"),
-	HYDRO("#hydroengine"),
-	MICRO("#microengine"),
-	JET("#jetengine"),
-	KNOCKBACK("knockback"),
-	PULSEJET("#pulsejet"),
-	PUMP("#pump"),
-	PILEDRIVER("piledriver"),
-	SMOKE("smokealarm"),
-	SPRINKLER("#sprinkler"),
-	FLYWHEEL("#flywheel"),
-	PROJECTOR("projector"),
-	LOWBASS("basslo"),
-	BASS("bass"),
-	HIBASS("basshi"),
-	LOWHARP("harplo"),
-	HARP("harp"),
-	HIHARP("harphi"),
-	LOWPLING("plinglo"),
-	PLING("pling"),
-	HIPLING("plinghi"),
-	FRICTION("#friction"),
-	CRAFT("#craft"),
-	AIRCOMP("#compress"),
-	PNEUMATIC("#pneu"),
-	LINEBUILDER("linebuild"),
-	JETPACK("pack"),
-	DIESEL("#diesel"),
-	BELT("#belt"),
-	FAN("#fan"),
-	SPARK("spark"),
-	DYNAMO("#dynamo"),
-	JETDAMAGE("jetdamage"),
-	INGESTION("ingest_short"),
-	FRIDGE("#fridge"),
-	JETSTART("#jetstart"),
-	SONIC("#sonic"),
-	SHORTJET("shortjet"),
-	AFTERBURN("afterburner"),
-	RUMBLE("rumble2");
+	ELECTRIC("#elecengine", SoundCategory.AMBIENT),
+	WIND("#windengine", SoundCategory.AMBIENT),
+	STEAM("#steamengine", SoundCategory.AMBIENT),
+	CAR("#gasengine", SoundCategory.AMBIENT),
+	HYDRO("#hydroengine", SoundCategory.AMBIENT),
+	MICRO("#microengine", SoundCategory.AMBIENT),
+	JET("#jetengine", SoundCategory.AMBIENT),
+	KNOCKBACK("knockback", SoundCategory.PLAYERS),
+	PULSEJET("#pulsejet", SoundCategory.AMBIENT),
+	PUMP("#pump", SoundCategory.AMBIENT),
+	PILEDRIVER("piledriver", SoundCategory.BLOCKS),
+	SMOKE("smokealarm", SoundCategory.AMBIENT),
+	SPRINKLER("#sprinkler", SoundCategory.AMBIENT),
+	FLYWHEEL("#flywheel", SoundCategory.AMBIENT),
+	PROJECTOR("projector", SoundCategory.BLOCKS),
+	LOWBASS("basslo", SoundCategory.MUSIC),
+	BASS("bass", SoundCategory.MUSIC),
+	HIBASS("basshi", SoundCategory.MUSIC),
+	LOWHARP("harplo", SoundCategory.MUSIC),
+	HARP("harp", SoundCategory.MUSIC),
+	HIHARP("harphi", SoundCategory.MUSIC),
+	LOWPLING("plinglo", SoundCategory.MUSIC),
+	PLING("pling", SoundCategory.MUSIC),
+	HIPLING("plinghi", SoundCategory.MUSIC),
+	FRICTION("#friction", SoundCategory.AMBIENT),
+	CRAFT("#craft", SoundCategory.PLAYERS),
+	AIRCOMP("#compress", SoundCategory.AMBIENT),
+	PNEUMATIC("#pneu", SoundCategory.AMBIENT),
+	LINEBUILDER("linebuild", SoundCategory.BLOCKS),
+	JETPACK("pack", SoundCategory.AMBIENT),
+	DIESEL("#diesel", SoundCategory.AMBIENT),
+	BELT("#belt", SoundCategory.AMBIENT),
+	FAN("#fan", SoundCategory.AMBIENT),
+	SPARK("spark", SoundCategory.AMBIENT),
+	DYNAMO("#dynamo", SoundCategory.AMBIENT),
+	JETDAMAGE("jetdamage", SoundCategory.BLOCKS),
+	INGESTION("ingest_short", SoundCategory.BLOCKS),
+	FRIDGE("#fridge", SoundCategory.AMBIENT),
+	JETSTART("#jetstart", SoundCategory.BLOCKS),
+	SONIC("#sonic", SoundCategory.AMBIENT);
 
 	public static final SoundRegistry[] soundList = SoundRegistry.values();
 
@@ -80,19 +78,21 @@ public enum SoundRegistry implements SoundEnum {
 
 	private final String path;
 	private final String name;
+	private final SoundCategory category;
 
 	private boolean isVolumed = false;
 
-	private SoundRegistry(String n) {
+	private SoundRegistry(String n, SoundCategory cat) {
 		if (n.startsWith("#")) {
 			isVolumed = true;
 			n = n.substring(1);
 		}
 		name = n;
 		if (this.isNote())
-			path = PREFIX+SOUND_FOLDER+MUSIC_FOLDER+name+SOUND_EXT;
+			path = SOUND_FOLDER+MUSIC_FOLDER+name+SOUND_EXT;
 		else
-			path = PREFIX+SOUND_FOLDER+name+SOUND_EXT;
+			path = SOUND_FOLDER+name+SOUND_EXT;
+		category = cat;
 	}
 
 	public float getSoundVolume() {
@@ -116,7 +116,7 @@ public enum SoundRegistry implements SoundEnum {
 			return;
 		//Packet250CustomPayload p = new Packet62LevelSound(s.getPlayableReference(), x, y, z, vol, pitch);
 		//PacketDispatcher.sendPacketToAllInDimension(p, world.provider.dimensionId);
-		ReikaSoundHelper.playSound(this, RotaryCraft.packetChannel, world, x, y, z, vol*this.getModVolume(), pitch);
+		ReikaPacketHelper.sendSoundPacket(RotaryCraft.packetChannel, this, world, x, y, z, vol*this.getModVolume(), pitch);
 	}
 
 	public void playSoundAtBlock(World world, int x, int y, int z, float vol, float pitch) {
@@ -169,11 +169,6 @@ public enum SoundRegistry implements SoundEnum {
 
 	@Override
 	public SoundCategory getCategory() {
-		return SoundCategory.MASTER;
-	}
-
-	@Override
-	public boolean canOverlap() {
-		return this == JETPACK || this == JETDAMAGE || this == RUMBLE;
+		return category;
 	}
 }

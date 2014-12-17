@@ -9,6 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaRandomHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.Base.TileEntity.InventoriedPoweredLiquidIO;
+import Reika.RotaryCraft.Registry.DifficultyEffects;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -17,13 +25,6 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaRandomHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Base.TileEntity.InventoriedPoweredLiquidIO;
-import Reika.RotaryCraft.Registry.DifficultyEffects;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityFuelConverter extends InventoriedPoweredLiquidIO {
 
@@ -73,7 +74,6 @@ public class TileEntityFuelConverter extends InventoriedPoweredLiquidIO {
 		//ReikaJavaLibrary.pConsole(input+":"+output);
 
 		int factor = 5;
-		int ratio = 4;
 
 		//ReikaJavaLibrary.pConsoleSideOnly("BC: "+this.getBCFuel()+"    JET: "+this.getJetFuel(), Side.CLIENT);
 
@@ -84,8 +84,8 @@ public class TileEntityFuelConverter extends InventoriedPoweredLiquidIO {
 		if (omega < MINSPEED)
 			convert = false;
 
-		if (convert && input.getFluid() != null && input.getFluid().amount >= ratio*factor && this.hasItems()) {
-			FluidStack drain = input.drain(ratio*factor, true);
+		if (convert && input.getFluid() != null && input.getFluid().amount >= 2*factor && this.hasItems()) {
+			FluidStack drain = input.drain(2*factor, true);
 			output.fill(FluidRegistry.getFluidStack("jet fuel", factor), true);
 			if (!world.isRemote)
 				this.consumeItems();

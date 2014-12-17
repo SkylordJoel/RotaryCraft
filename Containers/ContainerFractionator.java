@@ -9,15 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
+import Reika.DragonAPI.Base.CoreContainer;
+import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.TileEntities.Production.TileEntityFractionator;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
-import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
-import Reika.RotaryCraft.TileEntities.Production.TileEntityFractionator;
 
-public class ContainerFractionator extends ContainerIOMachine
+public class ContainerFractionator extends CoreContainer
 {
 	private TileEntityFractionator Fraction;
 

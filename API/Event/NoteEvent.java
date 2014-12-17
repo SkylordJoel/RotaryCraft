@@ -9,9 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.API.Event;
 
-import net.minecraft.tileentity.TileEntity;
 import Reika.DragonAPI.Instantiable.Event.TileEntityEvent;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.TileEntities.Decorative.TileEntityMusicBox;
+import Reika.RotaryCraft.TileEntities.Decorative.TileEntityMusicBox.Note;
+
+import net.minecraft.tileentity.TileEntity;
 
 public class NoteEvent extends TileEntityEvent {
 
@@ -19,11 +22,15 @@ public class NoteEvent extends TileEntityEvent {
 	public final int noteChannel;
 	public final int length;
 
-	public NoteEvent(TileEntity te, int pitch, int length, int channel) {
+	public NoteEvent(TileEntityMusicBox te, Note n, int channel) {
 		super(te);
 		noteChannel = channel;
-		notePitch = pitch;
-		this.length = length;
+		notePitch = n.pitch;
+		length = n.getTickLength();
+	}
+
+	public boolean match(TileEntityMusicBox te) {
+		return this.getTile() == te;
 	}
 
 	public double getDistanceTo(TileEntity te) {

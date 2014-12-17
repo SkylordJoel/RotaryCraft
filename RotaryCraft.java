@@ -9,6 +9,68 @@
  ******************************************************************************/
 package Reika.RotaryCraft;
 
+import Reika.ChromatiCraft.API.AcceleratorBlacklist;
+import Reika.ChromatiCraft.API.AcceleratorBlacklist.BlacklistReason;
+import Reika.DragonAPI.DragonAPICore;
+import Reika.DragonAPI.ModList;
+import Reika.DragonAPI.Auxiliary.CommandableUpdateChecker;
+import Reika.DragonAPI.Auxiliary.CompatibilityTracker;
+import Reika.DragonAPI.Auxiliary.DonatorController;
+import Reika.DragonAPI.Auxiliary.IntegrityChecker;
+import Reika.DragonAPI.Auxiliary.PlayerFirstTimeTracker;
+import Reika.DragonAPI.Auxiliary.PlayerHandler;
+import Reika.DragonAPI.Auxiliary.PotionCollisionTracker;
+import Reika.DragonAPI.Auxiliary.SuggestedModsTracker;
+import Reika.DragonAPI.Auxiliary.VanillaIntegrityTracker;
+import Reika.DragonAPI.Base.DragonAPIMod;
+import Reika.DragonAPI.Instantiable.CustomStringDamageSource;
+import Reika.DragonAPI.Instantiable.EnhancedFluid;
+import Reika.DragonAPI.Instantiable.IO.ModLogger;
+import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
+import Reika.DragonAPI.Libraries.ReikaRegistryHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.ModInteract.BannedItemReader;
+import Reika.DragonAPI.ModInteract.ReikaMystcraftHelper;
+import Reika.DragonAPI.ModInteract.ReikaThaumHelper;
+import Reika.RotaryCraft.Auxiliary.FreezePotion;
+import Reika.RotaryCraft.Auxiliary.HandbookTracker;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.Auxiliary.JetpackFuelOverlay;
+import Reika.RotaryCraft.Auxiliary.LockNotification;
+import Reika.RotaryCraft.Auxiliary.PotionDeafness;
+import Reika.RotaryCraft.Auxiliary.PotionGrowthHormone;
+import Reika.RotaryCraft.Auxiliary.RotaryDescriptions;
+import Reika.RotaryCraft.Auxiliary.TabModOre;
+import Reika.RotaryCraft.Auxiliary.TabRotaryCraft;
+import Reika.RotaryCraft.Auxiliary.TabRotaryItems;
+import Reika.RotaryCraft.Auxiliary.TabRotaryTools;
+import Reika.RotaryCraft.Auxiliary.TabSpawner;
+import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesGrinder;
+import Reika.RotaryCraft.Items.ItemFuelTank;
+import Reika.RotaryCraft.ModInterface.CanolaBee;
+import Reika.RotaryCraft.ModInterface.MachineAspectMapper;
+import Reika.RotaryCraft.ModInterface.OreForcer;
+import Reika.RotaryCraft.ModInterface.Lua.LuaMethods;
+import Reika.RotaryCraft.Registry.BlockRegistry;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.DifficultyEffects;
+import Reika.RotaryCraft.Registry.EngineType;
+import Reika.RotaryCraft.Registry.ExtraConfigIDs;
+import Reika.RotaryCraft.Registry.ExtractorBonus;
+import Reika.RotaryCraft.Registry.HandbookRegistry;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.Registry.MobBait;
+import Reika.RotaryCraft.Registry.PacketRegistry;
+import Reika.RotaryCraft.Registry.PlantMaterials;
+import Reika.RotaryCraft.Registry.PowerReceivers;
+import Reika.RotaryCraft.Registry.RotaryAchievements;
+import Reika.RotaryCraft.Registry.SoundRegistry;
+import Reika.RotaryCraft.TileEntities.Storage.TileEntityFluidCompressor;
+import Reika.RotaryCraft.TileEntities.Storage.TileEntityReservoir;
+
 import java.net.URL;
 import java.util.Random;
 
@@ -28,61 +90,6 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import thaumcraft.api.aspects.Aspect;
-import Reika.ChromatiCraft.API.AcceleratorBlacklist;
-import Reika.ChromatiCraft.API.AcceleratorBlacklist.BlacklistReason;
-import Reika.DragonAPI.DragonAPICore;
-import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.Auxiliary.Trackers.CommandableUpdateChecker;
-import Reika.DragonAPI.Auxiliary.Trackers.CompatibilityTracker;
-import Reika.DragonAPI.Auxiliary.Trackers.DonatorController;
-import Reika.DragonAPI.Auxiliary.Trackers.IntegrityChecker;
-import Reika.DragonAPI.Auxiliary.Trackers.PlayerFirstTimeTracker;
-import Reika.DragonAPI.Auxiliary.Trackers.PlayerHandler;
-import Reika.DragonAPI.Auxiliary.Trackers.PotionCollisionTracker;
-import Reika.DragonAPI.Auxiliary.Trackers.SuggestedModsTracker;
-import Reika.DragonAPI.Auxiliary.Trackers.VanillaIntegrityTracker;
-import Reika.DragonAPI.Base.DragonAPIMod;
-import Reika.DragonAPI.Instantiable.CustomStringDamageSource;
-import Reika.DragonAPI.Instantiable.EnhancedFluid;
-import Reika.DragonAPI.Instantiable.IO.ModLogger;
-import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
-import Reika.DragonAPI.Libraries.ReikaRegistryHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.ModInteract.BannedItemReader;
-import Reika.DragonAPI.ModInteract.ReikaMystcraftHelper;
-import Reika.DragonAPI.ModInteract.ReikaThaumHelper;
-import Reika.DragonAPI.ModInteract.RouterHelper;
-import Reika.RotaryCraft.Auxiliary.FindMachinesCommand;
-import Reika.RotaryCraft.Auxiliary.FreezePotion;
-import Reika.RotaryCraft.Auxiliary.HandbookNotifications.HandbookConfigVerifier;
-import Reika.RotaryCraft.Auxiliary.HandbookTracker;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Auxiliary.JetpackFuelOverlay;
-import Reika.RotaryCraft.Auxiliary.LockNotification;
-import Reika.RotaryCraft.Auxiliary.PotionDeafness;
-import Reika.RotaryCraft.Auxiliary.RotaryDescriptions;
-import Reika.RotaryCraft.Auxiliary.TabModOre;
-import Reika.RotaryCraft.Auxiliary.TabRotaryCraft;
-import Reika.RotaryCraft.Auxiliary.TabRotaryItems;
-import Reika.RotaryCraft.Auxiliary.TabRotaryTools;
-import Reika.RotaryCraft.Auxiliary.TabSpawner;
-import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesGrinder;
-import Reika.RotaryCraft.Items.ItemFuelTank;
-import Reika.RotaryCraft.ModInterface.CanolaBee;
-import Reika.RotaryCraft.ModInterface.MachineAspectMapper;
-import Reika.RotaryCraft.ModInterface.OreForcer;
-import Reika.RotaryCraft.Registry.BlockRegistry;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.EngineType;
-import Reika.RotaryCraft.Registry.ExtraConfigIDs;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.Registry.RotaryAchievements;
-import Reika.RotaryCraft.TileEntities.Processing.TileEntityExtractor;
-import Reika.RotaryCraft.TileEntities.Storage.TileEntityFluidCompressor;
-import Reika.RotaryCraft.TileEntities.Storage.TileEntityReservoir;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -93,7 +100,6 @@ import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -150,9 +156,8 @@ public class RotaryCraft extends DragonAPIMod {
 	public static Entity fallblock;
 
 	public static FreezePotion freeze;
+	public static PotionGrowthHormone growth;
 	public static PotionDeafness deafness;
-
-	public static String currentVersion = "v@MAJOR_VERSION@@MINOR_VERSION@";
 
 	@Instance("RotaryCraft")
 	public static RotaryCraft instance = new RotaryCraft();
@@ -206,7 +211,6 @@ public class RotaryCraft extends DragonAPIMod {
 	@Override
 	@EventHandler
 	public void preload(FMLPreInitializationEvent evt) {
-		this.verifyVersions();
 		MinecraftForge.EVENT_BUS.register(RotaryEventManager.instance);
 		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
 			MinecraftForge.EVENT_BUS.register(JetpackFuelOverlay.instance);
@@ -246,6 +250,10 @@ public class RotaryCraft extends DragonAPIMod {
 		PotionCollisionTracker.instance.addPotionID(instance, id, FreezePotion.class);
 		freeze = (FreezePotion)new FreezePotion(id).setPotionName("Frozen Solid");
 
+		id = ExtraConfigIDs.GROWTHID.getValue();
+		PotionCollisionTracker.instance.addPotionID(instance, id, PotionGrowthHormone.class);
+		growth = (PotionGrowthHormone)new PotionGrowthHormone(id).setPotionName("Growth Hormone");
+
 		ReikaPacketHelper.registerPacketHandler(instance, packetChannel, new PacketHandlerCore());
 
 		//id = ExtraConfigIDs.DEAFID.getValue();
@@ -265,7 +273,6 @@ public class RotaryCraft extends DragonAPIMod {
 	public void load(FMLInitializationEvent event) {
 		if (this.isLocked())
 			PlayerHandler.instance.registerTracker(LockNotification.instance);
-
 		if (!this.isLocked()) {
 			proxy.addArmorRenders();
 			proxy.registerRenderers();
@@ -324,13 +331,6 @@ public class RotaryCraft extends DragonAPIMod {
 		DonatorController.instance.addDonation(instance, "RiComikka", 15.00F);
 		DonatorController.instance.addDonation(instance, "Spork", 10.00F);
 		DonatorController.instance.addDonation(instance, "Demosthenex", 50.00F);
-		DonatorController.instance.addDonation(instance, "Lavious", 15.00F);
-		DonatorController.instance.addDonation(instance, "Paul17041993", 20.00F);
-		DonatorController.instance.addDonation(instance, "Mattabase", 40.00F);
-		DonatorController.instance.addDonation(instance, "Celestial Phoenix", 100.00F);
-		DonatorController.instance.addDonation(instance, "SemicolonDash", 50.00F);
-		DonatorController.instance.addDonation(instance, "Choco218", 50.00F);
-		DonatorController.instance.addDonation(instance, "Dragonsummoner", 5.00F);
 
 		ReikaMystcraftHelper.disableFluidPage("jet fuel");
 		ReikaMystcraftHelper.disableFluidPage("rc ethanol");
@@ -354,7 +354,6 @@ public class RotaryCraft extends DragonAPIMod {
 
 		if (ConfigRegistry.HANDBOOK.getState())
 			PlayerFirstTimeTracker.addTracker(new HandbookTracker());
-		PlayerHandler.instance.registerTracker(HandbookConfigVerifier.instance);
 
 		SuggestedModsTracker.instance.addSuggestedMod(instance, ModList.REACTORCRAFT, "Endgame power generation of multiple gigawatts");
 		SuggestedModsTracker.instance.addSuggestedMod(instance, ModList.ELECTRICRAFT, "Easier and lower-CPU-load power transmission and distribution");
@@ -371,7 +370,18 @@ public class RotaryCraft extends DragonAPIMod {
 		OreForcer.instance.forceCompatibility();
 
 		//RotaryRecipes.addModInterface();
-		proxy.initClasses();
+
+		ReikaJavaLibrary.initClass(DifficultyEffects.class);
+		ReikaJavaLibrary.initClass(ExtractorBonus.class);
+		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+			ReikaJavaLibrary.initClass(HandbookRegistry.class);
+		ReikaJavaLibrary.initClass(MobBait.class);
+		ReikaJavaLibrary.initClass(PlantMaterials.class);
+		ReikaJavaLibrary.initClass(EngineType.class);
+		ReikaJavaLibrary.initClass(SoundRegistry.class);
+		ReikaJavaLibrary.initClass(PacketRegistry.class);
+		ReikaJavaLibrary.initClass(PowerReceivers.class);
+		ReikaJavaLibrary.initClass(LuaMethods.class);
 
 		TileEntityReservoir.initCreativeFluids();
 		TileEntityFluidCompressor.initCreativeFluids();
@@ -395,9 +405,9 @@ public class RotaryCraft extends DragonAPIMod {
 				}
 			}
 
-		if (ModList.CHROMATICRAFT.isLoaded()) {
+		if (ModList.GEOSTRATA.isLoaded()) {
 			for (int i = 0; i < MachineRegistry.machineList.length; i++) {
-				MachineRegistry m = MachineRegistry.machineList.get(i);
+				MachineRegistry m = MachineRegistry.machineList[i];
 				if (!m.allowsAcceleration())
 					AcceleratorBlacklist.addBlacklist(m.getTEClass(), m.getName(), BlacklistReason.EXPLOIT);
 			}
@@ -444,22 +454,13 @@ public class RotaryCraft extends DragonAPIMod {
 
 		if (!this.isLocked())
 			RotaryRecipes.addPostLoadRecipes();
-
-		if (ModList.ROUTER.isLoaded()) {
-			RouterHelper.blacklistTileEntity(TileEntityExtractor.class, "Extractor", "BlockMIMachine:10"); //Extractor
-		}
-	}
-
-	@EventHandler
-	public void registerCommands(FMLServerStartingEvent evt) {
-		evt.registerServerCommand(new FindMachinesCommand());
 	}
 
 	@EventHandler
 	public void overrideRecipes(FMLServerStartedEvent evt) {
 		if (!this.isLocked()) {
 			if (!ReikaRecipeHelper.isCraftable(MachineRegistry.BLASTFURNACE.getCraftedProduct())) {
-				GameRegistry.addRecipe(MachineRegistry.BLASTFURNACE.getCraftedProduct(), "StS", "trt", "StS", 'r', Items.redstone, 'S', ReikaItemHelper.stoneBricks, RotaryRecipes.getBlastFurnaceGatingMaterial());
+				GameRegistry.addRecipe(MachineRegistry.BLASTFURNACE.getCraftedProduct(), "SSS", "SrS", "SSS", 'r', Items.redstone, 'S', ReikaItemHelper.stoneBricks);
 			}
 			if (!ReikaRecipeHelper.isCraftable(MachineRegistry.WORKTABLE.getCraftedProduct())) {
 				GameRegistry.addRecipe(MachineRegistry.WORKTABLE.getCraftedProduct(), " C ", "SBS", "srs", 'r', Items.redstone, 'S', ItemStacks.steelingot, 'B', Blocks.brick_block, 'C', Blocks.crafting_table, 's', ReikaItemHelper.stoneSlab);
@@ -475,7 +476,6 @@ public class RotaryCraft extends DragonAPIMod {
 		RotaryRegistration.setupLiquids();
 
 		BlockRegistry.loadMappings();
-		ItemRegistry.loadMappings();
 	}
 
 	private static void registerBlock(Block b) {

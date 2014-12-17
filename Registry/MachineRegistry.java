@@ -9,32 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.item.EntityXPOrb;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 import Reika.DragonAPI.DragonAPICore;
 import Reika.DragonAPI.DragonOptions;
 import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Exception.RegistrationException;
+import Reika.DragonAPI.Instantiable.WorldLocation;
 import Reika.DragonAPI.Instantiable.Data.BlockMap;
-import Reika.DragonAPI.Instantiable.Data.ImmutableArray;
-import Reika.DragonAPI.Instantiable.Data.WorldLocation;
-import Reika.DragonAPI.Interfaces.TileEnum;
 import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.ModRegistry.PowerTypes;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.RotaryNames;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
@@ -51,7 +33,6 @@ import Reika.RotaryCraft.Base.TileEntity.EnergyToPowerBase;
 import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityAimedCannon;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityTransmissionMachine;
 import Reika.RotaryCraft.Blocks.BlockAdvGear;
@@ -117,7 +98,6 @@ import Reika.RotaryCraft.TileEntities.Farming.TileEntityMobHarvester;
 import Reika.RotaryCraft.TileEntities.Farming.TileEntitySpawnerController;
 import Reika.RotaryCraft.TileEntities.Farming.TileEntitySprinkler;
 import Reika.RotaryCraft.TileEntities.Farming.TileEntityWoodcutter;
-import Reika.RotaryCraft.TileEntities.Piping.TileEntityBedrockPipe;
 import Reika.RotaryCraft.TileEntities.Piping.TileEntityBypass;
 import Reika.RotaryCraft.TileEntities.Piping.TileEntityFuelLine;
 import Reika.RotaryCraft.TileEntities.Piping.TileEntityHose;
@@ -131,7 +111,6 @@ import Reika.RotaryCraft.TileEntities.Processing.TileEntityCentrifuge;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityCompactor;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityCrystallizer;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityDistillery;
-import Reika.RotaryCraft.TileEntities.Processing.TileEntityDryingBed;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityExtractor;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityGrinder;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityMagnetizer;
@@ -198,10 +177,26 @@ import Reika.RotaryCraft.TileEntities.World.TileEntityLineBuilder;
 import Reika.RotaryCraft.TileEntities.World.TileEntityPileDriver;
 import Reika.RotaryCraft.TileEntities.World.TileEntitySonicBorer;
 import Reika.RotaryCraft.TileEntities.World.TileEntityTerraformer;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 /** ONLY ADD NEW MACHINES TO THE BOTTOM OF THIS LIST */
-public enum MachineRegistry implements TileEnum<MachineRegistry> {
+public enum MachineRegistry {
 
 	BEDROCKBREAKER(		"machine.bedrock", 			BlockDMMachine.class,		TileEntityBedrockBreaker.class,		0,	"RenderBedrockBreaker"),
 	ENGINE(				"machine.engine", 			BlockEngine.class,			TileEntityEngine.class,				0,	"RenderSEngine"),
@@ -295,8 +290,8 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	STEAMTURBINE(		"machine.steamturbine", 	BlockDMMachine.class, 		TileEntitySteam.class, 				10, "RenderSteam", ModList.RAILCRAFT),
 	FERTILIZER(			"machine.fertilizer",		BlockMIMachine.class,		TileEntityFertilizer.class,			19, "RenderFertilizer"),
 	LAVAMAKER(			"machine.lavamaker",		BlockMIMachine.class,		TileEntityLavaMaker.class,			20, "RenderRockMelter"),
-	GENERATOR(			"machine.generator",		BlockModEngine.class,		TileEntityGenerator.class,			2, 	"RenderGenerator", PowerTypes.EU),
-	ELECTRICMOTOR(		"machine.electricmotor",	BlockModEngine.class,		TileEntityElectricMotor.class,		3, 	"RenderElecMotor", PowerTypes.EU),
+	GENERATOR(			"machine.generator",		BlockModEngine.class,		TileEntityGenerator.class,			2, 	"RenderGenerator", ModList.UE),
+	ELECTRICMOTOR(		"machine.electricmotor",	BlockModEngine.class,		TileEntityElectricMotor.class,		3, 	"RenderElecMotor", ModList.UE),
 	VALVE(				"machine.valve",			BlockPiping.class,			TileEntityValve.class,				4, 	"PipeRenderer"),
 	BYPASS(				"machine.bypass",			BlockPiping.class,			TileEntityBypass.class,				5, 	"PipeRenderer"),
 	SEPARATION(			"machine.separation",		BlockPiping.class,			TileEntitySeparatorPipe.class,		6, 	"PipeRenderer"),
@@ -311,8 +306,8 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	BIGFURNACE(			"machine.bigfurnace",		BlockMIMachine.class,		TileEntityBigFurnace.class,			22, "RenderBigFurnace"),
 	DISTILLER(			"machine.distiller",		BlockMMachine.class,		TileEntityDistillery.class,			18, "RenderDistillery"),
 	SUCTION(			"machine.suction",			BlockPiping.class,			TileEntitySuctionPipe.class,		7, "PipeRenderer"),
-	DYNAMO(				"machine.dynamo", 			BlockModEngine.class,		TileEntityDynamo.class,				5, "RenderDynamo", PowerTypes.RF),
-	MAGNETIC(			"machine.magnetic",			BlockModEngine.class,		TileEntityMagnetic.class,			6, "RenderMagnetic", PowerTypes.RF),
+	DYNAMO(				"machine.dynamo", 			BlockModEngine.class,		TileEntityDynamo.class,				5, "RenderDynamo", ModList.THERMALEXPANSION),
+	MAGNETIC(			"machine.magnetic",			BlockModEngine.class,		TileEntityMagnetic.class,			6, "RenderMagnetic", ModList.THERMALEXPANSION),
 	CRYSTALLIZER(		"machine.crystal",			BlockDMIMachine.class,		TileEntityCrystallizer.class,		9, "RenderCrystal"),
 	BUSCONTROLLER(		"machine.buscontroller",	BlockDMachine.class,		TileEntityBusController.class,		3),
 	POWERBUS(			"machine.bus",				BlockMachine.class,			TileEntityPowerBus.class,			5),
@@ -322,15 +317,13 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	BLOWER(				"machine.blower",			BlockDMachine.class,		TileEntityBlower.class,				4),
 	PORTALSHAFT(		"machine.portalshaft",		BlockDMMachine.class,		TileEntityPortalShaft.class,		15,	"RenderPortalShaft"),
 	REFRIGERATOR(		"machine.refrigerator",		BlockDMIMachine.class,		TileEntityRefrigerator.class,		11,	"RenderFridge"),
-	GASTANK(			"machine.gastank",			BlockMMachine.class,		TileEntityFluidCompressor.class,	20, "RenderGasCompressor"),
+	GASTANK(			"machine.gastank",			BlockMMachine.class,		TileEntityFluidCompressor.class,		20, "RenderGasCompressor"),
 	CRAFTER(			"machine.crafter",			BlockIMachine.class,		TileEntityAutoCrafter.class,		7),
 	COMPOSTER(			"machine.composter",		BlockMIMachine.class,		TileEntityComposter.class,			23, "RenderComposter"),
 	ANTIAIR(			"machine.antiair",			BlockMIMachine.class,		TileEntityAAGun.class,				24, "RenderAAGun"),
 	PIPEPUMP(			"machine.pipepump",			BlockDMMachine.class,		TileEntityPipePump.class,			16,	"RenderPipePump"),
 	CHAIN(				"machine.chain",			BlockDMMachine.class,		TileEntityChainDrive.class,			17, "RenderBelt"),
-	CENTRIFUGE(			"machine.centrifuge",		BlockMIMachine.class,		TileEntityCentrifuge.class,			25, "RenderCentrifuge"),
-	BEDPIPE(			"machine.bedpipe", 			BlockPiping.class,			TileEntityBedrockPipe.class,		8,	"PipeRenderer"),
-	DRYING(				"machine.drying",			BlockMIMachine.class,		TileEntityDryingBed.class,			26, "RenderDryingBed");
+	CENTRIFUGE(			"machine.centrifuge",		BlockMIMachine.class,		TileEntityCentrifuge.class,			25, "RenderCentrifuge");
 
 	private final String name;
 	private final Class te;
@@ -340,11 +333,10 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	private boolean hasRender = false;
 	private String renderClass;
 	private ModList requirement;
-	private PowerTypes powertype;
 	private PowerReceivers receiver;
 	private TileEntity renderInstance;
 
-	public static final ImmutableArray<MachineRegistry> machineList = new ImmutableArray(values());
+	public static final MachineRegistry[] machineList = values();
 	private static final BlockMap<MachineRegistry> machineMappings = new BlockMap();
 
 	private MachineRegistry(String n, Class<? extends Block> b, Class<? extends RotaryCraftTileEntity> tile, int m) {
@@ -375,13 +367,6 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 		receiver = PowerReceivers.initialize(this);
 	}
 
-	private MachineRegistry(String n, Class<? extends Block> b, Class<? extends RotaryCraftTileEntity> tile, int m, String r, PowerTypes p) {
-		this(n, b, tile, m, r);
-		powertype = p;
-
-		receiver = PowerReceivers.initialize(this);
-	}
-
 	private MachineRegistry(String n, Class<? extends Block> b, Class<? extends RotaryCraftTileEntity> tile, int m, String r, ModList a) {
 		this(n, b, tile, m, r);
 		requirement = a;
@@ -395,7 +380,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 			RotaryCraft.logger.logError("ID "+id+" and metadata "+metad+" are not a valid machine identification pair!");
 			return null;
 		}
-		Class TEClass = machineList.get(index).te;
+		Class TEClass = machineList[index].te;
 		try {
 			return (TileEntity)TEClass.newInstance();
 		}
@@ -697,11 +682,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public boolean isPipe() {
-		return TileEntityPiping.class.isAssignableFrom(te);
-	}
-
-	public boolean isStandardPipe() {
-		return this == PIPE || this == BEDPIPE;
+		return BlockPiping.class.isAssignableFrom(blockClass);
 	}
 
 	public boolean hasInv() {
@@ -1054,31 +1035,27 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 			return true;
 		if (this == SPILLER)
 			return true;
-		if (requirement != null && !requirement.isLoaded())
+		if (this.hasPrerequisite() && !this.getPrerequisite().isLoaded())
 			return true;
-		if (powertype != null && !powertype.exists())
+		if (this.hasPrerequisite() && this.getPrerequisite() == ModList.MEKANISM)
 			return true;
 		return false;
 	}
 
 	public boolean hasPrerequisite() {
-		return requirement != null || powertype != null;
+		return requirement != null;
 	}
 
-	public ModList getModDependency() {
+	public ModList getPrerequisite() {
+		if (!this.hasPrerequisite())
+			;//throw new RegistrationException(RotaryCraft.instance, this.getName()+" has no prerequisites and yet was called for them!");
 		return requirement;
 	}
 
-	public PowerTypes getPowerDependency() {
-		return powertype;
-	}
-
-	public String getPrerequisite() {
-		if (requirement != null)
-			return requirement.getDisplayName();
-		if (powertype != null)
-			return powertype.name();
-		return "None";
+	public boolean preReqSatisfied() {
+		if (!this.hasPrerequisite())
+			return true;
+		return this.getPrerequisite().isLoaded();
 	}
 
 	public boolean renderInPass1() {
@@ -1104,7 +1081,6 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	public boolean allowsAcceleration() {
 		switch(this) {
 		case BLASTFURNACE:
-		case DRYING:
 			return true;
 		default:
 			return false;
@@ -1116,7 +1092,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public void addRecipe(IRecipe ir) {
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			WorktableRecipes.getInstance().addRecipe(ir);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
 				GameRegistry.addRecipe(ir);
@@ -1125,7 +1101,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public void addOreRecipe(Object... obj) {
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			ShapedOreRecipe ir = new ShapedOreRecipe(this.getCraftedProduct(), obj);
 			WorktableRecipes.getInstance().addRecipe(ir);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
@@ -1135,7 +1111,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public void addSizedOreRecipe(int size, Object... obj) {
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			ShapedOreRecipe ir = new ShapedOreRecipe(ReikaItemHelper.getSizedItemStack(this.getCraftedProduct(), size), obj);
 			WorktableRecipes.getInstance().addRecipe(ir);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
@@ -1145,7 +1121,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public void addMetaOreRecipe(int meta, Object... obj) {
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			ShapedOreRecipe ir = new ShapedOreRecipe(this.getCraftedMetadataProduct(meta), obj);
 			WorktableRecipes.getInstance().addRecipe(ir);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
@@ -1155,7 +1131,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public void addSizedMetaOreRecipe(int size, int meta, Object... obj) {
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			ShapedOreRecipe ir = new ShapedOreRecipe(ReikaItemHelper.getSizedItemStack(this.getCraftedMetadataProduct(meta), size), obj);
 			WorktableRecipes.getInstance().addRecipe(ir);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
@@ -1165,7 +1141,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public void addRecipe(ItemStack is, Object... obj) {
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			WorktableRecipes.getInstance().addRecipe(is, obj);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
 				GameRegistry.addRecipe(is, obj);
@@ -1174,7 +1150,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public void addCrafting(Object... obj) {
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			WorktableRecipes.getInstance().addRecipe(this.getCraftedProduct(), obj);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
 				GameRegistry.addRecipe(this.getCraftedProduct(), obj);
@@ -1184,7 +1160,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public void addSizedCrafting(int num, Object... obj) {
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			WorktableRecipes.getInstance().addRecipe(ReikaItemHelper.getSizedItemStack(this.getCraftedProduct(), num), obj);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
 				GameRegistry.addRecipe(ReikaItemHelper.getSizedItemStack(this.getCraftedProduct(), num), obj);
@@ -1194,7 +1170,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public void addMetaCrafting(int metadata, Object... obj) {
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			WorktableRecipes.getInstance().addRecipe(this.getCraftedMetadataProduct(metadata), obj);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
 				GameRegistry.addRecipe(this.getCraftedMetadataProduct(metadata), obj);
@@ -1206,7 +1182,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	public void addNBTMetaCrafting(NBTTagCompound NBT, int metadata, Object... obj) {
 		ItemStack is = this.getCraftedMetadataProduct(metadata);
 		is.stackTagCompound = (NBTTagCompound)NBT.copy();
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			WorktableRecipes.getInstance().addRecipe(is, obj);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
 				GameRegistry.addRecipe(is, obj);
@@ -1216,7 +1192,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public void addSizedMetaCrafting(int num, int metadata, Object... obj) {
-		if (this.isCraftable()) {
+		if (!this.isDummiedOut() && this.isCraftable()) {
 			WorktableRecipes.getInstance().addRecipe(ReikaItemHelper.getSizedItemStack(this.getCraftedMetadataProduct(metadata), num), obj);
 			if (ConfigRegistry.TABLEMACHINES.getState()) {
 				GameRegistry.addRecipe(ReikaItemHelper.getSizedItemStack(this.getCraftedMetadataProduct(metadata), num), obj);
@@ -1226,21 +1202,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	}
 
 	public boolean isCraftable() {
-		if (requirement != null && !requirement.isLoaded())
-			return false;
-		if (powertype != null && !powertype.exists())
-			return false;
-		return !this.isDummiedOut() && !this.isTechnical() && !this.isConfigDisabled();
-	}
-
-	public boolean isConfigDisabled() {
-		if (this == BORER || this == SONICBORER)
-			return ConfigRegistry.NOMINERS.getState();
-		if (this == TNTCANNON)
-			return !ConfigRegistry.ALLOWTNTCANNON.getState();
-		if (this == EMP)
-			return !ConfigRegistry.ALLOWEMP.getState();
-		return false;
+		return !this.isDummiedOut() && !this.isTechnical();
 	}
 
 	public boolean isTechnical() {
@@ -1268,7 +1230,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	public static ArrayList<MachineRegistry> getEnchantableMachineList() {
 		ArrayList<MachineRegistry> li = new ArrayList<MachineRegistry>();
 		for (int i = 0; i < MachineRegistry.machineList.length; i++) {
-			MachineRegistry m = MachineRegistry.machineList.get(i);
+			MachineRegistry m = MachineRegistry.machineList[i];
 			if (m.isEnchantable()) {
 				li.add(m);
 			}
@@ -1280,7 +1242,7 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	public static ArrayList<Object[]> getDeepEnchantableMachineList() {
 		ArrayList<Object[]> li = new ArrayList<Object[]>();
 		for (int i = 0; i < MachineRegistry.machineList.length; i++) {
-			MachineRegistry m = MachineRegistry.machineList.get(i);
+			MachineRegistry m = MachineRegistry.machineList[i];
 			if (m.isEnchantable()) {
 				Object[] o = new Object[2];
 				o[0] = m;
@@ -1325,8 +1287,6 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 	public boolean canFlip() {
 		switch(this) {
 		case SPLITTER:
-		case SMOKEDETECTOR:
-		case SPRINKLER:
 			return false;
 		default:
 			return true;
@@ -1442,18 +1402,9 @@ public enum MachineRegistry implements TileEnum<MachineRegistry> {
 		}
 	}
 
-	public boolean isUncraftable() {
-		switch(this) {
-		case COOLINGFIN:
-			return false;
-		default:
-			return true;
-		}
-	}
-
 	static {
 		for (int i = 0; i < machineList.length; i++) {
-			MachineRegistry m = machineList.get(i);
+			MachineRegistry m = machineList[i];
 			Block id = m.getBlock();
 			int meta = m.meta;
 			machineMappings.put(id, meta, m);

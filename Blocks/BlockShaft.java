@@ -9,6 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.Base.BlockModelledMachine;
+import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
+import Reika.RotaryCraft.Items.Tools.ItemDebug;
+import Reika.RotaryCraft.Items.Tools.ItemMeter;
+import Reika.RotaryCraft.Items.Tools.ItemScrewdriver;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MaterialRegistry;
+import Reika.RotaryCraft.TileEntities.Transmission.TileEntityShaft;
+
 import java.util.ArrayList;
 
 import net.minecraft.block.material.Material;
@@ -24,17 +35,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Base.BlockModelledMachine;
-import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
-import Reika.RotaryCraft.Items.Tools.ItemDebug;
-import Reika.RotaryCraft.Items.Tools.ItemMeter;
-import Reika.RotaryCraft.Items.Tools.ItemScrewdriver;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MaterialRegistry;
-import Reika.RotaryCraft.TileEntities.Transmission.TileEntityShaft;
 
 public class BlockShaft extends BlockModelledMachine {
 
@@ -106,8 +106,6 @@ public class BlockShaft extends BlockModelledMachine {
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer ep, int par6, float par7, float par8, float par9)
 	{
-		if (RotaryCraft.instance.isLocked())
-			return false;
 		if (ep.isSneaking())
 			return true;
 		if (ep.getCurrentEquippedItem() != null && (ep.getCurrentEquippedItem().getItem() instanceof ItemScrewdriver || ep.getCurrentEquippedItem().getItem() instanceof ItemMeter || ep.getCurrentEquippedItem().getItem() instanceof ItemDebug)) {
@@ -150,7 +148,7 @@ public class BlockShaft extends BlockModelledMachine {
 				return false;
 			}
 		}
-		return super.onBlockActivated(world, x, y, z, ep, par6, par7, par8, par9);
+		return false;
 	}
 
 	@Override

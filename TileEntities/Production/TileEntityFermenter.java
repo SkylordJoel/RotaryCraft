@@ -9,24 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.block.material.Material;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import Reika.ChromatiCraft.API.TreeGetter;
 import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaTreeHelper;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.DragonAPI.ModInteract.ForestryHandler;
 import Reika.DragonAPI.ModRegistry.ModCropList;
@@ -40,6 +28,19 @@ import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.PlantMaterials;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 
 public class TileEntityFermenter extends InventoriedPowerLiquidReceiver implements TemperatureTE, DiscreteFunction, ConditionalOperation
 {
@@ -75,9 +76,16 @@ public class TileEntityFermenter extends InventoriedPowerLiquidReceiver implemen
 	public static List<ItemStack> getAllValidPlants() {
 		List<ItemStack> in = new ArrayList();
 		for (int i = 0; i < PlantMaterials.plantList.length; i++) {
-			PlantMaterials p = PlantMaterials.plantList[i];
-			Item item = p.getPlantItem().getItem();
-			item.getSubItems(item, item.getCreativeTab(), in);
+			if (PlantMaterials.plantList[i] == PlantMaterials.SAPLING || PlantMaterials.plantList[i] == PlantMaterials.LEAVES) {
+				for (int j = 0; j < ReikaTreeHelper.treeList.length; j++) {
+					ReikaTreeHelper tree = ReikaTreeHelper.treeList[j];
+					ItemStack icon = PlantMaterials.plantList[i] == PlantMaterials.SAPLING ? tree.getSapling() : tree.getLeaf();
+					in.add(icon);
+				}
+			}
+			else {
+				in.add(PlantMaterials.plantList[i].getPlantItem());
+			}
 		}
 		for (int i = 0; i < ModWoodList.woodList.length; i++) {
 			if (ModWoodList.woodList[i].exists()) {
@@ -85,21 +93,16 @@ public class TileEntityFermenter extends InventoriedPowerLiquidReceiver implemen
 				in.add(ModWoodList.woodList[i].getCorrespondingLeaf());
 			}
 		}
-		if (ModList.CHROMATICRAFT.isLoaded()) {
+		if (ModList.DYETREES.isLoaded()) {
 			for (int j = 0; j < 16; j++) {
 				in.add(TreeGetter.getDyeSapling(j));
 				in.add(TreeGetter.getHeldDyeLeaf(j));
-				in.add(TreeGetter.getDyeFlower(j));
 			}
 			in.add(TreeGetter.getRainbowLeaf());
 			in.add(TreeGetter.getRainbowSapling());
 		}
 		if (ModList.EMASHER.isLoaded()) {
 			in.add(new ItemStack(ModCropList.ALGAE.blockID, 1, 0));
-		}
-		if (ModList.FORESTRY.isLoaded()) {
-			in.add(new ItemStack(ForestryHandler.getInstance().saplingItem));
-			in.add(new ItemStack(ForestryHandler.getInstance().leafID));
 		}
 		return in;
 	}
@@ -129,27 +132,20 @@ public class TileEntityFermenter extends InventoriedPowerLiquidReceiver implemen
 	public static int getPlantValue(ItemStack is) {
 		if (is == null)
 			return 0;
-		if (ModList.CHROMATICRAFT.isLoaded()) {
+		if (ModList.DYETREES.isLoaded()) {
 			if (TreeGetter.isDyeSapling(is))
 				return PlantMaterials.SAPLING.getPlantValue();
 			if (TreeGetter.isDyeLeaf(is))
 				return PlantMaterials.LEAVES.getPlantValue();
-			if (TreeGetter.isDyeFlower(is))
-				return PlantMaterials.FLOWER.getPlantValue();
 			if (TreeGetter.isRainbowLeaf(is))
 				return 32;
 			if (TreeGetter.isRainbowSapling(is))
 				return 16;
 		}
-		if (ModList.FORESTRY.isLoaded() && is.getItem() == ForestryHandler.getInstance().saplingItem) {
+		if (ModList.FORESTRY.isLoaded() && ReikaItemHelper.matchStackWithBlock(is, ForestryHandler.getInstance().saplingID))
 			return 2;
-		}
-		if (ModList.FORESTRY.isLoaded() && ReikaItemHelper.matchStackWithBlock(is, ForestryHandler.getInstance().leafID)) {
-			return 4;
-		}
-		if (ModList.EMASHER.isLoaded() && ReikaItemHelper.matchStackWithBlock(is, ModCropList.ALGAE.blockID)) {
+		if (ModList.EMASHER.isLoaded() && ReikaItemHelper.matchStackWithBlock(is, ModCropList.ALGAE.blockID))
 			return 3;
-		}
 		ModWoodList sap = ModWoodList.getModWoodFromSapling(is);
 		if (sap != null) {
 			return PlantMaterials.SAPLING.getPlantValue()*getModWoodValue(sap);
@@ -220,7 +216,6 @@ public class TileEntityFermenter extends InventoriedPowerLiquidReceiver implemen
 
 		if (product == null) {
 			idle = true;
-			fermenterCookTime = 0;
 			return;
 		}
 		if (product.getItem() != ItemRegistry.YEAST.getItemInstance() && !ReikaItemHelper.matchStacks(product, ItemStacks.sludge))

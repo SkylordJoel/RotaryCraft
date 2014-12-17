@@ -9,24 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.World;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
 import Reika.DragonAPI.DragonAPICore;
 import Reika.DragonAPI.Instantiable.ItemReq;
 import Reika.DragonAPI.Instantiable.Data.ColumnArray;
@@ -43,14 +25,31 @@ import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerLiquidReceiver;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import buildcraft.api.core.IAreaProvider;
 
 public class TileEntityTerraformer extends InventoriedPowerLiquidReceiver implements SelectableTiles, DiscreteFunction {
 
-	private static final ObjectWeb<BiomeGenBase> transforms = new ObjectWeb();
-	private static final HashMap<BiomeStep, Collection<ItemReq>> itemReqs = new HashMap();
-	private static final HashMap<BiomeStep, Integer> powerReqs = new HashMap();
-	private static final HashMap<BiomeStep, FluidStack> liquidReqs = new HashMap();
+	private static final ObjectWeb transforms = new ObjectWeb(BiomeGenBase.class);
+	private static final HashMap<List<BiomeGenBase>, List<ItemReq>> itemReqs = new HashMap<List<BiomeGenBase>, List<ItemReq>>();
+	private static final HashMap<List<BiomeGenBase>, Integer> powerReqs = new HashMap<List<BiomeGenBase>, Integer>();
+	private static final HashMap<List<BiomeGenBase>, FluidStack> liquidReqs = new HashMap<List<BiomeGenBase>, FluidStack>();
 
 	private ColumnArray coords = new ColumnArray();
 
@@ -87,11 +86,6 @@ public class TileEntityTerraformer extends InventoriedPowerLiquidReceiver implem
 	}
 
 	@Override
-	protected void onFirstTick(World world, int x, int y, int z) {
-		this.getCoordsFromIAP(world, x, y, z);
-	}
-
-	@Override
 	public void updateEntity(World world, int x, int y, int z, int meta) {
 		super.updateTileEntity();
 		this.getSummativeSidedPower();
@@ -109,6 +103,8 @@ public class TileEntityTerraformer extends InventoriedPowerLiquidReceiver implem
 			}
 			}*/
 
+		if (this.getTicksExisted() < 1)
+			this.getCoordsFromIAP(world, x, y, z);
 		//ReikaJavaLibrary.pConsole(coords, Side.SERVER);
 
 		if (coords.isEmpty()) {
@@ -202,26 +198,26 @@ public class TileEntityTerraformer extends InventoriedPowerLiquidReceiver implem
 	}
 
 	public FluidStack getReqLiquidForTransform(BiomeGenBase from, BiomeGenBase to) {
-		BiomeStep li = new BiomeStep(from, to);
+		List<BiomeGenBase> li = ReikaJavaLibrary.makeListFromArray(new BiomeGenBase[]{from, to});
 		FluidStack liq = liquidReqs.get(li);
 		return liq;
 	}
 
-	public ArrayList<ItemStack> getItemsForTransform(BiomeGenBase from, BiomeGenBase to) {
-		BiomeStep li = new BiomeStep(from, to);
-		ArrayList<ItemStack> is = new ArrayList();
-		Collection<ItemReq> req = itemReqs.get(li);
-		for (ItemReq r : req) {
-			is.add(r.asItemStack());
+	public List<ItemStack> getItemsForTransform(BiomeGenBase from, BiomeGenBase to) {
+		List<BiomeGenBase> li = ReikaJavaLibrary.makeListFromArray(new BiomeGenBase[]{from, to});
+		List<ItemStack> is = new ArrayList<ItemStack>();
+		List<ItemReq> req = itemReqs.get(li);
+		for (int i = 0; i < req.size(); i++) {
+			is.add(req.get(i).asItemStack());
 		}
 		return is;
 	}
 
 	private boolean getReqsForTransform(BiomeGenBase from, BiomeGenBase to) { //test and consume resources
-		BiomeStep li = new BiomeStep(from, to);
+		List<BiomeGenBase> li = ReikaJavaLibrary.makeListFromArray(new BiomeGenBase[]{from, to});
 		int min = powerReqs.get(li);
 		FluidStack liq = liquidReqs.get(li);
-		Collection<ItemReq> items = itemReqs.get(li);
+		List<ItemReq> items = itemReqs.get(li);
 
 		if (power < min)
 			return false;
@@ -231,13 +227,15 @@ public class TileEntityTerraformer extends InventoriedPowerLiquidReceiver implem
 				return false;
 		}
 
-		for (ItemReq is : items) {
+		for (int i = 0; i < items.size(); i++) {
+			ItemReq is = items.get(i);
 			if (!ReikaInventoryHelper.checkForItemStack(is.itemID, is.metadata, inv))
 				return false;
 		}
 
 		//We have everything
-		for (ItemReq is : items) {
+		for (int i = 0; i < items.size(); i++) {
+			ItemReq is = items.get(i);
 			if (is.callAndConsume()) {
 				int slot = ReikaInventoryHelper.locateInInventory(is.itemID, is.metadata, inv);
 				ReikaInventoryHelper.decrStack(slot, inv);
@@ -252,11 +250,10 @@ public class TileEntityTerraformer extends InventoriedPowerLiquidReceiver implem
 		List<BiomeGenBase> li = ReikaBiomeHelper.getAllAssociatedBiomes(from);
 		for (int i = 0; i < li.size(); i++) {
 			BiomeGenBase from_ = li.get(i);
-			BiomeStep step = new BiomeStep(from_, to);
 			transforms.addDirectionalConnection(from_, to);
-			itemReqs.put(step, ReikaJavaLibrary.makeListFromArray(items));
-			powerReqs.put(step, power);
-			liquidReqs.put(step, liq);
+			itemReqs.put(ReikaJavaLibrary.makeListFromArray(new BiomeGenBase[]{from_, to}), ReikaJavaLibrary.makeListFromArray(items));
+			powerReqs.put(ReikaJavaLibrary.makeListFromArray(new BiomeGenBase[]{from_, to}), power);
+			liquidReqs.put(ReikaJavaLibrary.makeListFromArray(new BiomeGenBase[]{from_, to}), liq);
 		}
 	}
 
@@ -336,19 +333,28 @@ public class TileEntityTerraformer extends InventoriedPowerLiquidReceiver implem
 			NBT.setInteger("tg", -1);
 	}
 
-	/** Returns the valid transformations registered to the terraformer. */
-	public static ArrayList<BiomeTransform> getTransformList() {
-		ArrayList<BiomeTransform> li = new ArrayList();
+	/** Returns the valid transformations registered to the terraformer.
+	 * Return format: Object[5]:<br>
+	 * O[0] = Start Biome<br>
+	 * O[1] = Target Biome<br>
+	 * O[2] = Required Power<br>
+	 * O[3] = Required Liquid (as FluidStack)<br>
+	 * O[4] = Required items (as List of ItemReq) */
+	public static ArrayList<Object[]> getTransformList() {
+		ArrayList<Object[]> li = new ArrayList<Object[]>();
 		for (int i = 0; i < BiomeGenBase.biomeList.length; i++) {
 			BiomeGenBase start = BiomeGenBase.biomeList[i];
 			if (transforms.hasNode(start)) {
-				Collection<BiomeGenBase> tgs = transforms.getChildren(start);
-				for (BiomeGenBase to : tgs) {
-					BiomeStep step = new BiomeStep(start, to);
-					long power = powerReqs.get(step);
-					FluidStack fs = liquidReqs.get(step);
-					Collection<ItemReq> items = itemReqs.get(step);
-					li.add(new BiomeTransform(step, power, fs, items));
+				List<BiomeGenBase> tgs = transforms.getChildren(start);
+				for (int j = 0; j < tgs.size(); j++) {
+					BiomeGenBase to = tgs.get(j);
+					Object[] o = new Object[5];
+					o[0] = start;
+					o[1] = to;
+					o[2] = powerReqs.get(ReikaJavaLibrary.makeListFromArray(new BiomeGenBase[]{start, to}));
+					o[3] = liquidReqs.get(ReikaJavaLibrary.makeListFromArray(new BiomeGenBase[]{start, to}));
+					o[4] = itemReqs.get(ReikaJavaLibrary.makeListFromArray(new BiomeGenBase[]{start, to}));
+					li.add(o);
 				}
 			}
 		}
@@ -377,38 +383,5 @@ public class TileEntityTerraformer extends InventoriedPowerLiquidReceiver implem
 	@Override
 	public int getOperationTime() {
 		return DurationRegistry.TERRAFORMER.getOperationTime(omega);
-	}
-
-	public static final class BiomeStep {
-		public final BiomeGenBase start;
-		public final BiomeGenBase finish;
-
-		private BiomeStep(BiomeGenBase in, BiomeGenBase out) {
-			start = in;
-			finish = out;
-		}
-	}
-
-	public static final class BiomeTransform {
-
-		public final BiomeStep change;
-		public final long power;
-		private final FluidStack fluid;
-		private final Collection<ItemReq> items;
-
-		private BiomeTransform(BiomeStep step, long power, FluidStack fs, Collection<ItemReq> li) {
-			change = step;
-			this.power = power;
-			fluid = fs;
-			items = li;
-		}
-
-		public FluidStack getFluid() {
-			return fluid != null ? fluid.copy() : null;
-		}
-
-		public Collection<ItemReq> getItems() {
-			return Collections.unmodifiableCollection(items);
-		}
 	}
 }

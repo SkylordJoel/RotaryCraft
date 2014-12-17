@@ -9,10 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.Lua;
 
-import net.minecraft.tileentity.TileEntity;
 import Reika.DragonAPI.ModInteract.Lua.LuaMethod;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
-import dan200.computercraft.api.lua.LuaException;
+
+import net.minecraft.tileentity.TileEntity;
 
 public class LuaGetPower extends LuaMethod {
 
@@ -21,7 +21,7 @@ public class LuaGetPower extends LuaMethod {
 	}
 
 	@Override
-	public Object[] invoke(TileEntity te, Object[] args) throws LuaException, InterruptedException {
+	public Object[] invoke(TileEntity te, Object[] args) throws Exception {
 		TileEntityIOMachine io = (TileEntityIOMachine)te;
 		Object[] o = new Object[3];
 		//HashMap m = new HashMap();

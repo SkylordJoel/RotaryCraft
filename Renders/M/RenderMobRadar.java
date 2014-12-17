@@ -9,18 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Renders.M;
 
-import java.util.List;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.client.MinecraftForgeClient;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
 import Reika.DragonAPI.Interfaces.RenderFetcher;
 import Reika.DragonAPI.Libraries.ReikaEntityHelper;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
@@ -32,6 +20,17 @@ import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
 import Reika.RotaryCraft.Models.Animated.ModelRadar;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.TileEntities.Surveying.TileEntityMobRadar;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.client.MinecraftForgeClient;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -88,8 +87,7 @@ public class RenderMobRadar extends RotaryTERenderer
 			return;
 		if (!te.isInWorld())
 			return;
-		List<EntityLivingBase> li = te.getEntities();
-		if (li == null)
+		if (te.inzone == null)
 			return;
 		Minecraft mc = Minecraft.getMinecraft();
 		EntityPlayer ep = te.getPlacer();
@@ -111,7 +109,8 @@ public class RenderMobRadar extends RotaryTERenderer
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		Tessellator v5 = Tessellator.instance;
-		for (EntityLivingBase ent : li) {
+		for (int i = 0; i < te.inzone.size(); i++) {
+			EntityLivingBase ent = (EntityLivingBase)te.inzone.get(i);
 			if (ent != null && ent != mc.thePlayer) {
 				float v = ent.height;
 				v = 2;

@@ -9,9 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Engine;
 
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.EngineType;
+import Reika.RotaryCraft.Registry.SoundRegistry;
+
 import java.util.List;
 
-import micdoodle8.mods.galacticraft.api.world.IGalacticraftWorldProvider;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
@@ -19,11 +24,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.DragonAPI.ModRegistry.InterfaceCache;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
-import Reika.RotaryCraft.Registry.EngineType;
-import Reika.RotaryCraft.Registry.SoundRegistry;
 
 public class TileEntityWindEngine extends TileEntityEngine {
 
@@ -49,8 +49,9 @@ public class TileEntityWindEngine extends TileEntityEngine {
 			break;
 		}
 		AxisAlignedBB box = AxisAlignedBB.getBoundingBox(x+c, y, z+d, x+1+c, y+1, z+1+d).expand(a, 1, b);
-		List<EntityLivingBase> in = world.getEntitiesWithinAABB(EntityLivingBase.class, box);
-		for (EntityLivingBase ent : in) {
+		List in = world.getEntitiesWithinAABB(EntityLivingBase.class, box);
+		for (int i = 0; i < in.size(); i++) {
+			EntityLivingBase ent = (EntityLivingBase)in.get(i);
 			ent.attackEntityFrom(DamageSource.generic, 1);
 		}
 	}
@@ -70,10 +71,6 @@ public class TileEntityWindEngine extends TileEntityEngine {
 			if (y < 4)
 				return 0;
 			float f = (y-4)/16F;
-			if (InterfaceCache.IGALACTICWORLD.instanceOf(world.provider)) {
-				IGalacticraftWorldProvider ig = (IGalacticraftWorldProvider)world.provider;
-				f *= ig.getWindLevel();
-			}
 			if (f > 1)
 				f = 1;
 			return f;
@@ -82,10 +79,6 @@ public class TileEntityWindEngine extends TileEntityEngine {
 			if (y < 62)
 				return 0;
 			float f = (y-62)/62F;
-			if (InterfaceCache.IGALACTICWORLD.instanceOf(world.provider)) {
-				IGalacticraftWorldProvider ig = (IGalacticraftWorldProvider)world.provider;
-				f *= ig.getWindLevel();
-			}
 			if (f > 1)
 				f = 1;
 			return f;
@@ -134,10 +127,13 @@ public class TileEntityWindEngine extends TileEntityEngine {
 	}
 
 	@Override
-	protected void playSounds(World world, int x, int y, int z, float pitchMultiplier, float volume) {
+	protected void playSounds(World world, int x, int y, int z, float pitchMultiplier) {
 		soundtick++;
+		if (!ConfigRegistry.ENGINESOUNDS.getState())
+			return;
+		float volume = 1;
 		if (this.isMuffled(world, x, y, z)) {
-			volume *= 0.3125F;
+			volume = 0.3125F;
 		}
 
 		if (soundtick < this.getSoundLength(1F/pitchMultiplier) && soundtick < 2000)

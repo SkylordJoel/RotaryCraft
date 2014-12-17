@@ -9,7 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Placers;
 
-import java.util.ArrayList;
+import Reika.DragonAPI.Libraries.ReikaEntityHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaEngLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.World.ReikaBlockHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.Auxiliary.RotaryAux;
+import Reika.RotaryCraft.Base.ItemBlockPlacer;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
+import Reika.RotaryCraft.Registry.EngineType;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -20,25 +31,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 
 import org.lwjgl.input.Keyboard;
 
-import Reika.DragonAPI.Libraries.ReikaEntityHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaEngLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.World.ReikaBlockHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.Auxiliary.RotaryAux;
-import Reika.RotaryCraft.Auxiliary.Interfaces.NBTMachine;
-import Reika.RotaryCraft.Base.ItemBlockPlacer;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
-import Reika.RotaryCraft.Registry.EngineType;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -84,18 +82,18 @@ public class ItemEnginePlacer extends ItemBlockPlacer {
 				--is.stackSize;
 			world.setBlock(x, y, z, MachineRegistry.ENGINE.getBlock(), is.getItemDamage(), 3);
 			TileEntityEngine eng = (TileEntityEngine)world.getTileEntity(x, y, z);
-			//if (eng != null) {
-			world.playSoundEffect(x+0.5, y+0.5, z+0.5, "step.stone", 1F, 1.5F);
-			//eng.type = EngineType.setType(is.getItemDamage());
-			eng.setType(is);
-			eng.setBlockMetadata(RotaryAux.get4SidedMetadataFromPlayerLook(ep));
-			eng.setPlacer(ep);
-			eng.setDataFromPlacer(is);
-			if (RotaryAux.shouldSetFlipped(world, x, y, z)) {
-				eng.isFlipped = true;
+			if (eng != null) {
+				world.playSoundEffect(x+0.5, y+0.5, z+0.5, "step.stone", 1F, 1.5F);
+				//eng.type = EngineType.setType(is.getItemDamage());
+				eng.setType(is);
+				eng.setBlockMetadata(RotaryAux.get4SidedMetadataFromPlayerLook(ep));
+				eng.setPlacer(ep);
+				eng.setDataFromPlacer(is);
+				if (RotaryAux.shouldSetFlipped(world, x, y, z)) {
+					eng.isFlipped = true;
+				}
+				ReikaWorldHelper.causeAdjacentUpdates(world, x, y, z);
 			}
-			ReikaWorldHelper.causeAdjacentUpdates(world, x, y, z);
-			//}
 		}
 		return true;
 	}
@@ -287,16 +285,6 @@ public class ItemEnginePlacer extends ItemBlockPlacer {
 			for (int i = 0; i < EngineType.engineList.length; i++) {
 				ItemStack item = new ItemStack(id, 1, i);
 				list.add(item);
-				TileEntityEngine te = (TileEntityEngine)MachineRegistry.ENGINE.createTEInstanceForRender(i);
-				if (te instanceof NBTMachine) {
-					ArrayList<NBTTagCompound> li = ((NBTMachine)te).getCreativeModeVariants();
-					for (int k = 0; k < li.size(); k++) {
-						NBTTagCompound NBT = li.get(k);
-						ItemStack is = new ItemStack(id, 1, i);
-						is.stackTagCompound = NBT;
-						list.add(is);
-					}
-				}
 			}
 		}
 	}
@@ -327,28 +315,10 @@ public class ItemEnginePlacer extends ItemBlockPlacer {
 			int dmg = is.stackTagCompound.getInteger("damage");
 			li.add(String.format("Damage: %.1f%s", dmg*12.5F, "%"));
 		}
-		if (is.stackTagCompound != null) {
-			if (is.stackTagCompound.getBoolean("bed")) {
-				li.add("Bedrock Upgrade");
-			}
-		}
-		TileEntityEngine te = (TileEntityEngine)MachineRegistry.ENGINE.createTEInstanceForRender(i);
-		if (te instanceof NBTMachine && is.stackTagCompound != null) {
-			li.addAll(((NBTMachine)te).getDisplayTags(is.stackTagCompound));
-		}
 	}
 
 	@Override
 	public String getItemStackDisplayName(ItemStack is) {
 		return ItemRegistry.getEntry(is).getMultiValuedName(is.getItemDamage());
-	}
-
-	@Override
-	protected double getBrokenFraction(ItemStack is) {
-		if (is.stackTagCompound != null) {
-			int fod = is.stackTagCompound.getInteger("damage");
-			return fod*0.125;
-		}
-		return 0;
 	}
 }

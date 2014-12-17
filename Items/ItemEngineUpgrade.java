@@ -9,6 +9,9 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items;
 
+import Reika.RotaryCraft.Auxiliary.Interfaces.UpgradeableMachine;
+import Reika.RotaryCraft.Base.ItemRotaryTool;
+
 import java.util.List;
 
 import net.minecraft.creativetab.CreativeTabs;
@@ -17,10 +20,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import Reika.RotaryCraft.Auxiliary.Interfaces.UpgradeableMachine;
-import Reika.RotaryCraft.Base.ItemRotaryTool;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -97,22 +97,17 @@ public class ItemEngineUpgrade extends ItemRotaryTool {
 
 	public static enum Upgrades {
 
-		PERFORMANCE("upgrade.gasperf"),
-		MAGNETOSTATIC1("upgrade.tier1"), //Made with ethanol
-		MAGNETOSTATIC2("upgrade.tier2"), //Made in magnetizer
-		MAGNETOSTATIC3("upgrade.tier3"), //Made with pulse jet ingot
-		MAGNETOSTATIC4("upgrade.tier4"), //Made with 4MW extractor product
-		MAGNETOSTATIC5("upgrade.tier5"), //Made with bedrock
-		AFTERBURNER("upgrade.afterburn");
+		PERFORMANCE("Performance Engine Upgrade"),
+		MAGNETOSTATIC1("Converter Tier 1 Upgrade"), //Made with ethanol
+		MAGNETOSTATIC2("Converter Tier 2 Upgrade"), //Made in magnetizer
+		MAGNETOSTATIC3("Converter Tier 3 Upgrade"), //Made with pulse jet ingot
+		MAGNETOSTATIC4("Converter Tier 4 Upgrade"), //Made with 4MW extractor product
+		MAGNETOSTATIC5("Converter Tier 5 Upgrade"); //Made with bedrock
 
-		private final String desc;
+		public final String desc;
 
 		private Upgrades(String d) {
 			desc = d;
-		}
-
-		public String getName() {
-			return StatCollector.translateToLocal(desc);
 		}
 	}
 

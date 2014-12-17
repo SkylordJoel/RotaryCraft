@@ -9,18 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine;
 
-import java.awt.Color;
-import java.util.ArrayList;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-
-import org.lwjgl.opengl.GL11;
-
 import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Instantiable.GUI.ColorButton;
 import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
@@ -34,6 +22,18 @@ import Reika.RotaryCraft.Registry.PacketRegistry;
 import Reika.RotaryCraft.TileEntities.Decorative.TileEntityMusicBox;
 import Reika.RotaryCraft.TileEntities.Decorative.TileEntityMusicBox.Instrument;
 import Reika.RotaryCraft.TileEntities.Decorative.TileEntityMusicBox.NoteLength;
+
+import java.awt.Color;
+import java.util.ArrayList;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+
+import org.lwjgl.opengl.GL11;
 
 public class GuiMusic extends GuiNonPoweredMachine
 {
@@ -132,7 +132,7 @@ public class GuiMusic extends GuiNonPoweredMachine
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) {
+	public void actionPerformed(GuiButton button) {
 		super.actionPerformed(button);
 		boolean flag = true;
 		if (button.id < 24000) {
@@ -217,7 +217,7 @@ public class GuiMusic extends GuiNonPoweredMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "musicgui";
 	}
 

@@ -9,27 +9,24 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Transmission;
 
-import java.util.ArrayList;
-
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import Reika.ChromatiCraft.API.WorldRift;
-import Reika.DragonAPI.Instantiable.Data.WorldLocation;
+import Reika.ChromatiCraft.API.SpaceRift;
+import Reika.DragonAPI.Instantiable.WorldLocation;
 import Reika.DragonAPI.Interfaces.GuiController;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.RotaryCraft.API.ShaftMerger;
 import Reika.RotaryCraft.API.ShaftPowerEmitter;
 import Reika.RotaryCraft.Auxiliary.PowerSourceList;
-import Reika.RotaryCraft.Auxiliary.RotaryAux;
-import Reika.RotaryCraft.Auxiliary.Interfaces.NBTMachine;
 import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityTransmissionMachine;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 
-public class TileEntitySplitter extends TileEntityTransmissionMachine implements GuiController, ShaftMerger, NBTMachine {
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+
+public class TileEntitySplitter extends TileEntityTransmissionMachine implements GuiController, ShaftMerger {
 
 	public int[] writeinline = new int[2]; //xz coords
 	public int[] writebend = new int[2]; //xz coords
@@ -38,10 +35,10 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 	private int omegain2;
 	private int splitmode = 1;
 
-	public boolean failed;
-	private boolean bedrock;
 
-	private int overloadTick = 0;
+	private int cheatCount = 0;
+	private int cheatTick = 0;
+	private int[] lastTorque = new int[7]; //torque 1-7 ticks ago
 
 	private int pow2;
 
@@ -53,17 +50,35 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 		splitmode = mode;
 	}
 
+	public boolean testForLoopCheat() { //logic: if for last 5 cycles lasttorque+torque2 = this.torque(now)
+		boolean allstep = true;
+		boolean allstep2 = true;
+
+		if (torque != lastTorque[0]) {
+			for (int i = 6; i > 0; i--) {
+				lastTorque[i] = lastTorque[i-1]; //array shift
+			}
+			lastTorque[0] = torque;
+		}
+
+		for (int i = 0; i < 6; i++) {
+			if (lastTorque[i+1]+torquein != lastTorque[i] || lastTorque[i] == 0)
+				allstep = false;
+		}
+		for (int i = 0; i < 6; i++) {
+			if (lastTorque[i+1]+torquein2 != lastTorque[i] || lastTorque[i] == 0)
+				allstep2 = false;
+		}
+
+		return (allstep || allstep2);
+	}
+
 	@Override
 	public void updateEntity(World world, int x, int y, int z, int meta) {
 		super.updateTileEntity();
 
-		if (failed) {
-			omega = torque = 0;
-		}
-		else {
-			this.getIOSides(world, x, y, z, meta);
-			this.transferPower(world, x, y, z, meta, true, true);
-		}
+		this.getIOSides(world, x, y, z, meta);
+		this.transferPower(world, x, y, z, meta, true, true);
 		power = (long)omega*(long)torque;
 	}
 
@@ -227,8 +242,6 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 	}
 
 	protected void transferPower(World world, int x, int y, int z, int meta, boolean check1, boolean check2) {
-		if (worldObj.isRemote && !RotaryAux.getPowerOnClient)
-			return;
 		if (check1 && check2)
 			omegain = torquein = 0;
 		boolean isCentered = x == xCoord && y == yCoord && z == zCoord;
@@ -291,8 +304,8 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 						}
 					}
 				}
-				else if (te instanceof WorldRift) {
-					WorldRift sr = (WorldRift)te;
+				else if (te instanceof SpaceRift) {
+					SpaceRift sr = (SpaceRift)te;
 					WorldLocation loc = sr.getLinkTarget();
 					if (loc != null)
 						this.transferPower(loc.getWorld(), loc.xCoord, loc.yCoord, loc.zCoord, meta, true, false);
@@ -351,8 +364,8 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 						}
 					}
 				}
-				else if (te2 instanceof WorldRift) {
-					WorldRift sr = (WorldRift)te2;
+				else if (te2 instanceof SpaceRift) {
+					SpaceRift sr = (SpaceRift)te2;
 					WorldLocation loc = sr.getLinkTarget();
 					if (loc != null)
 						this.transferPower(loc.getWorld(), loc.xCoord, loc.yCoord, loc.zCoord, meta, false, true);
@@ -365,30 +378,18 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 			if (!check1 || !check2)
 				return;
 
-			PowerSourceList in1 = null;
-			PowerSourceList in2 = null;
 			if (read != null && read2 != null) {
-				//ReikaJavaLibrary.pConsole("====================", Side.SERVER, xCoord == -1011);
-				in1 = PowerSourceList.getAllFrom(world, read, x+read.offsetX, y+read.offsetY, z+read.offsetZ, this, this);
-				//ReikaJavaLibrary.pConsole("--------------", Side.SERVER, xCoord == -1011);
-				in2 = PowerSourceList.getAllFrom(world, read2, x+read2.offsetX, y+read2.offsetY, z+read2.offsetZ, this, this);
-				//ReikaJavaLibrary.pConsole("==================", Side.SERVER, xCoord == -1011);
-
+				PowerSourceList in1 = PowerSourceList.getAllFrom(world, read, x+read.offsetX, y+read.offsetY, z+read.offsetZ, this, this);
+				PowerSourceList in2 = PowerSourceList.getAllFrom(world, read2, x+read2.offsetX, y+read2.offsetY, z+read2.offsetZ, this, this);
 				if (this.isLoopingPower(in1, in2)) {
-					omega = torque = 0;
-					power = 0;
-					this.fail();
+					omega = Math.min(omegain, omegain2);
+					torque = Math.min(torquein, torquein2);
+					power = omega*torque;
+					return;
 				}
 			}
 
-			if (!this.canCombine(in1, in2, torquein, torquein2)) {
-				overloadTick++;
-				if (overloadTick > 5) {
-					this.fail();
-					overloadTick = 0;
-				}
-			}
-			else if (omegain == omegain2) {
+			if (omegain == omegain2) {
 				omega = omegain;
 				torque = torquein+torquein2;
 			}
@@ -469,8 +470,8 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 						torque = omega = 0;
 				}
 			}
-			else if (te instanceof WorldRift) {
-				WorldRift sr = (WorldRift)te;
+			else if (te instanceof SpaceRift) {
+				SpaceRift sr = (SpaceRift)te;
 				WorldLocation loc = sr.getLinkTarget();
 				if (loc != null)
 					this.transferPower(loc.getWorld(), loc.xCoord, loc.yCoord, loc.zCoord, meta, false, false);
@@ -485,54 +486,11 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 		}
 	}
 
-	private boolean canCombine(PowerSourceList in1, PowerSourceList in2, int t1, int t2) {
-		if (bedrock)
-			return true;
-		//if (t1 == t2)
-		//	return true;
-		if (t1 == 0 || t2 == 0)
-			return true;
-		/*
-		if (t1 / t2 >= 256)
-			return false;
-		if (t2 / t1 >= 256)
-			return false;
-
-		long power1 = in1.getMaxGennablePower();
-		long power2 = in2.getMaxGennablePower();
-		if (power1 == power2)
-			return true;
-		if (power1 == 0 || power2 == 0)
-			return true;
-		 */
-
-		PowerSourceList combo = PowerSourceList.combine(in1, in2, this);
-		if (combo.isEngineSpam())
-			return false;
-		/*
-		if (power1/power2 >= 16384)
-			return false;
-		if (power2/power1 >= 16384)
-			return false;
-		 */
-		return true;
-	}
-
-	private void fail() {
-		worldObj.createExplosion(null, xCoord+0.5, yCoord+0.5, zCoord+0.5, 4, false);
-		failed = true;
-	}
-
 	public boolean isSplitting() {
 		return this.getBlockMetadata() >= 8;
 	}
 
-	public boolean isBedrock() {
-		return bedrock;
-	}
-
 	private boolean isLoopingPower(PowerSourceList in1, PowerSourceList in2) {
-		/*
 		if (torquein*omegain != 0 && in1.getRealMaxPower() == 0) {
 			omegain = omegain2;
 			torquein = torquein2;
@@ -542,12 +500,8 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 			omegain2 = omegain;
 			torquein2 = torquein;
 			return true;
-
-		}*/
-		int st = torquein+torquein2;
-		int so = omegain+omegain2;
-		//ReikaJavaLibrary.pConsole(in1, Side.SERVER, xCoord == -1011);
-		return st > 0 && so > 0 && (in1.passesThrough(this) || in2.passesThrough(this));
+		}
+		return in1.passesThrough(this) || in2.passesThrough(this);
 	}
 
 	private void writeToReceiver() {
@@ -636,8 +590,6 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 	{
 		super.writeSyncTag(NBT);
 		NBT.setInteger("mode", splitmode);
-		NBT.setBoolean("fail", failed);
-		NBT.setBoolean("bedrock", bedrock);
 	}
 
 	@Override
@@ -645,8 +597,6 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 	{
 		super.readSyncTag(NBT);
 		splitmode = NBT.getInteger("mode");
-		failed = NBT.getBoolean("fail");
-		bedrock = NBT.getBoolean("bedrock");
 	}
 
 	@Override
@@ -681,6 +631,9 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 	@Override
 	public PowerSourceList getPowerSources(TileEntityIOMachine io, ShaftMerger caller) {
 		PowerSourceList pwr = new PowerSourceList();
+		if (this.equals(caller)) {
+			return pwr;
+		}
 		if (caller == null)
 			caller = this;
 		if (!this.isSplitting()) { //merge
@@ -750,38 +703,5 @@ public class TileEntitySplitter extends TileEntityTransmissionMachine implements
 	@Override
 	public int getWriteZ2() {
 		return write2 != null ? zCoord+write2.offsetZ : Integer.MIN_VALUE;
-	}
-
-	@Override
-	public NBTTagCompound getTagsToWriteToStack() {
-		NBTTagCompound NBT = new NBTTagCompound();
-		NBT.setBoolean("bedrock", bedrock);
-		return NBT;
-	}
-
-	@Override
-	public void setDataFromItemStackTag(NBTTagCompound NBT) {
-		bedrock = NBT != null && NBT.getBoolean("bedrock");
-	}
-
-	@Override
-	public ArrayList<NBTTagCompound> getCreativeModeVariants() {
-		ArrayList<NBTTagCompound> li = new ArrayList();
-		li.add(new NBTTagCompound());
-		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setBoolean("bedrock", true);
-		li.add(nbt);
-		return li;
-	}
-
-	@Override
-	public ArrayList<String> getDisplayTags(NBTTagCompound NBT) {
-		ArrayList<String> li = new ArrayList();
-		li.add(NBT != null && NBT.getBoolean("bedrock") ? "Bedrock" : "Steel");
-		return li;
-	}
-
-	public void setBedrock() {
-		bedrock = true;
 	}
 }

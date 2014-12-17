@@ -20,7 +20,7 @@ public enum PowerReceivers {
 	AEROSOLIZER(16384),
 	AUTOBREEDER(16384),
 	BAITBOX(32768),
-	BEDROCKBREAKER(16384, 1, 4194304),
+	BEDROCKBREAKER(8192, 1, 2097152),
 	BORER(),
 	LIGHTBRIDGE(33554432),
 	CAVESCANNER(131072),
@@ -40,7 +40,7 @@ public enum PowerReceivers {
 	HEATRAY(2097152),
 	IGNITER(1, 1024, 32768),
 	REFRESHER(16384),
-	MOBHARVESTER(4096),
+	MOBHARVESTER(16384),
 	MOBRADAR(8192),
 	MUSICBOX(),
 	OBSIDIAN(1, 2048, 32768),
@@ -87,7 +87,7 @@ public enum PowerReceivers {
 	VANDEGRAFF(),
 	DEFOLIATOR(16384),
 	BIGFURNACE(2048),
-	DISTILLER(2048, 1, 8192),
+	DISTILLER(512, 1, 1024),
 	HYDRAULIC(),
 	DYNAMO(),
 	CRYSTALLIZER(1, 1024, 2048),
@@ -240,7 +240,7 @@ public enum PowerReceivers {
 	}
 
 	public static PowerReceivers getEnumFromMachineIndex(int index) {
-		return MachineRegistry.machineList.get(index).getPowerReceiverEntry();
+		return MachineRegistry.machineList[index].getPowerReceiverEntry();
 	}
 
 	public static PowerReceivers initialize(MachineRegistry m) {
@@ -265,7 +265,7 @@ public enum PowerReceivers {
 
 	public MachineRegistry getMachine() {
 		for (int i = 0; i < MachineRegistry.machineList.length; i++) {
-			MachineRegistry m = MachineRegistry.machineList.get(i);
+			MachineRegistry m = MachineRegistry.machineList[i];
 			if (m.getPowerReceiverEntry() == this)
 				return m;
 		}

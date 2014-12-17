@@ -9,10 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.Lua;
 
-import net.minecraft.tileentity.TileEntity;
 import Reika.DragonAPI.ModInteract.Lua.LuaMethod;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityLaunchCannon;
-import dan200.computercraft.api.lua.LuaException;
+
+import net.minecraft.tileentity.TileEntity;
 
 public class LuaSetCannon extends LuaMethod {
 
@@ -21,7 +21,7 @@ public class LuaSetCannon extends LuaMethod {
 	}
 
 	@Override
-	public Object[] invoke(TileEntity te, Object[] args) throws LuaException, InterruptedException {
+	public Object[] invoke(TileEntity te, Object[] args) throws Exception {
 		TileEntityLaunchCannon can = (TileEntityLaunchCannon) te;
 		int theta = ((Double)args[0]).intValue();
 		int ang = ((Double)args[1]).intValue();

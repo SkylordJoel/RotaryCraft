@@ -9,7 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
-import java.util.ArrayList;
+import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
+import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
+import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Base.GuiPowerOnlyMachine;
+import Reika.RotaryCraft.Containers.ContainerTerraformer;
+import Reika.RotaryCraft.Registry.PacketRegistry;
+import Reika.RotaryCraft.TileEntities.World.TileEntityTerraformer;
+
 import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
@@ -20,16 +29,6 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fluids.FluidStack;
 
 import org.lwjgl.opengl.GL11;
-
-import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
-import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
-import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.GuiPowerOnlyMachine;
-import Reika.RotaryCraft.Containers.ContainerTerraformer;
-import Reika.RotaryCraft.Registry.PacketRegistry;
-import Reika.RotaryCraft.TileEntities.World.TileEntityTerraformer;
 
 public class GuiTerraformer extends GuiPowerOnlyMachine {
 
@@ -59,7 +58,7 @@ public class GuiTerraformer extends GuiPowerOnlyMachine {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton b) {
+	public void actionPerformed(GuiButton b) {
 		super.actionPerformed(b);
 		this.initGui();
 
@@ -94,7 +93,7 @@ public class GuiTerraformer extends GuiPowerOnlyMachine {
 				api.drawLine(48, 17+i*39, 16+48, 16+17+i*39, 0);
 				api.drawLine(16+48, 17+i*39, 48, 16+17+i*39, 0);
 			}
-			ArrayList<ItemStack> items = terra.getItemsForTransform(from, to);
+			List<ItemStack> items = terra.getItemsForTransform(from, to);
 			if (items != null && !items.isEmpty()) {
 				int step = (int)((System.nanoTime()/500000000)%items.size());
 				ItemStack is = items.get(step);
@@ -118,7 +117,7 @@ public class GuiTerraformer extends GuiPowerOnlyMachine {
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "terraformergui";
 	}
 

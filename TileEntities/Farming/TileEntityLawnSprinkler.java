@@ -9,6 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Farming;
 
+import Reika.DragonAPI.Libraries.ReikaAABBHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaRandomHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaCropHelper;
+import Reika.DragonAPI.ModRegistry.ModCropList;
+import Reika.RotaryCraft.Base.TileEntity.SprinklerBlock;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.Registry.RotaryAchievements;
+
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -19,15 +29,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import Reika.DragonAPI.Libraries.ReikaAABBHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaRandomHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaCropHelper;
-import Reika.DragonAPI.ModRegistry.ModCropList;
-import Reika.RotaryCraft.Base.TileEntity.SprinklerBlock;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.Registry.RotaryAchievements;
 
 public class TileEntityLawnSprinkler extends SprinklerBlock {
 
@@ -82,11 +83,8 @@ public class TileEntityLawnSprinkler extends SprinklerBlock {
 		for (int i = y; i > y-4; i--) {
 			Block id = world.getBlock(rx, i, rz);
 			if (id == Blocks.fire) {
-				Block id2 = world.getBlock(rx, i-1, rz);
-				if (id2 != Blocks.netherrack) {
-					world.setBlockToAir(rx, i, rz);
-					ReikaSoundHelper.playSoundAtBlock(world, rx, i, rz, "random.fizz");
-				}
+				world.setBlockToAir(rx, i, rz);
+				ReikaSoundHelper.playSoundAtBlock(world, rx, i, rz, "random.fizz");
 			}
 			else if (id != Blocks.air && id.isOpaqueCube())
 				i = -999;
@@ -126,7 +124,8 @@ public class TileEntityLawnSprinkler extends SprinklerBlock {
 		int r = this.getRange();
 		AxisAlignedBB box = ReikaAABBHelper.getBlockAABB(x, y, z).offset(0, 1, 0).expand(r, 1, r);
 		List<EntityLivingBase> li = world.getEntitiesWithinAABB(EntityLivingBase.class, box);
-		for (EntityLivingBase e : li) {
+		for (int i = 0; i < li.size(); i++) {
+			EntityLivingBase e = li.get(i);
 			e.attackEntityFrom(DamageSource.generic, 0.5F);
 		}
 	}

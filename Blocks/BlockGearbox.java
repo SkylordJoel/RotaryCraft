@@ -9,6 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.Base.BlockModelledMachine;
+import Reika.RotaryCraft.Items.Tools.ItemDebug;
+import Reika.RotaryCraft.Items.Tools.ItemMeter;
+import Reika.RotaryCraft.Items.Tools.ItemScrewdriver;
+import Reika.RotaryCraft.Registry.GuiRegistry;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MaterialRegistry;
+import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
+
 import java.util.ArrayList;
 
 import net.minecraft.block.material.Material;
@@ -24,16 +36,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Base.BlockModelledMachine;
-import Reika.RotaryCraft.Items.Tools.ItemDebug;
-import Reika.RotaryCraft.Items.Tools.ItemMeter;
-import Reika.RotaryCraft.Items.Tools.ItemScrewdriver;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MaterialRegistry;
-import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
 
 public class BlockGearbox extends BlockModelledMachine {
 
@@ -162,8 +164,6 @@ public class BlockGearbox extends BlockModelledMachine {
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer ep, int par6, float par7, float par8, float par9)
 	{
-		if (RotaryCraft.instance.isLocked())
-			return false;
 		if (ep.isSneaking())
 			return true;
 
@@ -207,7 +207,7 @@ public class BlockGearbox extends BlockModelledMachine {
 					return true;
 				}
 				else if (ReikaItemHelper.matchStacks(held, ItemStacks.lubebucket) && held.stackSize == 1) {
-					if (tile.getGearboxType().needsLubricant()) {
+					if (tile.getGearboxType().isDamageableGear()) {
 						int amt = 1000;
 						if (tile.canTakeLubricant(amt)) {
 							tile.addLubricant(amt);
@@ -220,7 +220,14 @@ public class BlockGearbox extends BlockModelledMachine {
 			}
 		}
 
-		return super.onBlockActivated(world, x, y, z, ep, par6, par7, par8, par9);
+		TileEntity tileentity = world.getTileEntity(x, y, z);
+
+		if (tileentity != null)
+		{
+			ep.openGui(RotaryCraft.instance, GuiRegistry.MACHINE.ordinal(), world, x, y, z);
+		}
+
+		return true;
 	}
 
 	@Override

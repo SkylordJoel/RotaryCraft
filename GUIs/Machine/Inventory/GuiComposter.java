@@ -9,10 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
-import net.minecraft.entity.player.EntityPlayer;
 import Reika.RotaryCraft.Base.GuiNonPoweredMachine;
 import Reika.RotaryCraft.Containers.ContainerComposter;
 import Reika.RotaryCraft.TileEntities.Farming.TileEntityComposter;
+
+import net.minecraft.entity.player.EntityPlayer;
 
 public class GuiComposter extends GuiNonPoweredMachine
 {
@@ -38,7 +39,7 @@ public class GuiComposter extends GuiNonPoweredMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "compostergui";
 	}
 }

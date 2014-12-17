@@ -9,11 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 import Reika.DragonAPI.Base.ContainerBasicStorage;
 import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Base.OneSlotContainer;
@@ -30,7 +25,6 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntityAimedCannon;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityLaunchCannon;
 import Reika.RotaryCraft.Containers.ContainerAerosolizer;
-import Reika.RotaryCraft.Containers.ContainerAutoCrafter;
 import Reika.RotaryCraft.Containers.ContainerBigFurnace;
 import Reika.RotaryCraft.Containers.ContainerBlastFurnace;
 import Reika.RotaryCraft.Containers.ContainerBlower;
@@ -39,10 +33,8 @@ import Reika.RotaryCraft.Containers.ContainerCannon;
 import Reika.RotaryCraft.Containers.ContainerCentrifuge;
 import Reika.RotaryCraft.Containers.ContainerCompactor;
 import Reika.RotaryCraft.Containers.ContainerComposter;
-import Reika.RotaryCraft.Containers.ContainerCraftingPattern;
 import Reika.RotaryCraft.Containers.ContainerCrystallizer;
 import Reika.RotaryCraft.Containers.ContainerDefoliator;
-import Reika.RotaryCraft.Containers.ContainerDryingBed;
 import Reika.RotaryCraft.Containers.ContainerEthanol;
 import Reika.RotaryCraft.Containers.ContainerExtractor;
 import Reika.RotaryCraft.Containers.ContainerFermenter;
@@ -64,7 +56,6 @@ import Reika.RotaryCraft.Containers.ContainerPulseFurnace;
 import Reika.RotaryCraft.Containers.ContainerPurifier;
 import Reika.RotaryCraft.Containers.ContainerRemoteControl;
 import Reika.RotaryCraft.Containers.ContainerReservoir;
-import Reika.RotaryCraft.Containers.ContainerRockMelter;
 import Reika.RotaryCraft.Containers.ContainerScaleChest;
 import Reika.RotaryCraft.Containers.ContainerScreen;
 import Reika.RotaryCraft.Containers.ContainerSorter;
@@ -73,7 +64,6 @@ import Reika.RotaryCraft.Containers.ContainerTerraformer;
 import Reika.RotaryCraft.Containers.ContainerVacuum;
 import Reika.RotaryCraft.Containers.ContainerWorktable;
 import Reika.RotaryCraft.Containers.ContainerWorldEdit;
-import Reika.RotaryCraft.GUIs.GuiCraftingPattern;
 import Reika.RotaryCraft.GUIs.GuiHandCraft;
 import Reika.RotaryCraft.GUIs.GuiHandbook;
 import Reika.RotaryCraft.GUIs.GuiHandbookPage;
@@ -99,7 +89,6 @@ import Reika.RotaryCraft.GUIs.Machine.GuiSpawnerController;
 import Reika.RotaryCraft.GUIs.Machine.GuiSplitter;
 import Reika.RotaryCraft.GUIs.Machine.GuiSteam;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiAerosolizer;
-import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiAutoCrafter;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiBigFurnace;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiBlastFurnace;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiCCTVScreen;
@@ -110,7 +99,6 @@ import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiCompactor;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiComposter;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiCrystallizer;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiDefoliator;
-import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiDryer;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiEthanol;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiExtractor;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiFermenter;
@@ -128,7 +116,6 @@ import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiPowerBus;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiProjector;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiPulseFurnace;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiPurifier;
-import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiRockMelter;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiScaleChest;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiSpyCam;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiTerraformer;
@@ -156,12 +143,10 @@ import Reika.RotaryCraft.TileEntities.Decorative.TileEntityProjector;
 import Reika.RotaryCraft.TileEntities.Engine.TileEntityPerformanceEngine;
 import Reika.RotaryCraft.TileEntities.Farming.TileEntityComposter;
 import Reika.RotaryCraft.TileEntities.Farming.TileEntitySpawnerController;
-import Reika.RotaryCraft.TileEntities.Processing.TileEntityAutoCrafter;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityBigFurnace;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityCentrifuge;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityCompactor;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityCrystallizer;
-import Reika.RotaryCraft.TileEntities.Processing.TileEntityDryingBed;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityExtractor;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityGrinder;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityPulseFurnace;
@@ -170,7 +155,6 @@ import Reika.RotaryCraft.TileEntities.Production.TileEntityBlastFurnace;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityBorer;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityFermenter;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityFractionator;
-import Reika.RotaryCraft.TileEntities.Production.TileEntityLavaMaker;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityObsidianMaker;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityRefrigerator;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityWorktable;
@@ -191,6 +175,12 @@ import Reika.RotaryCraft.TileEntities.Weaponry.TileEntityLandmine;
 import Reika.RotaryCraft.TileEntities.Weaponry.TileEntitySonicWeapon;
 import Reika.RotaryCraft.TileEntities.World.TileEntityDefoliator;
 import Reika.RotaryCraft.TileEntities.World.TileEntityTerraformer;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public class GuiHandler implements IGuiHandler {
@@ -209,8 +199,6 @@ public class GuiHandler implements IGuiHandler {
 			return new ContainerHandCraft(player, world);
 		if (gr == GuiRegistry.WORLDEDIT)
 			return new ContainerWorldEdit(player, world);
-		if (gr == GuiRegistry.PATTERN)
-			return new ContainerCraftingPattern(player, world);
 		TileEntity tile = world.getTileEntity(x, y, z);
 		if (!(tile instanceof RotaryCraftTileEntity))
 			return null;
@@ -263,7 +251,7 @@ public class GuiHandler implements IGuiHandler {
 			return new ContainerVacuum(player, (TileEntityVacuum) te);
 		}
 		if (te instanceof TileEntityHeater) {
-			return new ContainerHeater(player, (TileEntityHeater) te);
+			return new ContainerHeater(player, te);
 		}
 		if (te instanceof TileEntityObsidianMaker) {
 			return new ContainerObsidian(player, (TileEntityObsidianMaker) te);
@@ -347,15 +335,6 @@ public class GuiHandler implements IGuiHandler {
 		if (te instanceof TileEntityCentrifuge) {
 			return new ContainerCentrifuge(player, (TileEntityCentrifuge)te);
 		}
-		if (te instanceof TileEntityAutoCrafter) {
-			return new ContainerAutoCrafter(player, (TileEntityAutoCrafter)te);
-		}
-		if (te instanceof TileEntityDryingBed) {
-			return new ContainerDryingBed(player, (TileEntityDryingBed) te);
-		}
-		if (te instanceof TileEntityLavaMaker) {
-			return new ContainerRockMelter(player, (TileEntityLavaMaker) te);
-		}
 
 		if (te instanceof OneSlotMachine)
 			return new OneSlotContainer(player, te);
@@ -396,8 +375,6 @@ public class GuiHandler implements IGuiHandler {
 			return new GuiSpyCam(player, (TileEntitySpyCam)te);
 		if (gr == GuiRegistry.SLIDE)
 			return new GuiSlide(player.getCurrentEquippedItem());
-		if (gr == GuiRegistry.PATTERN)
-			return new GuiCraftingPattern(player, world);
 		if (te instanceof TileEntityPulseFurnace) {
 			return new GuiPulseFurnace(player, (TileEntityPulseFurnace) te);
 		}
@@ -571,15 +548,6 @@ public class GuiHandler implements IGuiHandler {
 		}
 		if (te instanceof TileEntityCentrifuge) {
 			return new GuiCentrifuge(player, (TileEntityCentrifuge)te);
-		}
-		if (te instanceof TileEntityAutoCrafter) {
-			return new GuiAutoCrafter(player, (TileEntityAutoCrafter)te);
-		}
-		if (te instanceof TileEntityDryingBed) {
-			return new GuiDryer(player, (TileEntityDryingBed) te);
-		}
-		if (te instanceof TileEntityLavaMaker) {
-			return new GuiRockMelter(player, (TileEntityLavaMaker) te);
 		}
 
 		if (te instanceof OneSlotMachine) {

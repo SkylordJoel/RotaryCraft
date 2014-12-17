@@ -9,15 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
-import net.minecraft.entity.player.EntityPlayer;
-
-import org.lwjgl.opengl.GL11;
-
 import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Base.GuiMachine;
 import Reika.RotaryCraft.Containers.ContainerObsidian;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityObsidianMaker;
+
+import net.minecraft.entity.player.EntityPlayer;
+
+import org.lwjgl.opengl.GL11;
 
 public class GuiObsidian extends GuiMachine
 {
@@ -41,15 +41,18 @@ public class GuiObsidian extends GuiMachine
 		if (api.isMouseInBox(j+47, j+55, k+16, k+71)) {
 			int mx = api.getMouseRealX();
 			int my = api.getMouseRealY();
-			api.drawTooltipAt(fontRendererObj, String.format("Water: %dmB", obs.getWater()), mx-j, my-k);
+			api.drawTooltipAt(fontRendererObj, String.format("Water: %d", obs.getWater()/1000), mx-j, my-k);
 		}
 		if (api.isMouseInBox(j+119, j+127, k+16, k+71)) {
 			int mx = api.getMouseRealX();
 			int my = api.getMouseRealY();
-			api.drawTooltipAt(fontRendererObj, String.format("Lava: %dmB", obs.getLava()), mx-j, my-k);
+			api.drawTooltipAt(fontRendererObj, String.format("Lava: %d", obs.getLava()/1000), mx-j, my-k);
 		}
 	}
 
+	/**
+	 * Draw the background layer for the GuiContainer (everything behind the items)
+	 */
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
 	{
@@ -93,7 +96,7 @@ public class GuiObsidian extends GuiMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "obsidiangui";
 	}
 }

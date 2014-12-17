@@ -9,16 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ICrafting;
-import net.minecraft.inventory.Slot;
+import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Auxiliary.SlotMachineOut;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityCompactor;
 
-public class ContainerCompactor extends ContainerIOMachine
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.Slot;
+
+public class ContainerCompactor extends CoreContainer
 {
 	private TileEntityCompactor compactor;
 	private int lastCompactorCookTime;

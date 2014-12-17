@@ -9,13 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Slot;
+import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear;
 
-public class ContainerCVT extends ContainerIOMachine
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Slot;
+
+public class ContainerCVT extends CoreContainer
 {
 	private TileEntityAdvancedGear CVT;
 

@@ -9,6 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Renders.DMI;
 
+import Reika.DragonAPI.Interfaces.IndexedItemSprites;
+import Reika.DragonAPI.Interfaces.RenderFetcher;
+import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
+import Reika.DragonAPI.Libraries.IO.ReikaRenderHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.Base.ItemBlockPlacer;
+import Reika.RotaryCraft.Base.RotaryTERenderer;
+import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
+import Reika.RotaryCraft.Models.ModelFillingStation;
+import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityFillingStation;
+
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -22,18 +34,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-
-import Reika.DragonAPI.Interfaces.IndexedItemSprites;
-import Reika.DragonAPI.Interfaces.RenderFetcher;
-import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
-import Reika.DragonAPI.Libraries.IO.ReikaRenderHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.Base.ItemBlockPlacer;
-import Reika.RotaryCraft.Base.RotaryTERenderer;
-import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
-import Reika.RotaryCraft.Models.ModelFillingStation;
-import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityFillingStation;
 
 public class RenderFillingStation extends RotaryTERenderer
 {

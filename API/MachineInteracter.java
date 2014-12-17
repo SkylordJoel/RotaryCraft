@@ -11,7 +11,6 @@ package Reika.RotaryCraft.API;
 
 import net.minecraft.block.Block;
 
-/** WIP */
 public final class MachineInteracter {
 
 	private static Class core;

@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Charged;
 
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
+import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
+import Reika.RotaryCraft.Base.ItemChargedTool;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityLargeFireball;
 import net.minecraft.init.Items;
@@ -16,10 +21,8 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
-import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
-import Reika.RotaryCraft.Base.ItemChargedTool;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemFireballLauncher extends ItemChargedTool {
 
@@ -58,9 +61,9 @@ public class ItemFireballLauncher extends ItemChargedTool {
 	}
 
 	@Override
-	public void onPlayerStoppedUsing(ItemStack is, World world, EntityPlayer ep, int ticksUsed) {
+	public void onPlayerStoppedUsing(ItemStack is, World world, EntityPlayer ep, int par4) {
 		texture = defaulttex;
-		float power = (is.getMaxItemUseDuration()-ticksUsed)/20F;
+		float power = (is.getMaxItemUseDuration()-par4)/20F;
 		float charge = 0;
 		if (ep.capabilities.isCreativeMode) {
 			power *= 2;
@@ -104,6 +107,9 @@ public class ItemFireballLauncher extends ItemChargedTool {
 		return is;
 	}
 
+	/**
+	 * How long it takes to use or consume an item
+	 */
 	@Override
 	public int getMaxItemUseDuration(ItemStack is)
 	{
@@ -143,6 +149,7 @@ public class ItemFireballLauncher extends ItemChargedTool {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void onUsingTick(ItemStack is, EntityPlayer ep, int count) {
 		float power = (is.getMaxItemUseDuration()-count)/20F;
 		if (ep.capabilities.isCreativeMode) {

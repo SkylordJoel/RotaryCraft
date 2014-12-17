@@ -9,36 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.oredict.OreDictionary;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
-import thaumcraft.api.ThaumcraftApi;
-import thaumcraft.api.aspects.Aspect;
-import thaumcraft.api.aspects.AspectList;
-import thaumcraft.api.crafting.InfusionRecipe;
-import thaumcraft.api.research.ResearchCategories;
 import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.Auxiliary.Trackers.ItemMaterialController;
+import Reika.DragonAPI.Auxiliary.ItemMaterialController;
 import Reika.DragonAPI.Instantiable.ItemMaterial;
-import Reika.DragonAPI.Instantiable.PreferentialItemStack;
 import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
 import Reika.DragonAPI.Libraries.Registry.ReikaDyeHelper;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.DragonAPI.ModInteract.CustomThaumResearch;
 import Reika.DragonAPI.ModInteract.ThaumOreHandler;
 import Reika.DragonAPI.ModInteract.ThermalRecipeHelper;
+import Reika.DragonAPI.ModInteract.TinkerBlockHandler;
 import Reika.DragonAPI.ModInteract.XMLResearch;
 import Reika.DragonAPI.ModRegistry.ModOreList;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
@@ -53,6 +33,26 @@ import Reika.RotaryCraft.Registry.DifficultyEffects;
 import Reika.RotaryCraft.Registry.EngineType;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
+import thaumcraft.api.ThaumcraftApi;
+import thaumcraft.api.aspects.Aspect;
+import thaumcraft.api.aspects.AspectList;
+import thaumcraft.api.crafting.InfusionRecipe;
+import thaumcraft.api.research.ResearchCategories;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -112,11 +112,17 @@ public class RotaryRecipes {
 		FluidStack ethanol = FluidRegistry.getFluidStack("rc ethanol", 100);
 		int energy = 750;
 		ThermalRecipeHelper.addCrucibleRecipe(ItemRegistry.ETHANOL.getStackOf(), ethanol, energy);
+
+		ItemStack bedrock = ReikaItemHelper.getSizedItemStack(ItemStacks.bedrockdust, 4).copy();
 		//ThermalRecipeHelper.addInductionSmelter(ItemStacks.steelingot.copy(), bedrock, ItemStacks.bedingot.copy(), 48000);
 
-		//ItemStack transmissionCoil = GameRegistry.findItemStack(ModList.THERMALEXPANSION.modLabel, "powerCoilSilver", 1);
+		ItemStack transmissionCoil = GameRegistry.findItemStack(ModList.THERMALEXPANSION.modLabel, "powerCoilSilver", 1);
+		ItemStack receptionCoil = GameRegistry.findItemStack(ModList.THERMALEXPANSION.modLabel, "powerCoilGold", 1);
 		//ItemStack energyCell = GameRegistry.findItemStack(ModList.THERMALEXPANSION.modLabel, "cellReinforced", 1);
-		//ItemStack conductanceCoil = GameRegistry.findItemStack(ModList.THERMALEXPANSION.modLabel, "powerCoilElectrum", 1);
+		ItemStack conductanceCoil = GameRegistry.findItemStack(ModList.THERMALEXPANSION.modLabel, "powerCoilElectrum", 1);
+
+		MachineRegistry.DYNAMO.addOreRecipe(" C ", "GIG", "IRI", 'C', transmissionCoil, 'I', ItemStacks.steelingot, 'G', ItemStacks.steelgear, 'R', Items.redstone);
+		MachineRegistry.MAGNETIC.addOreRecipe("lCl", "scs", "PSP", 'c', "ingotCopper", 'C', receptionCoil, 'P', ItemStacks.basepanel, 'S', ItemStacks.shaftitem, 'l', "ingotLead", 's', "ingotSilver");
 
 		ThermalRecipeHelper.addCoolant(RotaryCraft.nitrogenFluid, 40000);
 		ThermalRecipeHelper.addCompressionFuel(RotaryCraft.ethanolFluid, 125000); //1/4 of forestry
@@ -129,14 +135,8 @@ public class RotaryRecipes {
 		addProps();
 		RecipesGrinder.getRecipes().addModRecipes();
 
-		ItemStack coil = ModList.THERMALEXPANSION.isLoaded() ? GameRegistry.findItemStack(ModList.THERMALEXPANSION.modLabel, "powerCoilSilver", 1) : ItemStacks.power;
-		MachineRegistry.DYNAMO.addOreRecipe(" C ", "GIG", "IRI", 'C', coil, 'I', ItemStacks.steelingot, 'G', ItemStacks.steelgear, 'R', Items.redstone);
-		coil = ModList.THERMALEXPANSION.isLoaded() ? GameRegistry.findItemStack(ModList.THERMALEXPANSION.modLabel, "powerCoilGold", 1) : ItemStacks.goldcoil;
-		Object ps = new PreferentialItemStack(Items.iron_ingot, "ingotLead").blockItem(ItemRegistry.MODINGOTS.getItemInstance()).getItem();
-		MachineRegistry.MAGNETIC.addOreRecipe("lCl", "scs", "PSP", 'c', ItemStacks.conductive.getItem(), 'C', coil, 'P', ItemStacks.basepanel, 'S', ItemStacks.diamondshaftcore, 'l', ps, 's', "ingotSilver");
-
 		if (ModList.TINKERER.isLoaded())
-			;//GameRegistry.addRecipe(BlockRegistry.DECOTANK.getCraftedMetadataProduct(4, 1), "SGS", "GGG", "SGS", 'S', ItemStacks.steelingot, 'G', new ItemStack(TinkerBlockHandler.getInstance().clearPaneID, 1, 0));
+			GameRegistry.addRecipe(BlockRegistry.DECOTANK.getCraftedMetadataProduct(4, 1), "SGS", "GGG", "SGS", 'S', ItemStacks.steelingot, 'G', new ItemStack(TinkerBlockHandler.getInstance().clearPaneID, 1, 0));
 
 		if (ModList.THERMALEXPANSION.isLoaded()) {
 			ItemStack hardGlass = GameRegistry.findItemStack(ModList.THERMALEXPANSION.modLabel, "hardenedGlass", 1);
@@ -177,7 +177,7 @@ public class RotaryRecipes {
 						ThaumOreHandler.getInstance().getItem(ModOreList.CINNABAR),
 
 				};
-				InfusionRecipe ir = ThaumcraftApi.addInfusionCraftingRecipe("GOGGLES", out, 7, al, in, recipe);
+				InfusionRecipe ir = ThaumcraftApi.addInfusionCraftingRecipe("GOGGLES", out, 2, al, in, recipe);
 				String name = "Bedrock Helmet of Revealing";
 				CustomThaumResearch res = new CustomThaumResearch("BEDREVEAL", "rotarycraft", al, 0, 0, 0, out).setName(name);
 				res.setDescription("Combining the protection of bedrock with the power of a Thaumometer");
@@ -210,7 +210,7 @@ public class RotaryRecipes {
 
 		MachineRegistry.SHAFT.addMetaCrafting(RotaryNames.getNumberShaftTypes()-1, " S ", "SSS", " M ", 'M', ItemStacks.mount, 'S', ItemStacks.shaftitem); //Shaft cross
 
-		addRecipeToBoth(MachineRegistry.BLASTFURNACE.getCraftedProduct(), "StS", "trt", "StS", 't', getBlastFurnaceGatingMaterial(), 'r', Items.redstone, 'S', ReikaItemHelper.stoneBricks);
+		addRecipeToBoth(MachineRegistry.BLASTFURNACE.getCraftedProduct(), "SSS", "SrS", "SSS", 'r', Items.redstone, 'S', ReikaItemHelper.stoneBricks);
 
 		addRecipeToBoth(MachineRegistry.WORKTABLE.getCraftedProduct(), " C ", "SBS", "srs", 'r', Items.redstone, 'S', ItemStacks.steelingot, 'B', Blocks.brick_block, 'C', Blocks.crafting_table, 's', ReikaItemHelper.stoneSlab);
 
@@ -379,9 +379,9 @@ public class RotaryRecipes {
 
 		MachineRegistry.SEPARATION.addSizedCrafting(4, "sGs", "OGO", "sGs", 'O', Blocks.lapis_block, 'G', Blocks.glass, 's', ItemStacks.steelingot);
 
-		MachineRegistry.GENERATOR.addCrafting("gpS", "iGs", "ppp", 'S', ItemStacks.steelingot, 'p', ItemStacks.basepanel, 'g', Items.gold_ingot, 's', ItemStacks.steelingot, 'G', ItemStacks.generator, 'i', ItemStacks.impeller, 's', ItemStacks.shaftcore);
+		MachineRegistry.GENERATOR.addCrafting("gps", "iGs", "ppp", 'p', ItemStacks.basepanel, 'g', Items.gold_ingot, 's', ItemStacks.steelingot, 'G', ItemStacks.generator, 'i', ItemStacks.impeller, 's', ItemStacks.shaftcore);
 
-		MachineRegistry.ELECTRICMOTOR.addCrafting("SGS", "BCB", "SGS", 'G', ItemStacks.goldcoil, 'S', ItemStacks.steelingot, 'B', ItemStacks.basepanel, 'C', ItemStacks.diamondshaftcore);
+		MachineRegistry.ELECTRICMOTOR.addCrafting("S S", "BCB", "S S", 'S', ItemStacks.steelingot, 'B', ItemStacks.basepanel, 'C', ItemStacks.shaftcore);
 
 		MachineRegistry.SONICBORER.addCrafting("ss ", "Icp", "bbb", 'p', ItemStacks.pipe, 's', ItemStacks.steelingot, 'c', ItemStacks.compressor, 'b', ItemStacks.basepanel, 'I', Blocks.iron_bars);
 
@@ -429,7 +429,7 @@ public class RotaryRecipes {
 
 		MachineRegistry.GASTANK.addCrafting("SIS", "PRP", "PPP", 'P', ItemStacks.basepanel, 'S', ItemStacks.steelingot, 'I', ItemStacks.impeller, 'R', MachineRegistry.RESERVOIR.getCraftedProduct());
 
-		MachineRegistry.CRAFTER.addCrafting("SCS", "PcP", "SPS", 'S', ItemStacks.steelingot, 'C', Blocks.crafting_table, 'P', ItemStacks.basepanel, 'c', ItemStacks.pcb);
+		//MachineRegistry.CRAFTER.addCrafting("SCS", "PcP", "SPS", 'S', ItemStacks.steelingot, 'C', Blocks.crafting_table, 'P', ItemStacks.basepanel, 'c', ItemStacks.pcb);
 
 		MachineRegistry.ANTIAIR.addCrafting("sss", "ppc", " Ba", 'p', ItemStacks.pipe, 'c', ItemStacks.compressor, 's', ItemStacks.steelingot, 'a', ItemStacks.railaim, 'B', ItemStacks.railbase);
 
@@ -438,8 +438,6 @@ public class RotaryRecipes {
 		MachineRegistry.CHAIN.addSizedCrafting(2, "sBs", " G ", "sBs", 'B', ItemStacks.basepanel, 'G', ItemStacks.steelgear, 's', ItemStacks.steelingot);
 
 		MachineRegistry.CENTRIFUGE.addCrafting("SGS", "S S", "PgP", 'P', ItemStacks.basepanel, 'g', ItemStacks.gearunit4, 'S', ItemStacks.steelingot, 'G', Blocks.glass_pane);
-
-		MachineRegistry.DRYING.addCrafting("S S", "SPS", "S S", 'P', ItemStacks.basepanel, 'S', ItemStacks.steelingot);
 	}
 
 	private static void addCraftItems() {
@@ -462,16 +460,13 @@ public class RotaryRecipes {
 
 		GameRegistry.addRecipe(ItemStacks.shaftcore, new Object[]{
 				"  s", " S ", "s  ", 'S', ItemStacks.steelingot, 's', ItemStacks.shaftitem});
-		GameRegistry.addRecipe(ItemStacks.diamondshaftcore, new Object[]{
-				"  s", " S ", "s  ", 'S', Items.diamond, 's', ItemStacks.diamondshaft});
-
 		GameRegistry.addRecipe(ItemStacks.igniter, new Object[]{
 				"G G", "SRS", "SSS", 'S', ItemStacks.steelingot, 'R', Items.redstone, 'G', Items.gold_ingot});
 
 		ReikaRecipeHelper.addOreRecipe(ItemStacks.igniter, "G G", "SRS", "SSS", 'S', ItemStacks.steelingot, 'R', Items.redstone, 'G', "ingotElectrum");
 
 		GameRegistry.addRecipe(ItemStacks.waterplate, new Object[]{
-				"PPP", "PPP", "SSS", 'P', ItemStacks.basepanel, 'S', ItemStacks.springingot});
+				"PPP", "PPP", "PPP", 'P', ItemStacks.basepanel});
 		GameRegistry.addRecipe(ItemStacks.prop, new Object[]{
 				" S ", " I ", " P ", 'P', ItemStacks.basepanel, 'S', ItemStacks.shaftitem, 'I', ItemStacks.steelingot});
 		GameRegistry.addRecipe(ItemStacks.hub, new Object[]{
@@ -668,7 +663,6 @@ public class RotaryRecipes {
 		ItemRegistry.BEDSICKLE.addEnchantedBlastRecipe(1000, 4, " B ", "  B", "SB ", 'S', ItemStacks.shaftitem, 'B', ItemStacks.bedingot);
 		ItemRegistry.BEDGRAFTER.addBlastRecipe(1000, 4, "  S", " s ", "s  ", 'S', ItemStacks.bedingot, 's', ItemStacks.shaftitem);
 		ItemRegistry.BEDSAW.addBlastRecipe(1000, 4, "sss", " SS", " bb", 'b', ItemStacks.bedingot, 's', ItemStacks.shaftitem, 'S', Items.iron_ingot);
-		//ItemRegistry.BEDKNIFE.addBlastRecipe(1000, 4, "  s", "qs ", "bb ", 'b', ItemStacks.bedingot, 's', ItemStacks.shaftitem, 'q', AppEngHandler.getInstance().getCertusQuartz());
 		ItemRegistry.BEDHELM.addEnchantedBlastRecipe(1200, 4, "III", "I I", 'I', ItemStacks.bedingot);
 		ItemRegistry.BEDBOOTS.addEnchantedBlastRecipe(1200, 4, "I I", "I I", 'I', ItemStacks.bedingot);
 		ItemRegistry.BEDCHEST.addEnchantedBlastRecipe(1200, 4, "I I", "III", "III", 'I', ItemStacks.bedingot);
@@ -685,12 +679,13 @@ public class RotaryRecipes {
 
 		ItemRegistry.GRAFTER.addRecipe("  S", "Ss ", "CS ", 'C', ItemRegistry.SPRING.getStackOf(), 'S', ItemStacks.steelingot, 's', Items.stick);
 
+
 		ItemRegistry.STEELHELMET.addRecipe("III", "I I", 'I', ItemStacks.steelingot);
 		ItemRegistry.STEELBOOTS.addRecipe("I I", "I I", 'I', ItemStacks.steelingot);
 		ItemRegistry.STEELCHEST.addRecipe("I I", "III", "III", 'I', ItemStacks.steelingot);
 		ItemRegistry.STEELLEGS.addRecipe("III", "I I", "I I", 'I', ItemStacks.steelingot);
 
-		//ItemRegistry.NVH.addShapelessRecipe(Items.diamond_helmet, ItemRegistry.NVG.getStackOf());
+		ItemRegistry.NVH.addShapelessRecipe(Items.diamond_helmet, ItemRegistry.NVG.getStackOf());
 
 		ItemRegistry.ULTRASOUND.addRecipe(" n ", "scs", " s ", 's', ItemStacks.steelingot, 'c', ItemStacks.screen, 'n', ItemStacks.sonar);
 		ItemRegistry.MOTION.addRecipe(" nr", "scs", " s ", 's', ItemStacks.steelingot, 'c', ItemStacks.screen, 'n', ItemStacks.sonar, 'r', ItemStacks.radar);
@@ -721,13 +716,11 @@ public class RotaryRecipes {
 
 		ItemRegistry.UPGRADE.addMetaRecipe(0, " R ", "gGg", " b ", 'b', ItemStacks.basepanel, 'R', ItemStacks.radiator, 'G', ItemStacks.gearunit, 'g', Items.gold_ingot);
 
-		ItemRegistry.UPGRADE.addMetaRecipe(1, "gRg", "RER", "SGS", 'g', Items.gold_ingot, 'G', ItemStacks.impeller, 'R', Items.redstone, 'S', ItemStacks.steelingot, 'E', ItemRegistry.ETHANOL.getStackOf());
-		ItemRegistry.UPGRADE.addMetaRecipe(2, "SCS", "ERE", "SCS", 'C', ItemStacks.redgoldingot, 'R', ItemStacks.goldcoil, 'S', ItemStacks.steelingot, 'E', ItemStacks.shaftcore);
-		ItemRegistry.UPGRADE.addMetaRecipe(3, "SES", "ERE", "ScS", 'c', ItemStacks.pcb, 'R', ItemStacks.tungsteningot, 'S', ItemStacks.steelingot, 'E', ItemStacks.redgoldingot);
-		ItemRegistry.UPGRADE.addMetaBlastRecipe(1000, 4, 4, "cEc", "ERE", "SES", 'c', MachineRegistry.COOLINGFIN.getCraftedProduct(), 'R', ItemStacks.bedingot, 'S', ItemStacks.steelingot, 'E', ItemStacks.tungsteningot);
-		ItemRegistry.UPGRADE.addMetaBlastRecipe(1800, 8, 5, "SES", "ERE", "SES", 'R', ItemStacks.bedrockgear, 'S', ItemStacks.steelingot, 'E', ItemStacks.springingot);
-
-		ItemRegistry.UPGRADE.addMetaRecipe(6, "SEI", "ERE", "SEI", 'R', ItemStacks.compoundturb, 'S', ItemStacks.combustor, 'I', ItemStacks.igniter, 'E', ItemStacks.bedrockdust);
+		ItemRegistry.UPGRADE.addMetaRecipe(1, "SES", "ERE", "SES", 'R', Items.redstone, 'S', ItemStacks.steelingot, 'E', ItemRegistry.ETHANOL.getStackOf());
+		ItemRegistry.UPGRADE.addMetaRecipe(2, "SES", "ERE", "SES", 'R', ItemStacks.shaftcore, 'S', ItemStacks.steelingot, 'E', Items.gold_ingot);
+		ItemRegistry.UPGRADE.addMetaRecipe(3, "SES", "ERE", "SES", 'R', ItemStacks.goldcoil, 'S', ItemStacks.steelingot, 'E', ItemStacks.redgoldingot);
+		ItemRegistry.UPGRADE.addMetaRecipe(4, "SES", "ERE", "SES", 'R', ItemStacks.redgoldingot, 'S', ItemStacks.steelingot, 'E', ItemStacks.tungsteningot);
+		ItemRegistry.UPGRADE.addMetaBlastRecipe(1800, 8, 5, "SES", "ERE", "SES", 'R', ItemStacks.bedingot, 'S', ItemStacks.redgoldingot, 'E', ItemStacks.bedrockdust);
 	}
 
 	private static void addMisc() {
@@ -753,22 +746,18 @@ public class RotaryRecipes {
 		GameRegistry.addRecipe(new ItemStack(Items.paper, 8, 0), new Object[]{
 			" W ", "SSS", "RRR", 'R', Blocks.stone, 'S', ItemStacks.sawdust, 'W', Items.water_bucket});
 
-		GameRegistry.addShapelessRecipe(new ItemStack(Blocks.dirt), Blocks.sand, ItemStacks.compost);
-
 		GameRegistry.addRecipe(BlockRegistry.BLASTPANE.getCraftedProduct(16), new Object[]{
 			"OOO", "OOO", 'O', BlockRegistry.BLASTGLASS.getStackOf()});
 
 		GameRegistry.addRecipe(new ItemStack(Blocks.tnt, 2), "sns", "nSn", "sns", 's', Items.sugar, 'S', Blocks.sand, 'n', ItemStacks.nitrate);
 
-		RecipesBlastFurnace.getRecipes().add3x3Crafting(ItemStacks.bedrockdrill, 1000, 8, 0, "BBB", "BBB", " B ", 'B', ItemStacks.bedingot);
-
-		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 45/DifficultyEffects.PARTCRAFT.getInt()), ItemStacks.steelgear);
+		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 15), ItemStacks.steelgear);
 		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 48), ItemStacks.gearunit);
 		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 114), ItemStacks.gearunit4);
 		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 180), ItemStacks.gearunit8);
 		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 244), ItemStacks.gearunit16);
-		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 27/DifficultyEffects.PARTCRAFT.getInt()), ItemStacks.shaftitem);
-		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 27/DifficultyEffects.PARTCRAFT.getInt()), ItemStacks.basepanel);
+		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 9), ItemStacks.shaftitem);
+		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 9), ItemStacks.basepanel);
 		//GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.scrap, 45), ItemStacks.mount);
 
 		ReikaRecipeHelper.addSmelting(ItemStacks.flour, new ItemStack(Items.bread), 0.2F);
@@ -785,15 +774,14 @@ public class RotaryRecipes {
 		WorktableRecipes.getInstance().addRecipe(ItemStacks.steelblock, "BBB", "BBB", "BBB", 'B', ItemStacks.steelingot);
 		GameRegistry.addRecipe(ItemStacks.anthrablock, "BBB", "BBB", "BBB", 'B', ItemStacks.anthracite);
 		GameRegistry.addRecipe(ItemStacks.lonsblock, "BBB", "BBB", "BBB", 'B', ItemStacks.lonsda);
-		GameRegistry.addRecipe(ItemStacks.bedingotblock, "BBB", "BBB", "BBB", 'B', ItemStacks.bedingot);
 
 		GameRegistry.addRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.shieldblock, 4), " S ", "SOS", " S ", 'S', ItemStacks.steelingot, 'O', Blocks.obsidian);
 
 		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.steelingot, 9), ItemStacks.steelblock);
 		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.anthracite, 9), ItemStacks.anthrablock);
 		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.lonsda, 9), ItemStacks.lonsblock);
-		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.bedingot, 9), ItemStacks.bedingotblock);
 
+		GameRegistry.addShapelessRecipe(ItemStacks.salt, Items.water_bucket);
 		GameRegistry.addRecipe(new ShapelessOreRecipe(ItemStacks.silveriodide, ItemStacks.salt, "ingotSilver"));
 		GameRegistry.addShapelessRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.nitrate, 4), Items.gunpowder, Items.redstone, ItemStacks.salt, ItemStacks.coaldust);
 		GameRegistry.addRecipe(new ShapelessOreRecipe(ReikaItemHelper.getSizedItemStack(ItemStacks.redgolddust, 2), Items.redstone, "dustGold"));
@@ -914,7 +902,7 @@ public class RotaryRecipes {
 		if (ReikaItemHelper.oreItemExists("ingotElectrum"))
 			MachineRegistry.ENGINE.addMetaOreRecipe(EngineType.AC.ordinal(), "SSS", "SGs", "PRP", 'S', "ingotElectrum", 'R', Items.redstone, 'P', ItemStacks.basepanel, 's', ItemStacks.shaftitem, 'G', ItemStacks.goldcoil);
 		MachineRegistry.ENGINE.addMetaCrafting(EngineType.SPORT.ordinal(), "CrC", "SGs", "PIP", 'C', ItemStacks.cylinder, 'S', ItemStacks.igniter, 'I', ItemStacks.impeller, 'P', ItemStacks.basepanel, 's', ItemStacks.shaftitem, 'r', ItemStacks.radiator, 'G', ItemStacks.gearunit);
-		MachineRegistry.ENGINE.addMetaCrafting(EngineType.HYDRO.ordinal(), "PPP", "PGP", "PPP", 'P', ItemStacks.waterplate, 'G', ItemStacks.diamondshaftcore);
+		MachineRegistry.ENGINE.addMetaCrafting(EngineType.HYDRO.ordinal(), "PPP", "PGP", "PPP", 'P', ItemStacks.waterplate, 'G', ItemStacks.shaftcore);
 		MachineRegistry.ENGINE.addMetaCrafting(EngineType.MICRO.ordinal(), "CSS", "cTs", "PPP", 'S', ItemStacks.steelingot, 'C', ItemStacks.compressor, 'c', ItemStacks.combustor, 'T', ItemStacks.turbine, 'P', ItemStacks.basepanel, 's', ItemStacks.shaftitem);
 		MachineRegistry.ENGINE.addMetaCrafting(EngineType.JET.ordinal(), "DCS", "ScS", "PTs", 'S', ItemStacks.steelingot, 'D', ItemStacks.diffuser, 'C', ItemStacks.compressor, 'c', ItemStacks.combustor, 'T', ItemStacks.compoundturb, 'P', ItemStacks.basepanel, 's', ItemStacks.shaftitem);
 
@@ -922,13 +910,11 @@ public class RotaryRecipes {
 			MachineRegistry.HOSE.addSizedOreRecipe(DifficultyEffects.PIPECRAFT.getInt(), "WWW", "GGG", "WWW", 'G', Blocks.glass, 'W', "plankWood");
 			MachineRegistry.PIPE.addSizedCrafting(DifficultyEffects.PIPECRAFT.getInt(), "SSS", "GGG", "SSS", 'S', ItemStacks.steelingot, 'G', Blocks.glass);
 			MachineRegistry.FUELLINE.addSizedCrafting(DifficultyEffects.PIPECRAFT.getInt(), "OOO", "GGG", "OOO", 'O', Blocks.obsidian, 'G', Blocks.glass);
-			MachineRegistry.BEDPIPE.addSizedCrafting(DifficultyEffects.PIPECRAFT.getInt(), "BBB", "GGG", "BBB", 'B', ItemStacks.bedingot, 'G', Blocks.glass);
 		}
 		else {
 			MachineRegistry.HOSE.addSizedOreRecipe(DifficultyEffects.PIPECRAFT.getInt(), "WGW", "WGW", "WGW", 'G', Blocks.glass, 'W', "plankWood");
 			MachineRegistry.PIPE.addSizedCrafting(DifficultyEffects.PIPECRAFT.getInt(), "SGS", "SGS", "SGS", 'S', ItemStacks.steelingot, 'G', Blocks.glass);
 			MachineRegistry.FUELLINE.addSizedCrafting(DifficultyEffects.PIPECRAFT.getInt(), "OGO", "OGO", "OGO", 'O', Blocks.obsidian, 'G', Blocks.glass);
-			MachineRegistry.BEDPIPE.addSizedCrafting(DifficultyEffects.PIPECRAFT.getInt(), "BGB", "BGB", "BGB", 'B', ItemStacks.bedingot, 'G', Blocks.glass);
 		}
 
 		ItemStack gear;
@@ -996,9 +982,6 @@ public class RotaryRecipes {
 
 		//ReikaRecipeHelper.addSmelting(ItemStacks.scrap, ItemStacks.steelingot, 0.4F);
 		ReikaRecipeHelper.addSmelting(ItemStacks.ironscrap, new ItemStack(Items.iron_ingot), 0.4F);
-
-		IRecipe ir = ReikaRecipeHelper.getShapelessRecipeFor(ItemStacks.springingot, ItemStacks.steelingot, new ItemStack(Items.redstone), ItemStacks.coke);
-		RecipesBlastFurnace.getRecipes().addRecipe(ItemStacks.springingot, 950, ir, 1, 0.4F);
 	}
 
 	private static ItemStack addDamageNBT(ItemStack is) {
@@ -1010,62 +993,5 @@ public class RotaryRecipes {
 	private static void addRecipeToBoth(ItemStack out, Object... in) {
 		GameRegistry.addRecipe(out, in);
 		WorktableRecipes.getInstance().addRecipe(out, in);
-	}
-
-	public static ItemStack getBlastFurnaceGatingMaterial() {
-		int index = ConfigRegistry.BLASTMAT.getValue();
-		ItemStack item = null;
-		ArrayList<ItemStack> ores = null;
-		switch (index) {
-		case 1:
-			ores = OreDictionary.getOres("ingotAlumite");
-			if (!ores.isEmpty())
-				item = ores.get(0);
-			break;
-		case 2:
-			ores = OreDictionary.getOres("ingotObsidian");
-			if (!ores.isEmpty())
-				item = ores.get(0);
-			break;
-		case 3:
-			item = new ItemStack(Blocks.obsidian);
-			break;
-		case 4:
-			ores = OreDictionary.getOres("ingotSteel");
-			if (!ores.isEmpty())
-				item = ores.get(0);
-			break;
-		case 5:
-			ores = OreDictionary.getOres("ingotCopper");
-			if (!ores.isEmpty())
-				item = ores.get(0);
-			break;
-		case 6:
-			item = new ItemStack(Items.gold_ingot);
-			break;
-		case 7:
-			ores = OreDictionary.getOres("ingotSilver");
-			if (!ores.isEmpty())
-				item = ores.get(0);
-			break;
-		case 8:
-			ores = OreDictionary.getOres("ingotBrass");
-			if (!ores.isEmpty())
-				item = ores.get(0);
-			break;
-		case 9:
-			ores = OreDictionary.getOres("ingotBronze");
-			if (!ores.isEmpty())
-				item = ores.get(0);
-			break;
-		default:
-			item = ReikaItemHelper.stoneBricks;
-			break;
-		}
-		if (item.getItem() == ItemRegistry.MODINGOTS.getItemInstance())
-			item = null;
-		if (ReikaItemHelper.matchStacks(item, ItemStacks.steelingot))
-			item = null;
-		return item != null ? item.copy() : ReikaItemHelper.stoneBricks.copy();
 	}
 }

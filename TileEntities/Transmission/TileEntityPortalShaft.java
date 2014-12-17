@@ -9,20 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Transmission;
 
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.util.ForgeDirection;
 import Reika.DragonAPI.APIPacketHandler.PacketIDs;
 import Reika.DragonAPI.DragonAPIInit;
 import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaBlockHelper;
-import Reika.DragonAPI.ModInteract.MystCraftHandler;
 import Reika.DragonAPI.ModInteract.ReikaMystcraftHelper;
 import Reika.DragonAPI.ModInteract.TwilightForestHandler;
 import Reika.RotaryCraft.API.ShaftPowerEmitter;
@@ -30,6 +22,16 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
 import Reika.RotaryCraft.Base.TileEntity.TileEntity1DTransmitter;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.MaterialRegistry;
+
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.util.ForgeDirection;
+
+import com.xcompwiz.mystcraft.api.MystObjects;
 
 public class TileEntityPortalShaft extends TileEntity1DTransmitter {
 
@@ -76,7 +78,7 @@ public class TileEntityPortalShaft extends TileEntity1DTransmitter {
 			type = PortalType.NETHER;
 		if (id == Blocks.end_portal)
 			type = PortalType.END;
-		if (ModList.MYSTCRAFT.isLoaded() && id == MystCraftHandler.getInstance().portalID)
+		if (ModList.MYSTCRAFT.isLoaded() && MystObjects.portal != null && MystObjects.portal == id)
 			type = PortalType.MYSTCRAFT;
 		if (ModList.TWILIGHT.isLoaded() && id == TwilightForestHandler.getInstance().portalID)
 			type = PortalType.TWILIGHT;

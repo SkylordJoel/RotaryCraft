@@ -9,19 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base.TileEntity;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.ForgeDirection;
-import Reika.ChromatiCraft.API.WorldRift;
-import Reika.RotaryCraft.API.AdvancedShaftPowerReceiver;
+import Reika.ChromatiCraft.API.SpaceRift;
 import Reika.RotaryCraft.API.IOMachine;
 import Reika.RotaryCraft.API.ShaftMerger;
 import Reika.RotaryCraft.API.ShaftPowerEmitter;
 import Reika.RotaryCraft.API.ShaftPowerReceiver;
-import Reika.RotaryCraft.API.SimpleShaftPowerReceiver;
 import Reika.RotaryCraft.Auxiliary.PowerSourceList;
 import Reika.RotaryCraft.Auxiliary.RotaryAux;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityShaft;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public abstract class TileEntityIOMachine extends RotaryCraftTileEntity implements IOMachine {
 
@@ -57,42 +56,7 @@ public abstract class TileEntityIOMachine extends RotaryCraftTileEntity implemen
 			iotick -= 8;
 		superCalled = true;
 	}
-	/*
-	@Override
-	protected void onDataSync(boolean fullNBT) {
-		this.recursiveSyncPower(fullNBT, new ArrayList());
-	}
 
-	private void recursiveSyncPower(boolean fullNBT, Collection<TileEntityIOMachine> li) {
-		li.add(this);
-		TileEntity te = this.getWriteTileEntity();
-		if (te instanceof TileEntityIOMachine && !li.contains(te)) {
-			((TileEntityIOMachine) te).recursiveSyncPower(fullNBT, li);
-		}
-		TileEntity te2 = this.getWriteTileEntity2();
-		if (te2 instanceof TileEntityIOMachine && !li.contains(te2)) {
-			((TileEntityIOMachine) te2).recursiveSyncPower(fullNBT, li);
-		}
-
-		TileEntity tea = this.getReadTileEntity();
-		//ReikaJavaLibrary.pConsole(li.contains(tea), tea instanceof TileEntityMonitor);
-		if (tea instanceof TileEntityIOMachine && !li.contains(tea)) {
-			((TileEntityIOMachine) tea).recursiveSyncPower(fullNBT, li);
-		}
-		TileEntity teb = this.getReadTileEntity2();
-		if (teb instanceof TileEntityIOMachine && !li.contains(teb)) {
-			((TileEntityIOMachine) teb).recursiveSyncPower(fullNBT, li);
-		}
-		TileEntity tec = this.getReadTileEntity3();
-		if (tec instanceof TileEntityIOMachine && !li.contains(tec)) {
-			((TileEntityIOMachine) tec).recursiveSyncPower(fullNBT, li);
-		}
-		TileEntity ted = this.getReadTileEntity4();
-		if (ted instanceof TileEntityIOMachine && !li.contains(ted)) {
-			((TileEntityIOMachine) ted).recursiveSyncPower(fullNBT, li);
-		}
-	}
-	 */
 	@Override
 	protected void writeSyncTag(NBTTagCompound NBT)
 	{
@@ -173,27 +137,27 @@ public abstract class TileEntityIOMachine extends RotaryCraftTileEntity implemen
 	}
 
 	public final TileEntity getReadTileEntity() {
-		return read != null ? this.getAdjacentTileEntity(read) : null;
+		return this.getAdjacentTileEntity(read);
 	}
 
 	public final TileEntity getReadTileEntity2() {
-		return read2 != null ? this.getAdjacentTileEntity(read2) : null;
+		return this.getAdjacentTileEntity(read2);
 	}
 
 	public final TileEntity getReadTileEntity3() {
-		return read3 != null ? this.getAdjacentTileEntity(read3) : null;
+		return this.getAdjacentTileEntity(read3);
 	}
 
 	public final TileEntity getReadTileEntity4() {
-		return read4 != null ? this.getAdjacentTileEntity(read4) : null;
+		return this.getAdjacentTileEntity(read4);
 	}
 
 	public final TileEntity getWriteTileEntity() {
-		return write != null ? this.getAdjacentTileEntity(write) : null;
+		return this.getAdjacentTileEntity(write);
 	}
 
 	public final TileEntity getWriteTileEntity2() {
-		return write2 != null ? this.getAdjacentTileEntity(write2) : null;
+		return this.getAdjacentTileEntity(write2);
 	}
 
 	public abstract boolean canProvidePower();
@@ -302,8 +266,8 @@ public abstract class TileEntityIOMachine extends RotaryCraftTileEntity implemen
 		int ty = te.yCoord+te.pointoffsety;
 		int tz = te.zCoord+te.pointoffsetz;
 		TileEntity out = this.getAdjacentTileEntity(dir);
-		while (out instanceof WorldRift) {
-			out = ((WorldRift)out).getTileEntityFrom(dir);
+		while (out instanceof SpaceRift) {
+			out = ((SpaceRift)out).getTileEntityFrom(dir);
 		}
 		if (out == null)
 			return false;
@@ -351,17 +315,7 @@ public abstract class TileEntityIOMachine extends RotaryCraftTileEntity implemen
 	}
 
 	private void setPower(TileEntity te, ForgeDirection from, int om, int tq) {
-		if (te instanceof SimpleShaftPowerReceiver) {
-			if (this.isBlacklistedReceiver(te)) {
-				if (omega > 0 && torque > 0)
-					this.affectBlacklistedReceiver(te);
-			}
-			else {
-				SimpleShaftPowerReceiver sp = (SimpleShaftPowerReceiver)te;
-				sp.setPowered(sp.canReadFrom(from.getOpposite()) && om > 0 && tq > 0);
-			}
-		}
-		else if (te instanceof ShaftPowerReceiver) {
+		if (te instanceof ShaftPowerReceiver) {
 			if (this.isBlacklistedReceiver(te)) {
 				if (omega > 0 && torque > 0)
 					this.affectBlacklistedReceiver(te);
@@ -380,20 +334,8 @@ public abstract class TileEntityIOMachine extends RotaryCraftTileEntity implemen
 				}
 			}
 		}
-		else if (te instanceof AdvancedShaftPowerReceiver) {
-			if (this.isBlacklistedReceiver(te)) {
-				if (omega > 0 && torque > 0)
-					this.affectBlacklistedReceiver(te);
-			}
-			else {
-				AdvancedShaftPowerReceiver sp = (AdvancedShaftPowerReceiver)te;
-				if (sp.canReadFrom(from.getOpposite())) {
-					sp.addPower(tq, om, (long)tq*(long)om, from.getOpposite());
-				}
-			}
-		}
-		else if (te instanceof WorldRift) {
-			this.setPower(((WorldRift)te).getTileEntityFrom(from), from, om, tq);
+		else if (te instanceof SpaceRift) {
+			this.setPower(((SpaceRift)te).getTileEntityFrom(from), from, om, tq);
 		}/*
 		else if (te instanceof TileEntityIOMachine) {
 			TileEntityIOMachine io = (TileEntityIOMachine)te;

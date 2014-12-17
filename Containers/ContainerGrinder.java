@@ -9,14 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
+import Reika.DragonAPI.Base.CoreContainer;
+import Reika.RotaryCraft.TileEntities.Processing.TileEntityGrinder;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotFurnace;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
-import Reika.RotaryCraft.TileEntities.Processing.TileEntityGrinder;
 
-public class ContainerGrinder extends ContainerIOMachine
+public class ContainerGrinder extends CoreContainer
 {
 	private TileEntityGrinder grinder;
 	private int lastGrinderCookTime;

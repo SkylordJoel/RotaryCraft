@@ -9,17 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.util.StatCollector;
-
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
-
 import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
@@ -32,6 +21,18 @@ import Reika.RotaryCraft.Registry.GuiRegistry;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.TileEntities.Decorative.TileEntityProjector;
 import Reika.RotaryCraft.TileEntities.Storage.TileEntityScaleableChest;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
+import net.minecraft.util.StatCollector;
+
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -50,7 +51,7 @@ public abstract class GuiMachine extends GuiContainer {
 			recv = (TileEntityPowerReceiver)te;
 	}
 
-	protected abstract String getGuiTexture();
+	public abstract String getGuiTexture();
 
 	public final int getXSize() {
 		return xSize;
@@ -80,7 +81,7 @@ public abstract class GuiMachine extends GuiContainer {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton b) {
+	public void actionPerformed(GuiButton b) {
 		if (b.id == 24000 || b.id == 24001) {
 			ep.closeScreen();
 			if (ReikaInventoryHelper.checkForItem(ItemRegistry.HANDBOOK.getItemInstance(), ep.inventory.mainInventory))
@@ -168,16 +169,10 @@ public abstract class GuiMachine extends GuiContainer {
 
 	@Override
 	protected final void func_146977_a(Slot slot) {
-		if (this.renderSlot(slot)) {
-			super.func_146977_a(slot);
-		}
+		super.func_146977_a(slot);
 		if (Keyboard.isKeyDown(Keyboard.KEY_TAB)) {
 			ReikaTextureHelper.bindFontTexture();
-			fontRendererObj.drawString(String.format("%d", slot.getSlotIndex()), slot.xDisplayPosition+1, slot.yDisplayPosition+1, 0x888888);
+			fontRendererObj.drawString(String.format("%d", slot.slotNumber), slot.xDisplayPosition+1, slot.yDisplayPosition+1, 0x888888);
 		}
-	}
-
-	protected boolean renderSlot(Slot slot) {
-		return true;
 	}
 }

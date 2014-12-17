@@ -9,269 +9,213 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Processing;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.oredict.OreDictionary;
-import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.ASM.DependentMethodStripper.ModDependent;
-import Reika.DragonAPI.Instantiable.StepTimer;
-import Reika.DragonAPI.Instantiable.Data.ItemCollection;
-import Reika.DragonAPI.Instantiable.Data.ItemHashMap;
-import Reika.DragonAPI.Instantiable.Data.MENetwork;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Instantiable.RecipePattern;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
-import Reika.RotaryCraft.Items.Tools.ItemCraftPattern;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.world.World;
+
 public class TileEntityAutoCrafter extends InventoriedPowerReceiver {
 
-	public boolean continuous = true;
-	private final ItemCollection ingredients = new ItemCollection();
-	public int[] crafting = new int[18];
-	@ModDependent(ModList.APPENG)
-	private MENetwork network;
+	public boolean continuous;
+	private final HashMap<ItemStack, Integer> ingredients = new HashMap();
 
-	private final StepTimer updateTimer = new StepTimer(50);
+	private static final HashMap<RecipePattern, ItemStack> recipeTable = new HashMap();
+
+	private ItemStack getRecipeOutput(ItemStack... in) {
+		RecipePattern ic = new RecipePattern(in);
+		if (!recipeTable.containsKey(ic)) {
+			ItemStack is = CraftingManager.getInstance().findMatchingRecipe(ic, worldObj);
+			recipeTable.put(ic, is);
+		}
+		return recipeTable.get(ic);
+	}
+
+	private void feedInItem(ItemStack is) {
+		Integer num = ingredients.get(is);
+		if (num == null) {
+			num = new Integer(is.stackSize);
+		}
+		else {
+			num = new Integer(num.intValue()+is.stackSize);
+		}
+		ingredients.put(is, num);
+	}
+
+	private void removeOneIngredient(ItemStack is) {
+		ItemStack con = is.getItem().getContainerItem(is);
+		if (con != null)
+			this.feedInItem(con);
+		int num = ingredients.get(is);
+		if (num > 1) {
+			ingredients.put(is, num-1);
+		}
+		else {
+			ingredients.remove(is);
+		}
+	}
+
+	private ItemStack getFirstIngredientToRemove() {
+		if (ingredients.isEmpty())
+			return null;
+		ItemStack is = ingredients.keySet().iterator().next();
+		int max = is.getMaxStackSize();
+		int num = ingredients.get(is);
+		return is.copy();
+	}
+
+	private void removeFirstIngredient() {
+		if (ingredients.isEmpty())
+			return;
+		ItemStack is = ingredients.keySet().iterator().next();
+		int max = is.getMaxStackSize();
+		int num = ingredients.get(is);
+		if (num > max)
+			ingredients.put(is, num-max);
+		else
+			ingredients.remove(is);
+	}
+
+	public ArrayList<ItemStack> getAllIngredients() {
+		ArrayList<ItemStack> li = new ArrayList();
+		for (ItemStack is : ingredients.keySet()) {
+			Integer num = ingredients.get(is);
+			int items = num.intValue();
+			int max = is.getMaxStackSize();
+			if (items > max) {
+				while (items > 0) {
+					int drop = Math.min(items, max);
+					li.add(is.copy());
+					items -= drop;
+				}
+			}
+			else {
+				li.add(is.copy());
+			}
+		}
+		return li;
+	}
 
 	@Override
 	public void updateEntity(World world, int x, int y, int z, int meta) {
 		super.updateTileEntity();
 		this.getSummativeSidedPower();
-		this.tickCraftingDisplay();
 		if (power >= MINPOWER) {
-			updateTimer.update();
-			if (updateTimer.checkCap() && !world.isRemote) {
-				this.buildCache();
+			this.eatIngredients();
+			this.attemptCrafting();
+		}
+	}
+
+	public void writePattern(ItemStack pattern, ItemStack... items) {
+		pattern.stackTagCompound = new NBTTagCompound();
+		NBTTagList nbttaglist = new NBTTagList();
+		for (int i = 0; i < 9; i++) {
+			if (items[i] != null) {
+				NBTTagCompound nbttagcompound = new NBTTagCompound();
+				nbttagcompound.setShort("Slot", (short)i);
+				items[i].writeToNBT(nbttagcompound);
+				nbttaglist.appendTag(nbttagcompound);
 			}
-
-			if (continuous) {
-				this.attemptAllSlotCrafting();
-			}
-
-			this.injectItems();
 		}
+		pattern.stackTagCompound.setTag("Items", nbttaglist);
+		ItemStack out = this.getRecipeOutput(items);
+		NBTTagCompound nbttagcompound = new NBTTagCompound();
+		nbttagcompound.setShort("Slot", (short)9);
+		if (out != null)
+			out.writeToNBT(nbttagcompound);
+		//ReikaJavaLibrary.pConsole(Arrays.toString(items)+" -> "+out);
+		nbttaglist.appendTag(nbttagcompound);
 	}
 
-	private void injectItems() {
-		if (ModList.APPENG.isLoaded()) {
-
-		}
-	}
-
-	private void tickCraftingDisplay() {
-		for (int i = 0; i < 18; i++) {
-			crafting[i] = Math.max(crafting[i]-1, 0);
-		}
-	}
-
-	private void buildCache() {
-		ingredients.clear();
-		TileEntity te = this.getAdjacentTileEntity(ForgeDirection.UP);
-		if (te instanceof IInventory) {
-			ingredients.addInventory((IInventory)te);
-		}
-
-		if (ModList.APPENG.isLoaded()) {
-			network = MENetwork.getConnectedTo(this);
-		}
-	}
-
-	public void triggerCraftingCycle(int slot) {
-		if (power >= MINPOWER) {
-			ItemStack out = this.getSlotRecipeOutput(slot);
-			if (out != null)
-				this.attemptSlotCrafting(slot);
-		}
-	}
-
-	public void triggerCrafting(int slot, int amt) {
-		if (power >= MINPOWER) {
-			ItemStack out = this.getSlotRecipeOutput(slot);
-			if (out != null) {
-				int space = inv[slot+18].getMaxStackSize()-inv[slot+18].stackSize;
-				int tocraft = ReikaMathLibrary.multiMin(amt, this.getInventoryStackLimit(), out.getMaxStackSize(), space);
-				int cycles = tocraft/out.stackSize;
-				for (int i = 0; i < cycles; i++) {
-					boolean flag = this.attemptSlotCrafting(slot);
-					if (!flag)
-						break;
+	private boolean attemptCrafting() {
+		for (int i = 0; i < 54; i++) {
+			ItemStack is = inv[i];
+			if (is != null && is.getItem() == ItemRegistry.CRAFTPATTERN.getItemInstance() && is.stackTagCompound != null) {
+				ItemStack[] items = new ItemStack[10];
+				NBTTagList nbttaglist = is.stackTagCompound.getTagList("Items", is.stackTagCompound.getId());
+				for (int k = 0; k < nbttaglist.tagCount(); k++)				{
+					NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(k);
+					short byte0 = nbttagcompound.getShort("Slot");
+					items[byte0] = ItemStack.loadItemStackFromNBT(nbttagcompound);
 				}
-			}
-		}
-	}
-
-	private ItemStack getSlotRecipeOutput(int slot) {
-		ItemStack is = inv[slot];
-		if (is != null && is.getItem() == ItemRegistry.CRAFTPATTERN.getItemInstance() && is.stackTagCompound != null) {
-			return ItemCraftPattern.getRecipeOutput(is);
-		}
-		return null;
-	}
-
-	private void attemptAllSlotCrafting() {
-		for (int i = 0; i < 18; i++) {
-			this.attemptSlotCrafting(i);
-		}
-	}
-
-	private boolean attemptSlotCrafting(int i) {
-		ItemStack is = inv[i];
-		if (is != null && is.getItem() == ItemRegistry.CRAFTPATTERN.getItemInstance() && is.stackTagCompound != null) {
-			ArrayList<ItemStack>[] items = ItemCraftPattern.getItems(is);
-			ItemStack out = ItemCraftPattern.getRecipeOutput(is);
-			if (out != null) {
-				//ReikaJavaLibrary.pConsole("crafting "+out+" from "+Arrays.toString(items));
-				return this.tryCrafting(i, out, items);
-			}
-		}
-		return false;
-	}
-
-	private boolean tryCrafting(int i, ItemStack out, ArrayList<ItemStack>[] items) {
-		int slot = i+18;
-		int size = inv[slot] != null ? inv[slot].stackSize : 0;
-		if (inv[slot] == null || (ReikaItemHelper.matchStacks(out, inv[slot]) && size+out.stackSize <= out.getMaxStackSize())) {
-			ItemHashMap<Integer> counts = new ItemHashMap(); //ingredient requirements
-			ItemHashMap<ArrayList<ItemStack>> options = new ItemHashMap();
-			for (int k = 0; k < 9; k++) {
-				if (items[k] != null && !items[k].isEmpty()) {
-					Integer req = counts.get(items[k].get(0));
-					int val = req != null ? req.intValue() : 0;
-					counts.put(items[k].get(0), val+1); // items[k].stackSize ?
-					options.put(items[k].get(0), items[k]);
-				}
-			}
-			for (ItemStack is : counts.keySet()) {
-				int req = counts.get(is);
-				int has = this.getAvailableIngredients(options.get(is));
-				int missing = req-has;
-				if (missing > 0) {
-					//ReikaJavaLibrary.pConsole(options+":"+has+"/"+req);
-					if (!this.tryCraftIntermediates(missing, options.get(is))) {
-						//ReikaJavaLibrary.pConsole("missing "+missing+": "+options.get(is)+", needed "+req+", had "+has);
-						return false;
-					}
-				}
-			}
-			this.craft(slot, size, out, counts);
-			return true;
-		}
-		return false;
-	}
-
-	private int getAvailableIngredients(ArrayList<ItemStack> li) {
-		int count = 0;
-		ItemHashMap<Long> map = ModList.APPENG.isLoaded() && network != null ? network.getMEContents() : null;
-		//ReikaJavaLibrary.pConsole(map);
-		for (ItemStack is : li) {
-			//ReikaJavaLibrary.pConsole(is+":"+ingredients.getItemCount(is)+" > "+ingredients);
-			count += ingredients.getItemCount(is);
-			if (map != null) {
-				Long me = map.get(is);
-				count += me != null ? me.intValue() : 0;
-			}
-		}
-
-		return count;
-	}
-
-	private boolean tryCraftIntermediates(int num, ArrayList<ItemStack> li) {
-		int run = 0;
-		HashMap<Integer, Integer> ranSlots = new HashMap();
-		for (ItemStack is : li) {
-			for (int i = 0; i < 18 && run < num; i++) {
-				ItemStack out = this.getSlotRecipeOutput(i);
-				//ReikaJavaLibrary.pConsole(i+":"+out+" & "+is);
-				if (out != null && ReikaItemHelper.matchStacks(is, out)) {
-					//ReikaJavaLibrary.pConsole("attempting slot "+i+", because "+out+" matches "+is);
-					while (run < num && this.attemptSlotCrafting(i)) {
-						run += out.stackSize;
-						Integer get = ranSlots.get(i);
-						int val = get != null ? get.intValue() : 0;
-						ranSlots.put(i, Math.min(num, val+out.stackSize));
-					}
-				}
-			}
-			if (run >= num)
-				break;
-		}
-		if (run >= num) {
-			for (int slot : ranSlots.keySet()) {
-				inv[slot+18].stackSize -= ranSlots.get(slot);
-				if (inv[slot+18].stackSize <= 0)
-					inv[slot+18] = null;
-			}
-			//ReikaJavaLibrary.pConsole(ranSlots+"/"+num+" for "+is);
-			return true;
-		}
-		//ReikaJavaLibrary.pConsole("false, "+ranSlots+"/"+num);
-		return false;
-	}
-
-	private void craft(int slot, int size, ItemStack out, ItemHashMap<Integer> counts) {
-		inv[slot] = ReikaItemHelper.getSizedItemStack(out, size+out.stackSize);
-		if (out.stackTagCompound != null)
-			inv[slot].stackTagCompound = (NBTTagCompound)out.stackTagCompound.copy();
-		for (ItemStack is : counts.keySet()) {
-			int req = counts.get(is);
-			if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
-				int dec = req;
-				for (int k = 0; k < OreDictionary.WILDCARD_VALUE; k++) {
-					ItemStack is2 = new ItemStack(is.getItem(), 1, k);
-					int rem = ingredients.removeXItems(is2, req);
-					dec -= rem;
-					if (dec > 0) {
-						int diff = req-rem;
-						if (ModList.APPENG.isLoaded()) {
-							if (diff > 0 && network != null) {
-								dec -= network.removeFromMESystem(is2, diff);
+				ItemStack out = items[9];//this.getRecipeOutput(items);
+				if (out != null) {
+					int size = inv[56] == null ? 0 : inv[56].stackSize;
+					if (inv[56] == null || (ReikaItemHelper.matchStacks(out, inv[56]) && size+out.stackSize <= out.getMaxStackSize())) {
+						boolean hasno = false;
+						for (int k = 0; k < 9 && !hasno; k++) {
+							if (items[k] != null) {
+								if (this.hasIngredient(items[k]))
+									this.removeOneIngredient(items[k]);
+								else
+									hasno = true;
 							}
 						}
-					}
-					if (dec <= 0)
-						break;
-				}
-			}
-			else {
-				int rem = ingredients.removeXItems(is, req);
-				int diff = req-rem;
-				if (ModList.APPENG.isLoaded()) {
-					if (diff > 0 && network != null) {
-						network.removeFromMESystem(is, diff);
+						if (!hasno) {
+							inv[56] = ReikaItemHelper.getSizedItemStack(out, size+out.stackSize);
+							if (out.stackTagCompound != null)
+								inv[56].stackTagCompound = (NBTTagCompound)out.stackTagCompound.copy();
+							return true;
+						}
 					}
 				}
 			}
 		}
-		crafting[slot-18] = 5;
-		this.markDirty();
+		return false;
 	}
 
 	private boolean hasIngredient(ItemStack is) {
-		return ingredients.hasItem(is);
+		return ingredients.containsKey(is);
+	}
+
+	private void eatIngredients() {
+		if (inv[54] != null) {
+			this.feedInItem(inv[54]);
+			inv[54] = null;
+		}
 	}
 
 	@Override
-	public boolean canExtractItem(int i, ItemStack is, int j) {
-		return i >= 18;
+	public boolean canExtractItem(int i, ItemStack itemstack, int j) {
+		return j == 0 ? i == 55 : i == 56; //pull ingredients from bottom; products elsewhere
 	}
 
 	@Override
 	public int getSizeInventory() {
-		return 46;
+		return 57; //54 patterns + 1 ingredients in + 1 ingredient feed out + 1 product feed out
 	}
 
 	@Override
-	public boolean isItemValidForSlot(int i, ItemStack is) {
-		return i < 18 && ItemRegistry.CRAFTPATTERN.matchItem(is);
+	public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+		return i == 54;
+	}
+
+	@Override
+	public ItemStack getStackInSlot(int par1) {
+		return par1 == 55 ? this.getFirstIngredientToRemove() : super.getStackInSlot(par1);
+	}
+
+	@Override
+	public void setInventorySlotContents(int par1, ItemStack is) {
+		if (par1 == 54) {
+			this.feedInItem(is);
+		}
+		else if (par1 == 55) {
+			if (is == null)
+				this.removeFirstIngredient();
+		}
+		else {
+			super.setInventorySlotContents(par1, is);
+		}
 	}
 
 	@Override
@@ -292,20 +236,6 @@ public class TileEntityAutoCrafter extends InventoriedPowerReceiver {
 	@Override
 	public int getRedstoneOverride() {
 		return 0;
-	}
-
-	@Override
-	protected void writeSyncTag(NBTTagCompound NBT) {
-		super.writeSyncTag(NBT);
-
-		NBT.setBoolean("cont", continuous);
-	}
-
-	@Override
-	protected void readSyncTag(NBTTagCompound NBT) {
-		super.readSyncTag(NBT);
-
-		continuous = NBT.getBoolean("cont");
 	}
 
 }

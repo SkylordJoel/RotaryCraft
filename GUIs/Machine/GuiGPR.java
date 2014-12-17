@@ -9,16 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine;
 
-import net.minecraft.entity.player.EntityPlayer;
-
-import org.lwjgl.input.Keyboard;
-
 import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Base.GuiPowerOnlyMachine;
 import Reika.RotaryCraft.Registry.PacketRegistry;
 import Reika.RotaryCraft.TileEntities.Surveying.TileEntityGPR;
+
+import net.minecraft.entity.player.EntityPlayer;
+
+import org.lwjgl.input.Keyboard;
 
 public class GuiGPR extends GuiPowerOnlyMachine
 {
@@ -85,7 +85,7 @@ public class GuiGPR extends GuiPowerOnlyMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "gprgui";
 	}
 }

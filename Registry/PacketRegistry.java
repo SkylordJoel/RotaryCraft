@@ -47,10 +47,7 @@ public enum PacketRegistry {
 	PARTICLES(63),
 	BLOWER(64, 67),
 	DEFOLIATOR(68),
-	GPR(69),
-	CRAFTER(70),
-	POWERSYNC(71),
-	AFTERBURN(72);
+	GPR(69);
 
 	private int min;
 	private int max;
@@ -90,8 +87,6 @@ public enum PacketRegistry {
 			return 2;
 		if (this == DEFOLIATOR)
 			return 3;
-		if (this == POWERSYNC)
-			return 4;
 		return 1;
 	}
 

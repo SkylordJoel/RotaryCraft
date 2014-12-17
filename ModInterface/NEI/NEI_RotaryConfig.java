@@ -9,16 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
-import java.util.ArrayList;
-
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiWorktable;
 import Reika.RotaryCraft.Registry.BlockRegistry;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import java.util.ArrayList;
+
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import codechicken.nei.api.API;
 import codechicken.nei.api.IConfigureNEI;
 import codechicken.nei.recipe.DefaultOverlayHandler;
@@ -43,7 +44,6 @@ public class NEI_RotaryConfig implements IConfigureNEI {
 	private static final ComposterHandler compost = new ComposterHandler();
 	private static final LavaMakerHandler melter = new LavaMakerHandler();
 	private static final CentrifugeHandler centrifuge = new CentrifugeHandler();
-	private static final DryingBedHandler dryingbed = new DryingBedHandler();
 
 	private static final NEITabOccluder occlusion = new NEITabOccluder();
 
@@ -108,9 +108,6 @@ public class NEI_RotaryConfig implements IConfigureNEI {
 		API.registerRecipeHandler(centrifuge);
 		API.registerUsageHandler(centrifuge);
 
-		API.registerRecipeHandler(dryingbed);
-		API.registerUsageHandler(dryingbed);
-
 		RotaryCraft.logger.log("Hiding technical blocks from NEI!");
 		for (int i = 0; i < BlockRegistry.blockList.length; i++) {
 			if (BlockRegistry.blockList[i].isTechnical())
@@ -132,7 +129,7 @@ public class NEI_RotaryConfig implements IConfigureNEI {
 
 		ArrayList<ItemStack> li = new ArrayList();
 		for (int i = 0; i < MachineRegistry.machineList.length; i++) {
-			MachineRegistry m = MachineRegistry.machineList.get(i);
+			MachineRegistry m = MachineRegistry.machineList[i];
 			if (m.isAvailableInCreativeInventory() && !m.hasCustomPlacerItem())
 				li.add(m.getCraftedProduct());
 		}

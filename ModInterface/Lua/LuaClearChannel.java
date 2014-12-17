@@ -9,10 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.Lua;
 
-import net.minecraft.tileentity.TileEntity;
 import Reika.DragonAPI.ModInteract.Lua.LuaMethod;
 import Reika.RotaryCraft.TileEntities.Decorative.TileEntityMusicBox;
-import dan200.computercraft.api.lua.LuaException;
+
+import net.minecraft.tileentity.TileEntity;
 
 public class LuaClearChannel extends LuaMethod {
 
@@ -21,7 +21,7 @@ public class LuaClearChannel extends LuaMethod {
 	}
 
 	@Override
-	public Object[] invoke(TileEntity te, Object[] args) throws LuaException, InterruptedException {
+	public Object[] invoke(TileEntity te, Object[] args) throws Exception {
 		TileEntityMusicBox mus = (TileEntityMusicBox) te;
 		int channel = ((Double)args[0]).intValue();
 		mus.clearChannel(channel);

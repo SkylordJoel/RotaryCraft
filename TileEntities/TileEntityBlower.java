@@ -9,6 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities;
 
+import Reika.DragonAPI.Instantiable.WorldLocation;
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,14 +29,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.oredict.OreDictionary;
-import Reika.DragonAPI.Instantiable.Data.WorldLocation;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper.NBTTypes;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 import cpw.mods.fml.relauncher.Side;
 
 public class TileEntityBlower extends TileEntityPowerReceiver {
@@ -262,7 +262,7 @@ public class TileEntityBlower extends TileEntityPowerReceiver {
 		checkNBT = NBT.getBoolean("cnbt");
 		useOreDict = NBT.getBoolean("ore");
 
-		NBTTagList nbttaglist = NBT.getTagList("Items", NBTTypes.COMPOUND.ID);
+		NBTTagList nbttaglist = NBT.getTagList("Items", NBT.getId());
 		matchingItems = new ItemStack[18];
 
 		for (int i = 0; i < nbttaglist.tagCount(); i++)

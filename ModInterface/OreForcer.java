@@ -9,12 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
 import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Exception.ModReflectionException;
 import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
@@ -29,7 +23,6 @@ import Reika.DragonAPI.ModInteract.MagicaOreHandler;
 import Reika.DragonAPI.ModInteract.MekanismHandler;
 import Reika.DragonAPI.ModInteract.MimicryHandler;
 import Reika.DragonAPI.ModInteract.QuantumOreHandler;
-import Reika.DragonAPI.ModInteract.RailcraftHandler;
 import Reika.DragonAPI.ModInteract.ThaumOreHandler;
 import Reika.DragonAPI.ModRegistry.ModOreList;
 import Reika.RotaryCraft.RotaryCraft;
@@ -37,6 +30,13 @@ import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public final class OreForcer {
@@ -227,7 +227,7 @@ public final class OreForcer {
 	}
 
 	private void intercraftFirestone() {
-		Item item = RailcraftHandler.getInstance().firestoneID;
+		Item item = GameRegistry.findItem(ModList.RAILCRAFT.getModLabel(), "railcraft.firestone.raw");
 		if (item == null)
 			throw new ModReflectionException(RotaryCraft.instance, ModList.RAILCRAFT, "Null ItemStack for Firestone");
 		GameRegistry.addShapelessRecipe(new ItemStack(item), ItemStacks.getModOreIngot(ModOreList.FIRESTONE));
@@ -292,9 +292,9 @@ public final class OreForcer {
 			ArrayList list = (ArrayList)blacklist.get(null);
 			RotaryCraft.logger.log("Breaking force wrench on RotaryCraft machines!");
 			for (int i = 0; i < MachineRegistry.machineList.length; i++) {
-				Class machine = MachineRegistry.machineList.get(i).getTEClass();
+				Class machine = MachineRegistry.machineList[i].getTEClass();
 				list.add(machine);
-				RotaryCraft.logger.log("Force wrench no longer works on "+MachineRegistry.machineList.get(i).getName()+"!");
+				RotaryCraft.logger.log("Force wrench no longer works on "+MachineRegistry.machineList[i].getName()+"!");
 			}
 			blacklist.set(null, list);
 		}

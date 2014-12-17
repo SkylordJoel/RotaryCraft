@@ -9,6 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary.RecipeManagers;
 
+import Reika.DragonAPI.Instantiable.RecipePattern;
+import Reika.DragonAPI.Instantiable.Data.ImmutableList;
+import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.TileEntities.Production.TileEntityBlastFurnace;
+
 import java.util.ArrayList;
 
 import net.minecraft.block.Block;
@@ -18,12 +25,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
-import Reika.DragonAPI.Instantiable.RecipePattern;
-import Reika.DragonAPI.Instantiable.Data.ImmutableList;
-import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.TileEntities.Production.TileEntityBlastFurnace;
 
 public class RecipesBlastFurnace
 {
@@ -63,7 +64,7 @@ public class RecipesBlastFurnace
 			output = out.copy();
 		}*/
 
-		private BlastCrafting(ItemStack out, int temp, int speed, IRecipe ir, float xp) {
+		public BlastCrafting(ItemStack out, int temp, int speed, IRecipe ir, float xp) {
 			recipe = ir;
 			output = out;
 			temperature = temp;
@@ -408,10 +409,8 @@ public class RecipesBlastFurnace
 		ArrayList<BlastCrafting> li = new ArrayList();
 		for (int i = 0; i < craftingList.size(); i++) {
 			BlastCrafting r = craftingList.get(i);
-			//ReikaJavaLibrary.pConsole(r.output.getDisplayName());
-			if (ReikaItemHelper.matchStacks(is, r.outputItem())) {
+			if (ReikaItemHelper.matchStacks(is, r.outputItem()))
 				li.add(r.copy());
-			}
 		}
 		return li;
 	}

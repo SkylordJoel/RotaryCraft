@@ -9,13 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.API;
 
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import net.minecraft.item.ItemStack;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
 
-/** Use this to add custom grinder recipes. */
 public class GrinderAPI {
 
 	private static Class recipes;

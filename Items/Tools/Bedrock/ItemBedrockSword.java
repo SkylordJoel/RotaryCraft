@@ -9,6 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Bedrock;
 
+import Reika.DragonAPI.Interfaces.IndexedItemSprites;
+import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
+import Reika.DragonAPI.Libraries.ReikaEntityHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+
 import ic2.api.item.IElectricItem;
 
 import java.util.List;
@@ -28,19 +37,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
-import universalelectricity.api.item.IEnergyItem;
-import Reika.DragonAPI.Interfaces.IndexedItemSprites;
-import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
-import Reika.DragonAPI.Libraries.ReikaEntityHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.DragonAPI.ModRegistry.InterfaceCache;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.ItemRegistry;
 import cofh.api.energy.IEnergyContainerItem;
 
 import com.google.common.collect.Multimap;
@@ -94,24 +92,20 @@ public class ItemBedrockSword extends ItemSword implements IndexedItemSprites {
 		for (int i = 1; i < 5; i++) {
 			ItemStack arm = target.getEquipmentInSlot(i);
 			if (arm != null && this.canDamageArmorOf(target)) {
-				if (InterfaceCache.MUSEELECTRICITEM.instanceOf(arm.getItem())) {
+				if (arm.getItem() instanceof MuseElectricItem) {
 					MuseElectricItem ms = (MuseElectricItem)arm.getItem();
 					ms.extractEnergy(arm, 5000, false);
 				}
-				else if (InterfaceCache.RFENERGYITEM.instanceOf(arm.getItem())) {
+				else if (arm.getItem() instanceof IEnergyContainerItem) {
 					IEnergyContainerItem ie = (IEnergyContainerItem)arm.getItem();
 					ie.extractEnergy(arm, 5000, false);
 				}
-				else if (InterfaceCache.IELECTRICITEM.instanceOf(arm.getItem())) {
+				else if (arm.getItem() instanceof IElectricItem) {
 					IElectricItem ie = (IElectricItem)arm.getItem();
 					///???
-					Item id = ie.getEmptyItem(arm);
+					Item id = ie.getEmptyItemId(arm);
 					ItemStack newarm = new ItemStack(id, 1, 0);
 					target.setCurrentItemOrArmor(i, newarm);
-				}
-				else if (InterfaceCache.UEENERGYITEM.instanceOf(arm.getItem())) {
-					IEnergyItem ie = (IEnergyItem)arm.getItem();
-					ie.discharge(arm, 5000, true);
 				}
 				else if (arm.getItem() instanceof ItemBedrockArmor) {
 					//do nothing
@@ -196,7 +190,6 @@ public class ItemBedrockSword extends ItemSword implements IndexedItemSprites {
 			if (entity instanceof EntityPlayer) {
 				EntityPlayer ep = (EntityPlayer)entity;
 				ep.inventory.setInventorySlotContents(slot, null);
-				ep.attackEntityFrom(DamageSource.generic, 10);
 				ReikaChatHelper.sendChatToPlayer(ep, "The dulled tool has broken.");
 				is = null;
 			}

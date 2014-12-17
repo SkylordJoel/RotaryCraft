@@ -9,11 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
-import net.minecraft.entity.player.EntityPlayer;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
+import Reika.DragonAPI.Base.CoreContainer;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityCentrifuge;
 
-public class ContainerCentrifuge extends ContainerIOMachine
+import net.minecraft.entity.player.EntityPlayer;
+
+public class ContainerCentrifuge extends CoreContainer
 {
 	private TileEntityCentrifuge te;
 

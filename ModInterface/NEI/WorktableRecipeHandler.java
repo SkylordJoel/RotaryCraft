@@ -9,6 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
+import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.WorktableRecipes;
+import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiWorktable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,13 +26,6 @@ import net.minecraft.item.crafting.IRecipe;
 
 import org.lwjgl.opengl.GL11;
 
-import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.WorktableRecipes;
-import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiWorktable;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.api.IOverlayHandler;
 import codechicken.nei.recipe.TemplateRecipeHandler;
@@ -86,8 +87,7 @@ public class WorktableRecipeHandler extends TemplateRecipeHandler {
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		ReikaTextureHelper.bindTexture(RotaryCraft.class, this.getGuiTexture());
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		ReikaGuiAPI.instance.drawTexturedModalRectWithDepth(0, 0, 5, 11, 166, 70, ReikaGuiAPI.NEI_DEPTH);
+		ReikaGuiAPI.instance.drawTexturedModalRect(0, 0, 5, 11, 166, 70);
 	}
 
 	@Override

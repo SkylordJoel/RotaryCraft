@@ -9,6 +9,9 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.RotaryCraft;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,8 +20,6 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.client.event.sound.PlaySoundSourceEvent;
 import net.minecraftforge.common.MinecraftForge;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.RotaryCraft;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class PotionDeafness extends Potion {

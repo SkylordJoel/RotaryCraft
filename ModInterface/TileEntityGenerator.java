@@ -9,33 +9,23 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
-import ic2.api.energy.event.EnergyTileLoadEvent;
-import ic2.api.energy.event.EnergyTileUnloadEvent;
-import ic2.api.energy.tile.IEnergySource;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
-import Reika.DragonAPI.ASM.DependentMethodStripper.ModDependent;
-import Reika.DragonAPI.ModInteract.ReikaEUHelper;
-import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidReceiver;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 
-//@Strippable(value = {"universalelectricity.api.electricity.IVoltageOutput", "universalelectricity.api.energy.IEnergyInterface"})
-@Strippable(value = {"ic2.api.energy.tile.IEnergySource"})
-public class TileEntityGenerator extends PoweredLiquidReceiver implements IEnergySource {
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import universalelectricity.api.electricity.IVoltageOutput;
+import universalelectricity.api.energy.IEnergyInterface;
 
-	//public static final int OUTPUT_VOLTAGE = 24000;
-	//public static final float POWER_FACTOR = 0.875F;
+public class TileEntityGenerator extends TileEntityPowerReceiver implements IEnergyInterface, IVoltageOutput {
+
+	public static final int OUTPUT_VOLTAGE = 24000;
+	public static final float POWER_FACTOR = 0.875F;
 
 	private ForgeDirection facingDir;
-
-	public static final boolean hardModeEU = ConfigRegistry.HARDEU.getState();
 
 	public ForgeDirection getFacing() {
 		return facingDir != null ? facingDir : ForgeDirection.EAST;
@@ -65,23 +55,9 @@ public class TileEntityGenerator extends PoweredLiquidReceiver implements IEnerg
 	public void updateEntity(World world, int x, int y, int z, int meta) {
 		super.updateTileEntity();
 		this.getIOSides(world, x, y, z, meta);
-		if (hardModeEU) {
-			if (tank.isEmpty()) {
-				omega = torque = 0;
-				power = 0;
-				return;
-			}
-			else {
-				if (power > 0) {
-					tank.removeLiquid(1);
-				}
-			}
-		}
-
 		this.getPower(false);
+		//ReikaJavaLibrary.pConsole(this.getGenCurrent()+"A * "+OUTPUT_VOLTAGE+"V = "+this.getGenCurrent()*OUTPUT_VOLTAGE+"W");
 
-		//ReikaJavaLibrary.pConsole(this.getOfferedEnergy(), Side.SERVER);
-		/*
 		if (power > 0) {
 			int dx = x+facingDir.offsetX;
 			int dy = y+facingDir.offsetY;
@@ -91,10 +67,16 @@ public class TileEntityGenerator extends PoweredLiquidReceiver implements IEnerg
 				int metadata = world.getBlockMetadata(dx, dy, dz);
 				if (b.hasTileEntity(metadata)) {
 					TileEntity te = world.getTileEntity(dx, dy, dz);
-
+					if (te instanceof IEnergyInterface) {
+						IEnergyInterface ie = (IEnergyInterface)te;
+						if (ie.canConnect(facingDir, this)) {
+							long energy = (long)(this.getGenCurrent()*OUTPUT_VOLTAGE);
+							ie.onReceiveEnergy(facingDir, energy, true);
+						}
+					}
 				}
 			}
-		}*/
+		}
 	}
 
 	private void getIOSides(World world, int x, int y, int z, int meta) {
@@ -117,69 +99,27 @@ public class TileEntityGenerator extends PoweredLiquidReceiver implements IEnerg
 	}
 
 	@Override
-	public boolean emitsEnergyTo(TileEntity receiver, ForgeDirection direction) {
+	public boolean canConnect(ForgeDirection direction, Object src) {
 		return direction == this.getFacing().getOpposite();
 	}
 
-	@Override
-	public double getOfferedEnergy() {
-		return power/ReikaEUHelper.WATTS_PER_EU;
+	private float getGenCurrent() {
+		return power/(float)OUTPUT_VOLTAGE;//*POWER_FACTOR;
 	}
 
 	@Override
-	public void drawEnergy(double amount) {
-
+	public long getVoltageOutput(ForgeDirection side) {
+		return side == facingDir ? OUTPUT_VOLTAGE : 0;
 	}
 
 	@Override
-	public void onFirstTick(World world, int x, int y, int z) {
-		if (!world.isRemote && ModList.IC2.isLoaded())
-			this.addTileToNet();
-	}
-
-	@ModDependent(ModList.IC2)
-	private void addTileToNet() {
-		MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
+	public long onReceiveEnergy(ForgeDirection from, long receive, boolean doReceive) {
+		return 0;
 	}
 
 	@Override
-	protected void onInvalidateOrUnload(World world, int x, int y, int z, boolean invalidate) {
-		if (!world.isRemote && ModList.IC2.isLoaded())
-			this.removeTileFromNet();
+	public long onExtractEnergy(ForgeDirection from, long extract, boolean doExtract) {
+		return from == facingDir ? (long)(this.getGenCurrent()*OUTPUT_VOLTAGE) : 0;
 	}
 
-	@ModDependent(ModList.IC2)
-	private void removeTileFromNet() {
-		MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
-	}
-
-	@Override
-	public int getSourceTier() {
-		return ReikaEUHelper.getIC2TierFromPower(this.getOfferedEnergy());
-	}
-
-	@Override
-	public boolean canConnectToPipe(MachineRegistry m) {
-		return m.isStandardPipe();
-	}
-
-	@Override
-	public boolean isValidFluid(Fluid f) {
-		return f != null && (f.equals(FluidRegistry.getFluid("ic2coolant")) || f.equals(FluidRegistry.getFluid("liquid nitrogen")));
-	}
-
-	@Override
-	public Fluid getInputFluid() {
-		return null;
-	}
-
-	@Override
-	public boolean canReceiveFrom(ForgeDirection from) {
-		return from == ForgeDirection.DOWN;
-	}
-
-	@Override
-	public int getCapacity() {
-		return 6000;
-	}
 }

@@ -9,14 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Processing;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.FurnaceRecipes;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import Reika.DragonAPI.Instantiable.StepTimer;
 import Reika.DragonAPI.Interfaces.XPProducer;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
@@ -27,6 +19,15 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.DiscreteFunction;
 import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
 import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerLiquidReceiver;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.FurnaceRecipes;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 
 public class TileEntityBigFurnace extends InventoriedPowerLiquidReceiver implements TemperatureTE, XPProducer, DiscreteFunction, ConditionalOperation {
 
@@ -244,7 +245,6 @@ public class TileEntityBigFurnace extends InventoriedPowerLiquidReceiver impleme
 		super.readSyncTag(NBT);
 
 		temperature = NBT.getInteger("temp");
-		xp = NBT.getFloat("xp");
 	}
 
 	@Override
@@ -252,7 +252,6 @@ public class TileEntityBigFurnace extends InventoriedPowerLiquidReceiver impleme
 		super.writeSyncTag(NBT);
 
 		NBT.setInteger("temp", temperature);
-		NBT.setFloat("xp", xp);
 	}
 
 	@Override

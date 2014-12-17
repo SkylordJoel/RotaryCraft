@@ -9,6 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Renders.M;
 
+import Reika.DragonAPI.Interfaces.RenderFetcher;
+import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
+import Reika.DragonAPI.Libraries.IO.ReikaRenderHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Base.RotaryTERenderer;
+import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
+import Reika.RotaryCraft.Models.ModelReservoir;
+import Reika.RotaryCraft.TileEntities.Storage.TileEntityReservoir;
+
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -20,16 +30,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-
-import Reika.DragonAPI.Interfaces.RenderFetcher;
-import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
-import Reika.DragonAPI.Libraries.IO.ReikaRenderHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.RotaryTERenderer;
-import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
-import Reika.RotaryCraft.Models.ModelReservoir;
-import Reika.RotaryCraft.TileEntities.Storage.TileEntityReservoir;
 
 public class RenderReservoir extends RotaryTERenderer
 {
@@ -114,7 +114,7 @@ public class RenderReservoir extends RotaryTERenderer
 		TileEntityReservoir tr = (TileEntityReservoir)tile;
 		if (this.isValidMachineRenderpass(tr)) {
 			this.renderTileEntityReservoirAt(tr, par2, par4, par6, par8);
-			if (tr.isCovered) {
+			if (tr.isInWorld() && tr.isCovered) {
 				this.renderCover(tr, par2, par4, par6);
 			}
 		}

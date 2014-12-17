@@ -9,6 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base.TileEntity;
 
+import Reika.DragonAPI.Interfaces.InertIInv;
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.RotaryCraft.RotaryCraft;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
@@ -16,20 +20,16 @@ import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import Reika.DragonAPI.Interfaces.InertIInv;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper.NBTTypes;
-import Reika.RotaryCraft.RotaryCraft;
 
 public abstract class InventoriedPowerReceiver extends TileEntityPowerReceiver implements ISidedInventory {
 
 	protected ItemStack[] inv = new ItemStack[this.getSizeInventory()];
 
-	public final ItemStack getStackInSlot(int par1) {
+	public ItemStack getStackInSlot(int par1) {
 		return inv[par1];
 	}
 
-	public final void setInventorySlotContents(int par1, ItemStack is) {
+	public void setInventorySlotContents(int par1, ItemStack is) {
 		inv[par1] = is;
 	}
 
@@ -111,7 +111,7 @@ public abstract class InventoriedPowerReceiver extends TileEntityPowerReceiver i
 	{
 		super.readFromNBT(NBT);
 
-		NBTTagList nbttaglist = NBT.getTagList("Items", NBTTypes.COMPOUND.ID);
+		NBTTagList nbttaglist = NBT.getTagList("Items", NBT.getId());
 		inv = new ItemStack[this.getSizeInventory()];
 
 		for (int i = 0; i < nbttaglist.tagCount(); i++)

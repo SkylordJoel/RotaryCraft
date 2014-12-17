@@ -9,9 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary.RecipeManagers;
 
+import Reika.DragonAPI.ModList;
+import Reika.DragonAPI.Instantiable.Data.ChancedOutputList;
+import Reika.DragonAPI.Instantiable.Data.ItemHashMap;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.ModInteract.ForestryRecipeHelper;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -21,14 +28,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.oredict.OreDictionary;
-import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.Instantiable.Data.ChancedOutputList;
-import Reika.DragonAPI.Instantiable.Data.ItemHashMap;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.ModInteract.ForestryRecipeHelper;
-import Reika.DragonAPI.ModRegistry.ModOreList;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
 
 public class RecipesCentrifuge
 {
@@ -55,7 +54,7 @@ public class RecipesCentrifuge
 		this.addRecipe(ItemStacks.netherrackdust, null, new ItemStack(Items.glowstone_dust), new ItemStack(Items.gunpowder));
 
 		if (ModList.FORESTRY.isLoaded()) {
-			Map<ItemStack, ChancedOutputList> centrifuge = ForestryRecipeHelper.getInstance().getCentrifugeRecipes();
+			HashMap<ItemStack, ChancedOutputList> centrifuge = ForestryRecipeHelper.getInstance().getCentrifugeRecipes();
 			for (ItemStack in : centrifuge.keySet()) {
 				ArrayList<ItemStack> out = new ArrayList();
 				out.addAll(centrifuge.get(in).getAllItems());
@@ -65,12 +64,6 @@ public class RecipesCentrifuge
 
 		this.addRecipe(ItemStacks.slipperyComb, new FluidStack(FluidRegistry.getFluid("lubricant"), 50), ItemStacks.slipperyPropolis);
 		this.addRecipe(ItemStacks.slipperyPropolis, new FluidStack(FluidRegistry.getFluid("lubricant"), 150));
-
-		if (ReikaItemHelper.oreItemsExist("dustLead", "dustSilver")) {
-			ItemStack lead = OreDictionary.getOres("dustLead").get(0);
-			ItemStack silver = OreDictionary.getOres("dustSilver").get(0);
-			this.addRecipe(ExtractorModOres.getSmeltedIngot(ModOreList.GALENA), null, lead, silver);
-		}
 	}
 
 	private void addRecipe(ItemStack in, ArrayList<ItemStack> out, FluidStack fs)

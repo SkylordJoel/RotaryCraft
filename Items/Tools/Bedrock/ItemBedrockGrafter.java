@@ -9,17 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Bedrock;
 
+import Reika.RotaryCraft.Base.ItemRotaryTool;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
-import Reika.RotaryCraft.Base.ItemRotaryTool;
 import forestry.api.arboriculture.IToolGrafter;
 
-@Strippable(value = {"forestry.api.arboriculture.IToolGrafter"})
 public class ItemBedrockGrafter extends ItemRotaryTool implements IToolGrafter {
 
 	public ItemBedrockGrafter(int index) {
@@ -37,7 +36,7 @@ public class ItemBedrockGrafter extends ItemRotaryTool implements IToolGrafter {
 		if (e instanceof EntityPlayer) {
 			EntityPlayer ep = (EntityPlayer)e;
 			if (b.getMaterial() == Material.leaves) {
-				int r = ep.isSneaking() ? 0 : 4;
+				int r = 4;
 				for (int i = -r; i <= r; i++) {
 					for (int j = -r; j <= r; j++) {
 						for (int k = -r; k <= r; k++) {

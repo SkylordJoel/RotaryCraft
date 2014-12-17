@@ -9,8 +9,9 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
-import net.minecraft.creativetab.CreativeTabs;
 import Reika.RotaryCraft.RotaryCraft;
+
+import net.minecraft.creativetab.CreativeTabs;
 
 
 

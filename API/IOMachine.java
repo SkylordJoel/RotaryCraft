@@ -9,7 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.API;
 
-/** This is not intended for you to use, but a helper bridge class for PowerTransferHelper */
 public interface IOMachine {
 
 	public int getWriteX();

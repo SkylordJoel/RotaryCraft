@@ -9,15 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
-import java.util.HashMap;
-
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor.ArmorMaterial;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.StatCollector;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Exception.RegistrationException;
 import Reika.DragonAPI.Extras.ItemSpawner;
@@ -62,6 +53,7 @@ import Reika.RotaryCraft.Items.Tools.ItemHandheldCrafting;
 import Reika.RotaryCraft.Items.Tools.ItemIOGoggles;
 import Reika.RotaryCraft.Items.Tools.ItemJetPack;
 import Reika.RotaryCraft.Items.Tools.ItemMeter;
+import Reika.RotaryCraft.Items.Tools.ItemNightVisionHelmet;
 import Reika.RotaryCraft.Items.Tools.ItemScrewdriver;
 import Reika.RotaryCraft.Items.Tools.ItemTarget;
 import Reika.RotaryCraft.Items.Tools.ItemTileSelector;
@@ -96,6 +88,15 @@ import Reika.RotaryCraft.Items.Tools.Steel.ItemSteelShears;
 import Reika.RotaryCraft.Items.Tools.Steel.ItemSteelShovel;
 import Reika.RotaryCraft.Items.Tools.Steel.ItemSteelSickle;
 import Reika.RotaryCraft.Items.Tools.Steel.ItemSteelSword;
+
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor.ArmorMaterial;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.StatCollector;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public enum ItemRegistry implements ItemEnum {
@@ -119,7 +120,7 @@ public enum ItemRegistry implements ItemEnum {
 	BEDAXE(100, 1, false, 			"item.bedaxe", 				ItemBedrockAxe.class),
 	BEDSHOVEL(102, 1, false, 		"item.bedshovel", 			ItemBedrockShovel.class),
 	NVG(97, 1, true, 				"item.nvg", 				ItemNightVisionGoggles.class),
-	//NVH(48, 1, true, 				"item.nvh", 				ItemNightVisionHelmet.class),
+	NVH(48, 1, true, 				"item.nvh", 				ItemNightVisionHelmet.class),
 	HANDCRAFT(33, 1, false, 		"item.handcraft", 			ItemHandheldCrafting.class),
 	RAILGUN(113, 1, true, 			"item.railgun", 			ItemRailGunAmmo.class),
 	BUCKET(104, 106, 1, true, 		"item.rcbucket", 			ItemFuelLubeBucket.class),
@@ -181,9 +182,7 @@ public enum ItemRegistry implements ItemEnum {
 	MODINTERFACE(14, true,			"item.modinterface",		ItemMulti.class),
 	MODEXTRACTS(-1, true,			"item.modextracts",			ItemModOre.class),
 	MODINGOTS(-1, true,				"item.modingots",			ItemModOre.class),
-	SPAWNER(0, false,				"item.spawner",				ItemSpawner.class),
-	STEELPACK(44, 1, false,			"item.steelpack",			ItemJetPack.class);
-	;//BEDKNIFE(41, 1, false,			"item.bedknife",			ItemBedrockKnife.class, ModList.APPENG);
+	SPAWNER(0, false,				"item.spawner",				ItemSpawner.class);
 
 	private final int index;
 	private final int imageSheet;
@@ -193,9 +192,6 @@ public enum ItemRegistry implements ItemEnum {
 	private final ModList condition;
 
 	private int maxindex;
-
-	public static final ItemRegistry[] itemList = values();
-	private static final HashMap<Item, ItemRegistry> itemMap = new HashMap();
 
 	private ItemRegistry(int tex, boolean sub, String n, Class <?extends Item> iCl) {
 		this(tex, 0, sub, n, iCl, null);
@@ -225,6 +221,8 @@ public enum ItemRegistry implements ItemEnum {
 		condition = null;
 		imageSheet = sheet;
 	}
+
+	public static final ItemRegistry[] itemList = values();
 
 	@Override
 	public Class[] getConstructorParamTypes() {
@@ -307,8 +305,6 @@ public enum ItemRegistry implements ItemEnum {
 	private ArmorMaterial getArmorMaterial() {
 		if (this.isBedrockTypeArmor())
 			return RotaryCraft.BEDROCK;
-		if (this.isSteelTypeArmor())
-			return RotaryCraft.HSLA;
 		if (this == JETPACK)
 			return RotaryCraft.JETPACK;
 		if (this == JUMP)
@@ -317,7 +313,7 @@ public enum ItemRegistry implements ItemEnum {
 	}
 
 	public boolean isJetpack() {
-		if (this == JETPACK || this == BEDPACK || this == STEELPACK)
+		if (this == JETPACK || this == BEDPACK)
 			return true;
 		return false;
 	}
@@ -339,7 +335,6 @@ public enum ItemRegistry implements ItemEnum {
 		case STEELCHEST:
 		case JETPACK:
 		case BEDPACK:
-		case STEELPACK:
 			return 1;
 		case BEDHELM:
 		case STEELHELMET:
@@ -362,11 +357,20 @@ public enum ItemRegistry implements ItemEnum {
 	}
 
 	public static boolean isRegistered(Item id) {
-		return getEntryByID(id) != null;
+		for (int i = 0; i < itemList.length; i++) {
+			if (itemList[i].getItemInstance() == id)
+				return true;
+		}
+		return false;
 	}
 
 	public static ItemRegistry getEntryByID(Item id) {
-		return itemMap.get(id);
+		for (int i = 0; i < itemList.length; i++) {
+			if (itemList[i].getItemInstance() == id)
+				return itemList[i];
+		}
+		//throw new RegistrationException(RotaryCraft.instance, "Item ID "+id+" was called to the item registry but does not exist there!");
+		return null;
 	}
 
 	public static ItemRegistry getEntry(ItemStack is) {
@@ -403,7 +407,7 @@ public enum ItemRegistry implements ItemEnum {
 		case RAILGUN:
 			return this.getBasicName()+" ("+String.format("%d", (int)ReikaMathLibrary.intpow(2, dmg))+" kg)";
 		case UPGRADE:
-			return ItemEngineUpgrade.Upgrades.values()[dmg].getName();
+			return ItemEngineUpgrade.Upgrades.values()[dmg].desc;
 		case MODEXTRACTS:
 			return RotaryNames.getModExtractName(dmg);
 		case MODINGOTS:
@@ -437,7 +441,7 @@ public enum ItemRegistry implements ItemEnum {
 		case ADVGEAR:
 			return RotaryNames.getAdvGearName(dmg);
 		case MACHINE:
-			return MachineRegistry.machineList.get(dmg).getName();
+			return MachineRegistry.machineList[dmg].getName();
 		default:
 			break;
 		}
@@ -451,8 +455,8 @@ public enum ItemRegistry implements ItemEnum {
 			return RotaryCraft.proxy.IOGoggles;
 		if (this == NVG)
 			return RotaryCraft.proxy.NVGoggles;
-		//if (this == NVH)
-		//	return RotaryCraft.proxy.NVHelmet;
+		if (this == NVH)
+			return RotaryCraft.proxy.NVHelmet;
 		if (this.isBedrockArmor())
 			return RotaryCraft.proxy.armor;
 		if (this.isSteelArmor())
@@ -464,10 +468,6 @@ public enum ItemRegistry implements ItemEnum {
 		if (this == BEDREVEAL)
 			return RotaryCraft.proxy.armor;
 		throw new RegistrationException(RotaryCraft.instance, "Item "+name+" is an armor yet has no specified render!");
-	}
-
-	private boolean isSteelTypeArmor() {
-		return this == STEELPACK || this.isSteelArmor();
 	}
 
 	private boolean isSteelArmor() {
@@ -519,8 +519,8 @@ public enum ItemRegistry implements ItemEnum {
 	public boolean isCharged() {
 		if (this == BEDJUMP)
 			return false;
-		//if (this == NVH)
-		//	return false;
+		if (this == NVH)
+			return false;
 		return ItemChargedTool.class.isAssignableFrom(itemClass) || ItemChargedArmor.class.isAssignableFrom(itemClass);
 	}
 
@@ -561,8 +561,8 @@ public enum ItemRegistry implements ItemEnum {
 		case WORLDEDIT:
 		case CANOLA:
 			return 2;
-			//case NVH:
-			//	return Items.diamond_helmet.getMaxDamage();
+		case NVH:
+			return Items.diamond_helmet.getMaxDamage();
 		case SPRING:
 		case STRONGCOIL:
 			return 32000;
@@ -617,14 +617,13 @@ public enum ItemRegistry implements ItemEnum {
 		switch(this) {
 		case IOGOGGLES:
 		case NVG:
-			//case NVH:
+		case NVH:
 		case BEDHELM:
 		case BEDCHEST:
 		case BEDLEGS:
 		case BEDBOOTS:
 		case BEDPACK:
 		case JETPACK:
-		case STEELPACK:
 		case STEELHELMET:
 		case STEELCHEST:
 		case STEELLEGS:
@@ -836,13 +835,6 @@ public enum ItemRegistry implements ItemEnum {
 			return false;
 		default:
 			return true;
-		}
-	}
-
-	public static void loadMappings() {
-		for (int i = 0; i < itemList.length; i++) {
-			ItemRegistry r = itemList[i];
-			itemMap.put(r.getItemInstance(), r);
 		}
 	}
 }

@@ -9,17 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
-import java.awt.Color;
-
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidHandler;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.RotaryCraft.API.PowerGenerator;
@@ -29,9 +18,19 @@ import Reika.RotaryCraft.Base.TileEntity.EnergyToPowerBase;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.TileEntities.Piping.TileEntityPipe;
+
+import java.awt.Color;
+
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidHandler;
 import buildcraft.api.transport.IPipeConnection;
 import buildcraft.api.transport.IPipeTile.PipeType;
-@Strippable(value = {"buildcraft.api.transport.IPipeConnection"})
+
 public class TileEntitySteam extends EnergyToPowerBase implements PowerGenerator, SimpleProvider, IPipeConnection, IFluidHandler, PipeConnector {
 
 	public static final int CAPACITY = 300000;
@@ -68,7 +67,7 @@ public class TileEntitySteam extends EnergyToPowerBase implements PowerGenerator
 		this.getIOSides(world, x, y, z, meta);
 		write = this.getFacing().getOpposite();
 
-		if (this.getTicksExisted() == 0)
+		if (this.getTicksExisted() < 2)
 			ReikaWorldHelper.causeAdjacentUpdates(world, x, y, z);
 
 		this.updateSpeed();
@@ -160,8 +159,8 @@ public class TileEntitySteam extends EnergyToPowerBase implements PowerGenerator
 	}
 
 	@Override
-	protected int getIdealConsumedUnitsPerTick() {
-		return MathHelper.ceiling_double_int(Math.sqrt(power));
+	public int getConsumedUnitsPerTick() {
+		return (int)Math.ceil(Math.sqrt(power));
 	}
 
 	@Override

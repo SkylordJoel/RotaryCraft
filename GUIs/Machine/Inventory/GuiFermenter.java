@@ -9,11 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fluids.FluidRegistry;
-
-import org.lwjgl.opengl.GL11;
-
 import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
 import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
 import Reika.RotaryCraft.RotaryCraft;
@@ -22,6 +17,11 @@ import Reika.RotaryCraft.Base.GuiMachine;
 import Reika.RotaryCraft.Containers.ContainerFermenter;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityFermenter;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fluids.FluidRegistry;
+
+import org.lwjgl.opengl.GL11;
 
 public class GuiFermenter extends GuiMachine
 {
@@ -60,7 +60,7 @@ public class GuiFermenter extends GuiMachine
 		sy = 35;
 		if (api.isMouseInBox(sx+j-1, sx+16+j+1, sy+k-1, sy+16+k+1)) {
 			int dy = 13;
-			api.drawTooltipAt(fontRendererObj, String.format("Water: %d/%d mB", ferm.getLevel(), ferm.CAPACITY), api.getMouseRealX()-j, api.getMouseRealY()-k);
+			api.drawTooltipAt(fontRendererObj, String.format("Water: %.1f/%d", ferm.getLevel()/1000F, ferm.CAPACITY/1000), api.getMouseRealX()-j, api.getMouseRealY()-k);
 		}
 
 		GL11.glColor4f(1, 1, 1, 1);
@@ -122,7 +122,7 @@ public class GuiFermenter extends GuiMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "fermentergui";
 	}
 }

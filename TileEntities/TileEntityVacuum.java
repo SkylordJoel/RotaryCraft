@@ -9,6 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities;
 
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.API.Event.VacuumItemAbsorbEvent;
+import Reika.RotaryCraft.API.Event.VacuumXPAbsorbEvent;
+import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
+import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.List;
 
 import net.minecraft.entity.item.EntityItem;
@@ -24,26 +35,10 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ForgeDirection;
-import Reika.DragonAPI.Interfaces.XPProducer;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.API.Event.VacuumItemAbsorbEvent;
-import Reika.RotaryCraft.API.Event.VacuumXPAbsorbEvent;
-import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
-import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityVacuum extends InventoriedPowerReceiver implements RangedEffect/*, IFluidHandler*/ {
 
-	private int experience = 0;
-	public boolean equidistant = true;
-
-	public int getExperience() {
-		return experience;
-	}
+	public int experience = 0;
 
 	@Override
 	public boolean canExtractItem(int i, ItemStack itemstack, int j) {
@@ -102,11 +97,6 @@ public class TileEntityVacuum extends InventoriedPowerReceiver implements Ranged
 					}
 				}
 			}
-			if (te instanceof XPProducer) {
-				XPProducer xpm = (XPProducer)te;
-				experience += xpm.getXP();
-				xpm.clearXP();
-			}
 		}
 	}
 
@@ -122,8 +112,9 @@ public class TileEntityVacuum extends InventoriedPowerReceiver implements Ranged
 	@SuppressWarnings("unused")
 	private void suck(World world, int x, int y, int z) {
 		AxisAlignedBB box = this.getBox(world, x, y, z);
-		List<EntityItem> inbox = world.getEntitiesWithinAABB(EntityItem.class, box);
-		for (EntityItem ent : inbox) {
+		List inbox = world.getEntitiesWithinAABB(EntityItem.class, box);
+		for (int i = 0; i < inbox.size(); i++) {
+			EntityItem ent = (EntityItem)inbox.get(i);
 			//Vec3 i2vac = ReikaVectorHelper.getVec2Pt(ent.posX, ent.posY, ent.posZ, x+0.5, y+0.5, z+0.5);
 			//if (ReikaWorldHelper.canBlockSee(world, x, y, z, ent.posX, ent.posY, ent.posZ, this.getRange()+2)) {
 			if (true || ReikaWorldHelper.canBlockSee(world, x, y, z, ent.posX, ent.posY, ent.posZ, this.getRange()+2)) {
@@ -140,8 +131,9 @@ public class TileEntityVacuum extends InventoriedPowerReceiver implements Ranged
 					ent.velocityChanged = true;
 			}
 		}
-		List<EntityXPOrb> inbox2 = world.getEntitiesWithinAABB(EntityXPOrb.class, box);
-		for (EntityXPOrb ent : inbox2) {
+		List inbox2 = world.getEntitiesWithinAABB(EntityXPOrb.class, box);
+		for (int i = 0; i < inbox2.size(); i++) {
+			EntityXPOrb ent = (EntityXPOrb)inbox2.get(i);
 			if (true || ReikaWorldHelper.canBlockSee(world, x, y, z, ent.posX, ent.posY, ent.posZ, this.getRange()+2)) {
 				double dx = (x+0.5 - ent.posX);
 				double dy = (y+0.5 - ent.posY);
@@ -162,8 +154,9 @@ public class TileEntityVacuum extends InventoriedPowerReceiver implements Ranged
 		if (world.isRemote)
 			return;
 		AxisAlignedBB close = AxisAlignedBB.getBoundingBox(x, y, z, x+1, y+1, z+1).expand(0.25D, 0.25D, 0.25D);
-		List<EntityItem> closeitems = world.getEntitiesWithinAABB(EntityItem.class, close);
-		for (EntityItem ent : closeitems) {
+		List closeitems = world.getEntitiesWithinAABB(EntityItem.class, close);
+		for (int i = 0; i < closeitems.size(); i++) {
+			EntityItem ent = (EntityItem)closeitems.get(i);
 			if (ent.delayBeforeCanPickup <= 0) {
 				ItemStack is = ent.getEntityItem();
 				int targetslot = this.checkForStack(is);
@@ -181,8 +174,9 @@ public class TileEntityVacuum extends InventoriedPowerReceiver implements Ranged
 				MinecraftForge.EVENT_BUS.post(new VacuumItemAbsorbEvent(this, is != null ? is.copy(): null));
 			}
 		}
-		List<EntityXPOrb> closeorbs = world.getEntitiesWithinAABB(EntityXPOrb.class, close);
-		for (EntityXPOrb xp : closeorbs) {
+		List closeorbs = world.getEntitiesWithinAABB(EntityXPOrb.class, close);
+		for (int i = 0; i < closeorbs.size(); i++) {
+			EntityXPOrb xp = (EntityXPOrb)closeorbs.get(i);
 			int val = xp.getXpValue();
 			experience += val;
 			xp.setDead();
@@ -207,7 +201,7 @@ public class TileEntityVacuum extends InventoriedPowerReceiver implements Ranged
 		for (int j = 0; j < inv.length; j++) {
 			if (inv[j] != null) {
 				if (ReikaItemHelper.matchStacks(is, inv[j])) {
-					if (ItemStack.areItemStackTagsEqual(is, inv[j])) {
+					if (this.areNBTTagsCombineable(is, inv[j])) {
 						if (inv[j].stackSize+size <= this.getInventoryStackLimit()) {
 							target = j;
 							j = inv.length;
@@ -227,10 +221,22 @@ public class TileEntityVacuum extends InventoriedPowerReceiver implements Ranged
 		return target;
 	}
 
+	private boolean areNBTTagsCombineable(ItemStack is, ItemStack is2) {
+		if ((is.stackTagCompound == null && is2.stackTagCompound == null))
+			return true;
+		if ((is.stackTagCompound == null || is2.stackTagCompound == null))
+			return false;
+		//if (is.stackTagCompound.getName() == null || is.stackTagCompound.getName().isEmpty())
+		//	is.stackTagCompound.setName("tag"); //is done by the TE's NBT functions anyways
+		if (ItemStack.areItemStackTagsEqual(is, is2))
+			return true;
+		return false;
+	}
+
 	private AxisAlignedBB getBox(World world, int x, int y, int z) {
 		int expand = this.getRange();
-		AxisAlignedBB base = AxisAlignedBB.getBoundingBox(x, y, z, x+1, y+1, z+1);
-		return equidistant ? base.expand(expand, expand, expand) : base.expand(expand, 2, expand);
+		AxisAlignedBB box = AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord+1, yCoord+1, zCoord+1).expand(expand, expand, expand);
+		return box;
 	}
 
 	public int getRange() {
@@ -252,7 +258,6 @@ public class TileEntityVacuum extends InventoriedPowerReceiver implements Ranged
 	{
 		super.readSyncTag(NBT);
 		experience = NBT.getInteger("xp");
-		equidistant = NBT.getBoolean("equi");
 	}
 
 	@Override
@@ -260,7 +265,6 @@ public class TileEntityVacuum extends InventoriedPowerReceiver implements Ranged
 	{
 		super.writeSyncTag(NBT);
 		NBT.setInteger("xp", experience);
-		NBT.setBoolean("equi", equidistant);
 	}
 
 	@Override

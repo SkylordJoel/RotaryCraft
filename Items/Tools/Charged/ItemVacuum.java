@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Charged;
 
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Base.ItemChargedTool;
+
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -21,10 +26,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Base.ItemChargedTool;
 
 public class ItemVacuum extends ItemChargedTool {
 
@@ -48,7 +49,7 @@ public class ItemVacuum extends ItemChargedTool {
 		for (int i = 0; i < inrange.size(); i++) {
 			EntityItem ent = (EntityItem)inrange.get(i);
 			ItemStack is2 = ent.getEntityItem();
-			if (ReikaInventoryHelper.canAcceptMoreOf(is2, ep.inventory)) {
+			if (ReikaInventoryHelper.canAcceptMoreOf(is2.getItem(), is2.getItemDamage(), ep.inventory.mainInventory)) {
 				double dx = (ep.posX - ent.posX);
 				double dy = (ep.posY - ent.posY);
 				double dz = (ep.posZ - ent.posZ);

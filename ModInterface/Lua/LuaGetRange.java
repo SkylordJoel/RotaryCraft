@@ -9,10 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.Lua;
 
-import net.minecraft.tileentity.TileEntity;
 import Reika.DragonAPI.ModInteract.Lua.LuaMethod;
 import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
-import dan200.computercraft.api.lua.LuaException;
+
+import net.minecraft.tileentity.TileEntity;
 
 public class LuaGetRange extends LuaMethod {
 
@@ -21,7 +21,7 @@ public class LuaGetRange extends LuaMethod {
 	}
 
 	@Override
-	public Object[] invoke(TileEntity te, Object[] args) throws LuaException, InterruptedException {
+	public Object[] invoke(TileEntity te, Object[] args) throws Exception {
 		return new Object[]{((RangedEffect)te).getRange(), ((RangedEffect)te).getMaxRange()};
 	}
 

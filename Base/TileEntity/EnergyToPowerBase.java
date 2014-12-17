@@ -9,6 +9,20 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base.TileEntity;
 
+import Reika.DragonAPI.DragonAPICore;
+import Reika.DragonAPI.Instantiable.HybridTank;
+import Reika.DragonAPI.Interfaces.GuiController;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.API.PowerGenerator;
+import Reika.RotaryCraft.API.ShaftMerger;
+import Reika.RotaryCraft.Auxiliary.PowerSourceList;
+import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
+import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
+import Reika.RotaryCraft.Auxiliary.Interfaces.UpgradeableMachine;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.awt.Color;
 
 import net.minecraft.block.Block;
@@ -18,7 +32,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -26,25 +39,8 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
-import Reika.DragonAPI.DragonAPICore;
-import Reika.DragonAPI.Instantiable.HybridTank;
-import Reika.DragonAPI.Instantiable.StepTimer;
-import Reika.DragonAPI.Interfaces.GuiController;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.API.PowerGenerator;
-import Reika.RotaryCraft.API.ShaftMerger;
-import Reika.RotaryCraft.Auxiliary.PowerSourceList;
-import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
-import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
-import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
-import Reika.RotaryCraft.Auxiliary.Interfaces.UpgradeableMachine;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
-public abstract class EnergyToPowerBase extends TileEntityIOMachine implements SimpleProvider, PowerGenerator, GuiController, UpgradeableMachine,
-IFluidHandler, PipeConnector, TemperatureTE {
+public abstract class EnergyToPowerBase extends TileEntityIOMachine implements SimpleProvider, PowerGenerator, GuiController, UpgradeableMachine, IFluidHandler, PipeConnector {
 
 	private static final int MINBASE = -1;
 
@@ -55,10 +51,6 @@ IFluidHandler, PipeConnector, TemperatureTE {
 	protected int baseomega = -1;
 
 	private ForgeDirection facingDir;
-
-	private int temperature;
-
-	private StepTimer tempTimer = new StepTimer(20);
 
 	private static final boolean reika = DragonAPICore.isReikasComputer();
 	private final HybridTank tank = new HybridTank("energytopower", 24000);
@@ -71,31 +63,15 @@ IFluidHandler, PipeConnector, TemperatureTE {
 		return rsState != null ? rsState : RedstoneState.IGNORE;
 	}
 
-	public final double getEfficiency() {
-		return 0.9-tier*0.08;
-	}
-
-	public final double getPowerLoss() {
-		return 1-this.getEfficiency();
-	}
-
-	public final double getConsumption() {
-		return 1+this.getPowerLoss();
-	}
-
 	@Override
 	public void updateTileEntity() {
 		super.updateTileEntity();
 		if (DragonAPICore.debugtest) {
 			storedEnergy = this.getMaxStorage();
-			tank.setContents(tank.getCapacity(), FluidRegistry.getFluid("liquid nitrogen"));
+			tank.setContents(tank.getCapacity(), FluidRegistry.getFluid("lubricant"));
 		}
 		if (storedEnergy < 0) {
 			storedEnergy = 0;
-		}
-		tempTimer.update();
-		if (tempTimer.checkCap()) {
-			this.updateTemperature(worldObj, xCoord, yCoord, zCoord, this.getBlockMetadata());
 		}
 	}
 
@@ -246,7 +222,7 @@ IFluidHandler, PipeConnector, TemperatureTE {
 
 	protected final void updateSpeed() {
 		int maxspeed = this.getMaxSpeed();
-		boolean accel = omega <= maxspeed && this.hasEnoughEnergy();
+		boolean accel = omega <= maxspeed && this.hasEnoughEnergy() && !tank.isEmpty();
 		if (accel) {
 			omega += 4*ReikaMathLibrary.logbase(maxspeed+1, 2);
 			if (omega > maxspeed)
@@ -261,9 +237,9 @@ IFluidHandler, PipeConnector, TemperatureTE {
 		power = (long)torque*(long)omega;
 		if (power > 0 && !worldObj.isRemote) {
 			this.usePower();
-			//if (worldObj.getTotalWorldTime()%(21-4*tier) == 0) {
-			//	tank.removeLiquid(1);
-			//}
+			if (worldObj.getTotalWorldTime()%(21-4*tier) == 0) {
+				tank.removeLiquid(1);
+			}
 		}
 	}
 
@@ -282,11 +258,7 @@ IFluidHandler, PipeConnector, TemperatureTE {
 		return energy > this.getConsumedUnitsPerTick();
 	}
 
-	protected abstract int getIdealConsumedUnitsPerTick();
-
-	public final int getConsumedUnitsPerTick() {
-		return MathHelper.ceiling_double_int(this.getIdealConsumedUnitsPerTick()*this.getConsumption());
-	}
+	public abstract int getConsumedUnitsPerTick();
 
 	public final void setTierFromItemTag(NBTTagCompound nbt) {
 		if (nbt != null) {
@@ -353,8 +325,6 @@ IFluidHandler, PipeConnector, TemperatureTE {
 		NBT.setInteger("level", tier);
 
 		tank.writeToNBT(NBT);
-
-		NBT.setInteger("temp", temperature);
 	}
 
 	@Override
@@ -375,8 +345,6 @@ IFluidHandler, PipeConnector, TemperatureTE {
 		baseomega = NBT.getInteger("tiero");
 
 		tank.readFromNBT(NBT);
-
-		temperature = NBT.getInteger("temp");
 	}
 
 	@Override
@@ -442,7 +410,7 @@ IFluidHandler, PipeConnector, TemperatureTE {
 
 	@Override
 	public boolean canFill(ForgeDirection from, Fluid fluid) {
-		return fluid.equals(FluidRegistry.getFluid("liquid nitrogen"));
+		return fluid.equals(FluidRegistry.getFluid("lubricant"));
 	}
 
 	@Override
@@ -457,12 +425,12 @@ IFluidHandler, PipeConnector, TemperatureTE {
 
 	@Override
 	public boolean canConnectToPipe(MachineRegistry m) {
-		return m == MachineRegistry.PIPE;
+		return m == MachineRegistry.HOSE;
 	}
 
 	@Override
 	public boolean canConnectToPipeOnSide(MachineRegistry p, ForgeDirection side) {
-		return p == MachineRegistry.PIPE;
+		return p == MachineRegistry.HOSE;
 	}
 
 	@Override
@@ -480,57 +448,6 @@ IFluidHandler, PipeConnector, TemperatureTE {
 
 	public final int getLubricantScaled(int a) {
 		return tank.getLevel() * a / tank.getCapacity();
-	}
-
-	@Override
-	public final void updateTemperature(World world, int x, int y, int z, int meta) {
-		int Tamb = ReikaWorldHelper.getAmbientTemperatureAt(world, x, y, z);
-		if (power > 0) {
-			double d = tank.getLevel() >= 50 ? 0.00275 : 0.14;
-			double inc = d*Math.sqrt(power)+ReikaMathLibrary.logbase(tier+1, 2);
-			//ReikaJavaLibrary.pConsole(inc);
-			temperature += inc;
-			if (temperature > Tamb && !tank.isEmpty()) {
-				int drain = Math.max(2, 50*temperature/500);
-				tank.removeLiquid(drain);
-			}
-		}
-		if (temperature > Tamb) {
-			temperature -= (temperature-Tamb)/16;
-		}
-		else {
-			temperature += (temperature-Tamb)/16;
-		}
-		if (temperature - Tamb <= 16 && temperature > Tamb)
-			temperature--;
-		if (temperature > 500) {
-			temperature = 500;
-			if (!world.isRemote)
-				this.overheat(world, x, y, z);
-		}
-		if (temperature < Tamb)
-			temperature = Tamb;
-	}
-
-	@Override
-	public final void addTemperature(int temp) {
-		temperature += temp;
-	}
-
-	@Override
-	public final int getTemperature() {
-		return temperature;
-	}
-
-	@Override
-	public final int getThermalDamage() {
-		return 0;
-	}
-
-	@Override
-	public final void overheat(World world, int x, int y, int z) {
-		this.delete();
-		world.newExplosion(null, x+0.5, y+0.5, z+0.5, 3, true, true);
 	}
 
 }

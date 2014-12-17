@@ -9,12 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Base.ItemRotaryTool;
 import Reika.RotaryCraft.Registry.GuiRegistry;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 public class ItemHandheldCrafting extends ItemRotaryTool {
 

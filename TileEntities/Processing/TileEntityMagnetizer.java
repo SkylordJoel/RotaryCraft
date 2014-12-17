@@ -9,9 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Processing;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 import Reika.DragonAPI.Base.OneSlotMachine;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
@@ -23,6 +20,10 @@ import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
 import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 
 public class TileEntityMagnetizer extends InventoriedPowerReceiver implements OneSlotMachine, DiscreteFunction, ConditionalOperation {
 
@@ -87,7 +88,7 @@ public class TileEntityMagnetizer extends InventoriedPowerReceiver implements On
 		if (inv[0].stackSize > 1) {
 			return false;
 		}
-		if (!ReikaItemHelper.matchStacks(inv[0], ItemStacks.shaftcore)) {
+		if (ReikaItemHelper.matchStacks(inv[0], ItemStacks.shaftcore)) {
 			return false;
 		}
 		return true;

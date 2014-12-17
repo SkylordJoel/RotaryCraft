@@ -9,8 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.world.World;
 import Reika.DragonAPI.Base.OneSlotMachine;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
@@ -18,6 +16,9 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
 import Reika.RotaryCraft.Base.TileEntity.TileEntitySpringPowered;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
+
+import net.minecraft.init.Blocks;
+import net.minecraft.world.World;
 
 public class TileEntitySmokeDetector extends TileEntitySpringPowered implements RangedEffect, OneSlotMachine {
 
@@ -51,16 +52,14 @@ public class TileEntitySmokeDetector extends TileEntitySpringPowered implements 
 		}
 		//ReikaChatHelper.write(ReikaWorldHelper.findNearBlock(world, x, y, z, 8, Blocks.fire.blockID));
 		if (ReikaWorldHelper.findNearBlock(world, x, y, z, 8, Blocks.fire)) {
-			if (!isAlarm) {
-				isAlarm = true;
+			if (!isAlarm)
 				ReikaWorldHelper.causeAdjacentUpdates(world, x, y, z);
-			}
+			isAlarm = true;
 		}
 		else {
-			if (isAlarm) {
-				isAlarm = false;
+			if (isAlarm)
 				ReikaWorldHelper.causeAdjacentUpdates(world, x, y, z);
-			}
+			isAlarm = false;
 		}
 		if (this.lowBattery())
 			isLowBatt = true;
@@ -85,7 +84,6 @@ public class TileEntitySmokeDetector extends TileEntitySpringPowered implements 
 		return time;
 	}
 	 */
-
 	public boolean checkValidCoil() {
 		return this.hasCoil();
 	}

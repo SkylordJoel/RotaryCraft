@@ -9,21 +9,21 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Entities;
 
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.Base.EntityTurretShot;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.TileEntities.Weaponry.TileEntityFreezeGun;
+
 import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.Base.EntityTurretShot;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.TileEntities.Weaponry.TileEntityFreezeGun;
 
 public class EntityFreezeGunShot extends EntityTurretShot {
 
@@ -73,8 +73,6 @@ public class EntityFreezeGunShot extends EntityTurretShot {
 
 	@Override
 	protected void applyAttackEffectsToEntity(World world, EntityLivingBase el) {
-		if (el instanceof EntityPlayer && ((EntityPlayer)el).capabilities.isCreativeMode)
-			return;
 		el.addPotionEffect(TileEntityFreezeGun.getFreezeEffect(60000));
 	}
 

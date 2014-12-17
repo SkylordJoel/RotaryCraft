@@ -9,10 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.Lua;
 
-import net.minecraft.tileentity.TileEntity;
 import Reika.DragonAPI.ModInteract.Lua.LuaMethod;
 import Reika.RotaryCraft.API.ShaftMachine;
-import dan200.computercraft.api.lua.LuaException;
+
+import net.minecraft.tileentity.TileEntity;
 
 public class LuaGetAPIPower extends LuaMethod {
 
@@ -21,7 +21,7 @@ public class LuaGetAPIPower extends LuaMethod {
 	}
 
 	@Override
-	public Object[] invoke(TileEntity te, Object[] args) throws LuaException, InterruptedException {
+	public Object[] invoke(TileEntity te, Object[] args) throws Exception {
 		ShaftMachine s = (ShaftMachine) te;
 		return new Object[]{s.getPower(), s.getTorque(), s.getOmega()};
 	}

@@ -9,19 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Transmission;
 
+import Reika.ChromatiCraft.API.SpaceRift;
+import Reika.DragonAPI.Instantiable.WorldLocation;
+import Reika.DragonAPI.Interfaces.GuiController;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.API.ShaftPowerEmitter;
+import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
+import Reika.RotaryCraft.Base.TileEntity.TileEntity1DTransmitter;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import Reika.ChromatiCraft.API.WorldRift;
-import Reika.DragonAPI.Instantiable.Data.WorldLocation;
-import Reika.DragonAPI.Interfaces.GuiController;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.API.ShaftPowerEmitter;
-import Reika.RotaryCraft.Auxiliary.RotaryAux;
-import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
-import Reika.RotaryCraft.Base.TileEntity.TileEntity1DTransmitter;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityBevelGear extends TileEntity1DTransmitter implements GuiController {
 
@@ -143,8 +143,6 @@ public class TileEntityBevelGear extends TileEntity1DTransmitter implements GuiC
 
 	@Override
 	protected void transferPower(World world, int x, int y, int z, int meta) {
-		if (worldObj.isRemote && !RotaryAux.getPowerOnClient)
-			return;
 		omegain = torquein = 0;
 		boolean isCentered = x == xCoord && y == yCoord && z == zCoord;
 		int dx = x+read.offsetX;
@@ -192,8 +190,8 @@ public class TileEntityBevelGear extends TileEntity1DTransmitter implements GuiC
 				}
 			}
 		}
-		else if (te instanceof WorldRift) {
-			WorldRift sr = (WorldRift)te;
+		else if (te instanceof SpaceRift) {
+			SpaceRift sr = (SpaceRift)te;
 			WorldLocation loc = sr.getLinkTarget();
 			if (loc != null)
 				this.transferPower(loc.getWorld(), loc.xCoord, loc.yCoord, loc.zCoord, meta);

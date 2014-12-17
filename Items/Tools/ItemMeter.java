@@ -9,17 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools;
 
-import java.util.ArrayList;
-
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
 import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
 import Reika.DragonAPI.Libraries.IO.ReikaFormatHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaEngLibrary;
@@ -70,6 +59,18 @@ import Reika.RotaryCraft.TileEntities.Transmission.TileEntityFlywheel;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityShaft;
 import Reika.RotaryCraft.TileEntities.Weaponry.TileEntityHeatRay;
+
+import java.util.ArrayList;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 
 public class ItemMeter extends ItemRotaryTool
 {
@@ -344,15 +345,8 @@ public class ItemMeter extends ItemRotaryTool
 					ReikaChatHelper.writeString(String.format("%s Receiving %.3f kW @ %d rad/s.", m.getName(), power/1000.0D, omega));
 				if (power < 1000)
 					ReikaChatHelper.writeString(String.format("%s Receiving %.3f W @ %d rad/s.", m.getName(), power, omega));
-				if (power >= clicked.MINPOWER) {
-					if (clicked.getLevel() > 0) {
-						String sg = String.format("Liquid Contents:\n%dmB of %s", clicked.getLevel(), clicked.getContainedFluid().getLocalizedName());
-						ReikaChatHelper.writeString(sg);
-					}
-					else {
-						ReikaChatHelper.writeString(String.format("%s has no liquid.", m.getName()));
-					}
-				}
+				if (power >= clicked.MINPOWER)
+					ReikaChatHelper.writeString(String.format("Liquid Contents:\n%dmB of %s", clicked.getLevel(), clicked.getContainedFluid().getLocalizedName()));
 				torque = omega = 0;
 				if (power < clicked.MINPOWER)
 					RotaryAux.writeMessage("minpower");

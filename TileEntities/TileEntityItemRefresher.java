@@ -9,14 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities;
 
+import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.List;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityItemRefresher extends TileEntityPowerReceiver implements RangedEffect {
 
@@ -35,8 +36,9 @@ public class TileEntityItemRefresher extends TileEntityPowerReceiver implements 
 			return;
 		int range = this.getRange();
 		AxisAlignedBB box = AxisAlignedBB.getBoundingBox(x-range, y-range, z-range, x+1+range, y+1+range, z+1+range);
-		List<EntityItem> items = world.getEntitiesWithinAABB(EntityItem.class, box);
-		for (EntityItem item : items) {
+		List items = world.getEntitiesWithinAABB(EntityItem.class, box);
+		for (int i = 0; i < items.size(); i++) {
+			EntityItem item = (EntityItem)items.get(i);
 			if (item.age > item.lifespan-20)
 				item.age = item.lifespan-20;
 			if (item.motionY == 0)

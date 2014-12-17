@@ -9,12 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.IIcon;
 import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
 import Reika.RotaryCraft.Base.GuiNonPoweredMachine;
 import Reika.RotaryCraft.Containers.ContainerReservoir;
 import Reika.RotaryCraft.TileEntities.Storage.TileEntityReservoir;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.IIcon;
 
 public class GuiReservoir extends GuiNonPoweredMachine
 {
@@ -68,7 +69,7 @@ public class GuiReservoir extends GuiNonPoweredMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "reservoirgui";
 	}
 

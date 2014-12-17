@@ -9,6 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Farming;
 
+import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
+import Reika.DragonAPI.Libraries.ReikaEntityHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Auxiliary.HarvesterDamage;
+import Reika.RotaryCraft.Auxiliary.Interfaces.EnchantableMachine;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +29,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
-import Reika.DragonAPI.Libraries.ReikaEntityHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Auxiliary.HarvesterDamage;
-import Reika.RotaryCraft.Auxiliary.Interfaces.EnchantableMachine;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityMobHarvester extends TileEntityPowerReceiver implements EnchantableMachine {
 
@@ -35,6 +36,8 @@ public class TileEntityMobHarvester extends TileEntityPowerReceiver implements E
 
 	public String owner;
 	public boolean laser;
+
+	public List inbox;
 
 	@Override
 	public void updateEntity(World world, int x, int y, int z, int meta) {
@@ -52,12 +55,13 @@ public class TileEntityMobHarvester extends TileEntityPowerReceiver implements E
 		//if (this.tickcount < 5)
 		//return;
 		//this.tickcount = 0;
-		boolean oneplus = false;
 		AxisAlignedBB box = this.getBox();
-		List<EntityLiving> inbox = world.getEntitiesWithinAABB(EntityLiving.class, box);
-		for (EntityLiving ent : inbox) {
+		inbox = world.getEntitiesWithinAABB(EntityLiving.class, box);
+		for (int i = 0; i < inbox.size(); i++) {
+			EntityLiving ent = (EntityLiving)inbox.get(i);
 			if (!(ent instanceof EntityVillager)) {
-				oneplus = true;
+				//this.laser = true;
+				world.func_147479_m(x, y, z);
 				if (ep != null && this.getDamage() > 0) {
 					ent.attackEntityFrom(new HarvesterDamage(this), this.getDamage());
 					if (this.getEnchantment(Enchantment.silkTouch) > 0 && rand.nextInt(20) == 0)
@@ -69,12 +73,13 @@ public class TileEntityMobHarvester extends TileEntityPowerReceiver implements E
 				ent.motionY = 0;
 			}
 		}
-		laser = oneplus;
+		if (inbox.size() == 0 && !(inbox.size() == 1 && (inbox.get(0) instanceof EntityPlayer || inbox.get(0) instanceof EntityVillager)))
+			laser = false;
 	}
 
 	public int getDamage() {
-		double pdiff = 2+(0.5*power/MINPOWER);
-		double ppdiff = ReikaMathLibrary.intpow(pdiff, 6);
+		int pdiff = 2+(int)(power/MINPOWER);
+		int ppdiff = (int)ReikaMathLibrary.intpow(pdiff, 6);
 		return (int)ReikaMathLibrary.logbase(ppdiff, 2)+2*this.getEnchantment(Enchantment.sharpness);
 	}
 
@@ -92,28 +97,27 @@ public class TileEntityMobHarvester extends TileEntityPowerReceiver implements E
 	}
 
 	public boolean applyEnchants(ItemStack is) {
-		boolean flag = false;
 		if (ReikaEnchantmentHelper.hasEnchantment(Enchantment.sharpness, is)) {
 			enchantments.put(Enchantment.sharpness, ReikaEnchantmentHelper.getEnchantmentLevel(Enchantment.sharpness, is));
-			flag = true;
+			return true;
 		}
 		if (ReikaEnchantmentHelper.hasEnchantment(Enchantment.fireAspect, is)) {
 			enchantments.put(Enchantment.fireAspect, ReikaEnchantmentHelper.getEnchantmentLevel(Enchantment.fireAspect, is));
-			flag = true;
+			return true;
 		}
 		if (ReikaEnchantmentHelper.hasEnchantment(Enchantment.silkTouch, is)) {
 			enchantments.put(Enchantment.silkTouch, ReikaEnchantmentHelper.getEnchantmentLevel(Enchantment.silkTouch, is));
-			flag = true;
+			return true;
 		}
 		if (ReikaEnchantmentHelper.hasEnchantment(Enchantment.looting, is))	 {
 			enchantments.put(Enchantment.looting, ReikaEnchantmentHelper.getEnchantmentLevel(Enchantment.looting, is));
-			flag = true;
+			return true;
 		}
 		if (ReikaEnchantmentHelper.hasEnchantment(Enchantment.infinity, is))	 {
 			enchantments.put(Enchantment.infinity, ReikaEnchantmentHelper.getEnchantmentLevel(Enchantment.infinity, is));
-			flag = true;
+			return true;
 		}
-		return flag;
+		return false;
 	}
 
 	public ArrayList<Enchantment> getValidEnchantments() {

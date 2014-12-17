@@ -9,29 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Transmission;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
-import Reika.ChromatiCraft.API.WorldRift;
+import Reika.ChromatiCraft.API.SpaceRift;
 import Reika.DragonAPI.Instantiable.HybridTank;
 import Reika.DragonAPI.Instantiable.StepTimer;
-import Reika.DragonAPI.Instantiable.Data.WorldLocation;
+import Reika.DragonAPI.Instantiable.WorldLocation;
 import Reika.DragonAPI.Interfaces.InertIInv;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper.NBTTypes;
 import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
 import Reika.DragonAPI.Libraries.Java.ReikaRandomHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
@@ -45,7 +28,6 @@ import Reika.RotaryCraft.API.ShaftMerger;
 import Reika.RotaryCraft.API.ShaftPowerEmitter;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import Reika.RotaryCraft.Auxiliary.PowerSourceList;
-import Reika.RotaryCraft.Auxiliary.RotaryAux;
 import Reika.RotaryCraft.Auxiliary.Interfaces.PartialInventory;
 import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
 import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
@@ -53,8 +35,23 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntity1DTransmitter;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.DifficultyEffects;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 
 public class TileEntityAdvancedGear extends TileEntity1DTransmitter implements ISidedInventory, PowerGenerator, PartialInventory, PipeConnector, IFluidHandler {
 
@@ -82,7 +79,7 @@ public class TileEntityAdvancedGear extends TileEntity1DTransmitter implements I
 
 	private boolean isCreative;
 
-	private StepTimer redstoneTimer = new StepTimer(40);
+	private StepTimer redstoneTimer = new StepTimer(20);
 
 	public boolean torquemode = true;
 
@@ -376,7 +373,7 @@ public class TileEntityAdvancedGear extends TileEntity1DTransmitter implements I
 		if (this.getGearType() == GearType.CVT) {
 			if (controller != null && controller.isActive() && controller.getCVT().equals(this)) {
 				boolean torque = controller.isTorque();
-				int r = MathHelper.clamp_int(controller.getControlledRatio(), 1, 32);
+				int r = controller.getControlledRatio();
 				ratio = torque ? r : -r;
 			}
 		}
@@ -555,8 +552,6 @@ public class TileEntityAdvancedGear extends TileEntity1DTransmitter implements I
 	@Override
 	protected void transferPower(World world, int x, int y, int z, int meta) {
 		this.calculateRatio();
-		if (worldObj.isRemote && !RotaryAux.getPowerOnClient)
-			return;
 		omegain = torquein = 0;
 		boolean isCentered = x == xCoord && y == yCoord && z == zCoord;
 		int dx = x+read.offsetX;
@@ -608,8 +603,8 @@ public class TileEntityAdvancedGear extends TileEntity1DTransmitter implements I
 				}
 			}
 		}
-		else if (te instanceof WorldRift) {
-			WorldRift sr = (WorldRift)te;
+		else if (te instanceof SpaceRift) {
+			SpaceRift sr = (SpaceRift)te;
 			WorldLocation loc = sr.getLinkTarget();
 			if (loc != null)
 				this.transferPower(loc.getWorld(), loc.xCoord, loc.yCoord, loc.zCoord, meta);
@@ -687,7 +682,7 @@ public class TileEntityAdvancedGear extends TileEntity1DTransmitter implements I
 					}
 				}
 				if (omega > 0 && (world.getTotalWorldTime()&4) == 4)
-					lubricant.removeLiquid((int)(DifficultyEffects.LUBEUSAGE.getChance()*ReikaMathLibrary.logbase(Math.max(omega, torque), 2)));
+					lubricant.removeLiquid((int)ReikaMathLibrary.logbase(Math.max(omega, torque), 2));
 			}
 			else {
 				omega = torque = 0;
@@ -754,7 +749,7 @@ public class TileEntityAdvancedGear extends TileEntity1DTransmitter implements I
 	@Override
 	public void readFromNBT(NBTTagCompound NBT) {
 		super.readFromNBT(NBT);
-		NBTTagList nbttaglist = NBT.getTagList("Items", NBTTypes.COMPOUND.ID);
+		NBTTagList nbttaglist = NBT.getTagList("Items", NBT.getId());
 		belts = new ItemStack[this.getSizeInventory()];
 
 		for (int i = 0; i < nbttaglist.tagCount(); i++)

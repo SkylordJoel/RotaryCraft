@@ -9,6 +9,9 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base.TileEntity;
 
+import Reika.DragonAPI.Interfaces.InertIInv;
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
@@ -16,9 +19,6 @@ import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import Reika.DragonAPI.Interfaces.InertIInv;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper.NBTTypes;
 
 public abstract class InventoriedPowerLiquidReceiver extends PoweredLiquidReceiver implements ISidedInventory {
 
@@ -30,10 +30,6 @@ public abstract class InventoriedPowerLiquidReceiver extends PoweredLiquidReceiv
 
 	public final void setInventorySlotContents(int par1, ItemStack is) {
 		inv[par1] = is;
-	}
-
-	public boolean validatesInputs() {
-		return false;
 	}
 
 	public final String getInventoryName() {
@@ -115,7 +111,7 @@ public abstract class InventoriedPowerLiquidReceiver extends PoweredLiquidReceiv
 	{
 		super.readFromNBT(NBT);
 
-		NBTTagList nbttaglist = NBT.getTagList("Items", NBTTypes.COMPOUND.ID);
+		NBTTagList nbttaglist = NBT.getTagList("Items", NBT.getId());
 		inv = new ItemStack[this.getSizeInventory()];
 
 		for (int i = 0; i < nbttaglist.tagCount(); i++)

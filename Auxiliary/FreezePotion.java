@@ -11,7 +11,6 @@ package Reika.RotaryCraft.Auxiliary;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 
@@ -26,9 +25,6 @@ public class FreezePotion extends Potion {
 	public void performEffect(EntityLivingBase e, int level) {
 		e.addPotionEffect(new PotionEffect(Potion.jump.id, 20, -30));
 		e.fallDistance = 0;
-		if (e instanceof EntitySlime) {
-			((EntitySlime)e).slimeJumpDelay = Integer.MAX_VALUE;
-		}
 	}
 
 	@Override

@@ -9,42 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.material.Material;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityMobSpawner;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.BlockFluidBase;
 import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.Base.BlockTieredResource;
 import Reika.DragonAPI.Interfaces.GuiController;
 import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
 import Reika.DragonAPI.Libraries.ReikaSpawnerHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.DragonAPI.Libraries.World.ReikaBlockHelper;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.DragonAPI.ModInteract.TwilightForestHandler;
 import Reika.DragonAPI.ModRegistry.ModWoodList;
+import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.API.IgnoredByBorer;
 import Reika.RotaryCraft.API.Event.BorerDigEvent;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
@@ -53,14 +30,34 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.EnchantableMachine;
 import Reika.RotaryCraft.Auxiliary.Interfaces.PartialInventory;
 import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityBeamMachine;
-import Reika.RotaryCraft.Blocks.BlockMiningPipe;
 import Reika.RotaryCraft.Registry.BlockRegistry;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.RotaryAchievements;
-import Reika.RotaryCraft.Registry.SoundRegistry;
+
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.material.Material;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.init.Blocks;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityMobSpawner;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.BlockFluidBase;
 
 public class TileEntityBorer extends TileEntityBeamMachine implements EnchantableMachine, GuiController, DiscreteFunction {
 
@@ -70,8 +67,8 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 
 	public boolean drops = true;
 
-	private int reqpow;
-	private int mintorque;
+	public int reqpow;
+	public int mintorque;
 
 	/** Power required to break a block, per 0.1F hardness */
 	public static final int DIGPOWER = 64;
@@ -82,15 +79,6 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 	public boolean[][] cutShape = new boolean[7][5]; // 7 cols, 5 rows
 
 	private boolean jammed = false;
-
-	private boolean isMiningAir = false;
-
-	private boolean hitProtection = false;
-	private int notifiedPlayer = 0;
-
-	private int durability = ConfigRegistry.BORERMAINTAIN.getState() ? 256 : Integer.MAX_VALUE;
-
-	private int soundtick = 0;
 
 	@Override
 	public int getTextureStateForSide(int s) {
@@ -105,13 +93,6 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 			return s == 3 ? this.getActiveTexture() : 0;
 		}
 		return 0;
-	}
-
-	public boolean repair() {
-		if (durability > 0)
-			return false;
-		durability = ConfigRegistry.BORERMAINTAIN.getState() ? 256 : Integer.MAX_VALUE;
-		return true;
 	}
 
 	public boolean isJammed() {
@@ -136,12 +117,9 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 	}
 
 	private void setJammed(boolean jam) {
-		boolean old = jammed;
 		jammed = jam;
-		if (old != jammed) {
-			ReikaWorldHelper.causeAdjacentUpdates(worldObj, xCoord, yCoord, zCoord);
-			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-		}
+		ReikaWorldHelper.causeAdjacentUpdates(worldObj, xCoord, yCoord, zCoord);
+		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 
 	@Override
@@ -154,31 +132,6 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 		power = (long)omega*(long)torque;
 		if (power == 0)
 			this.setJammed(false);
-
-		if (hitProtection && notifiedPlayer < 10) {
-			if (world.getTotalWorldTime()%100 == 0) {
-				EntityPlayer ep = this.getPlacer();
-				if (ep != null) {
-					notifiedPlayer++;
-					int hx = this.getHeadX();
-					int hz = this.getHeadZ();
-					String sg = "Your "+this+" has hit a protected area at "+hx+", "+hz+" and has jammed.";
-					ReikaChatHelper.sendChatToPlayer(ep, sg);
-				}
-			}
-		}
-
-		if (durability <= 0) {
-			if (tickcount%5 == 0) {
-				world.playSoundEffect(x+0.5, y+0.5, z+0.5, "mob.blaze.hit", 0.75F, 0.05F);
-				for (int i = 0; i < 6; i++) {
-					world.spawnParticle("smoke", x+rand.nextDouble(), y+1+rand.nextDouble()*0.2, z+rand.nextDouble(), 0, 0, 0);
-					world.spawnParticle("crit", x+rand.nextDouble(), y+1+rand.nextDouble()*0.2, z+rand.nextDouble(), 0, 0, 0);
-				}
-			}
-			return;
-		}
-
 		boolean nodig = true;
 		for (int i = 0; i < 7; i++) {
 			for (int j = 0; j < 5; j++) {
@@ -208,30 +161,13 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 		if (omega <= 0)
 			return;
 
-		if (tickcount == 1 || step == 1) {
-			isMiningAir = this.checkMiningAir(world, x, y, z, meta);
-		}
-
-		//ReikaJavaLibrary.pConsole(isMiningAir+":"+tickcount+"/"+this.getOperationTime(), Side.SERVER);
-
-		if (soundtick > 0)
-			soundtick--;
-
-		if (tickcount >= this.getOperationTime() || (isMiningAir && tickcount%5 == 0)) {
-			this.skipMiningPipes(world, x, y, z, meta, 0, 16);
+		if (tickcount >= this.getOperationTime()) {
 			this.calcReqPower(world, x, y, z, meta);
 			if (power >= reqpow && reqpow != -1) {
 				this.setJammed(false);
 				if (!world.isRemote) {
-					ReikaWorldHelper.forceGenAndPopulate(world, x+step*xstep, y, z+step*zstep, meta);
+					this.forceGenAndPopulate(world, x, y, z, meta);
 					this.dig(world, x, y, z, meta);
-					if (!isMiningAir) {
-						if (soundtick == 0) {
-							SoundRegistry.RUMBLE.playSoundAtBlock(this);
-							soundtick = 5;
-						}
-						durability--;
-					}
 				}
 			}
 			else {
@@ -240,63 +176,25 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 			tickcount = 0;
 			mintorque = 0;
 			reqpow = 0;
-			isMiningAir = false;
 		}
 	}
 
-	private boolean checkMiningAir(World world, int x, int y, int z, int meta) {
-		int a = 0;
-		if (meta > 1)
-			a = 1;
-		int b = 1-a;
-		for (int i = 0; i < 7; i++) {
-			for (int j = 0; j < 5; j++) {
-				if (cutShape[i][j] || step == 1) {
-					int xread = x+step*xstep+a*(i-3);
-					int yread = y+step*ystep+(4-j);
-					int zread = z+step*zstep+b*(i-3);
-					if (world.getBlock(xread, yread, zread) != Blocks.air) {
-						return false;
-					}
-				}
+	private void forceGenAndPopulate(World world, int x, int y, int z, int meta) {
+		int xread = x+step*xstep;
+		int zread = z+step*zstep;
+		Chunk ch = world.getChunkFromBlockCoords(xread, zread);
+		IChunkProvider p = world.getChunkProvider();
+		if (!ch.isTerrainPopulated) {
+			try {
+				p.populate(p, xread >> 4, zread >> 4);
 			}
-		}
-		return true;
-	}
-
-	private void skipMiningPipes(World world, int x, int y, int z, int meta, int stepped, int max) {
-		if (stepped >= max)
-			return;
-		int a = 0;
-		if (meta > 1)
-			a = 1;
-		int b = 1-a;
-		boolean allpipe = true;
-		boolean haspipe = false;
-		for (int i = 0; i < 7; i++) {
-			for (int j = 0; j < 5; j++) {
-				if (cutShape[i][j] || step == 1) {
-					int xread = x+step*xstep+a*(i-3);
-					int yread = y+step*ystep+(4-j);
-					int zread = z+step*zstep+b*(i-3);
-					//ReikaJavaLibrary.pConsole(xread+","+yread+","+zread);
-					if (world.getBlock(xread, yread, zread) == BlockRegistry.MININGPIPE.getBlockInstance()) {
-						haspipe = true;
-						int meta2 = world.getBlockMetadata(xread, yread, zread);
-						ForgeDirection dir = BlockMiningPipe.getDirectionFromMeta(meta2);
-						if (meta2 == 3 || Math.abs(dir.offsetX) == Math.abs(xstep) && Math.abs(dir.offsetZ) == Math.abs(zstep)) {
-
-						}
-						else {
-							allpipe = false;
-						}
-					}
-				}
+			catch (ConcurrentModificationException e) {
+				RotaryCraft.logger.log("Chunk at "+x+", "+z+" failed to allow population due to a ConcurrentModificationException! Contact Reika with information on any mods that might be multithreading worldgen!");
 			}
-		}
-		if (haspipe && allpipe) {
-			step++;
-			this.skipMiningPipes(world, x, y, z, meta, stepped+1, max);
+			catch (Exception e) {
+				RotaryCraft.logger.log("Chunk at "+x+", "+z+" failed to allow population!");
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -340,12 +238,13 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 		if (metadata > 1)
 			a = 1;
 		int b = 1-a;
+		int xread;
+		int yread;
+		int zread;
 		for (int i = 0; i < 7; i++) {
 			for (int j = 0; j < 5; j++) {
 				if (cutShape[i][j] || step == 1) {
-					int xread = x+step*xstep+a*(i-3);
-					int yread = y+step*ystep+(4-j);
-					int zread = z+step*zstep+b*(i-3);
+					xread = x+step*xstep+a*(i-3); yread = y+step*ystep+(4-j); zread = z+step*zstep+b*(i-3);
 					this.reqPowAdd(world, xread, yread, zread);
 				}
 			}
@@ -361,10 +260,6 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 
 
 	private void reqPowAdd(World world, int xread, int yread, int zread) {
-		if (xread > 3000000 || zread > 3000000) {
-			reqpow = -1;
-			return;
-		}
 		if (!this.ignoreBlockExistence(world, xread, yread, zread)) {
 			Block id = world.getBlock(xread, yread, zread);
 			int meta = world.getBlockMetadata(xread, yread, zread);
@@ -430,12 +325,8 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 	private boolean dropBlocks(int xread, int yread, int zread, World world, int x, int y, int z, Block id, int meta) {
 		if (ModList.TWILIGHT.isLoaded() && id == TwilightForestHandler.getInstance().mazeStoneID)
 			RotaryAchievements.CUTKNOT.triggerAchievement(this.getPlacer());
-		if (id == Blocks.bedrock || id == Blocks.end_portal_frame)
+		if (!world.isRemote && !ReikaPlayerAPI.playerCanBreakAt((WorldServer)world, xread, yread, zread, id, meta, this.getPlacer()))
 			return false;
-		if (!world.isRemote && !ReikaPlayerAPI.playerCanBreakAt((WorldServer)world, xread, yread, zread, id, meta, this.getPlacer())) {
-			hitProtection = true;
-			return false;
-		}
 		TileEntity tile = this.getTileEntity(xread, yread, zread);
 		if (tile instanceof RotaryCraftTileEntity)
 			return false;
@@ -477,19 +368,11 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 				}
 				return true;
 			}
-			int fortune = this.getEnchantment(Enchantment.fortune);
-			Collection<ItemStack> items = id.getDrops(world, xread, yread, zread, meta, fortune);
-			if (id instanceof BlockTieredResource) {
-				EntityPlayer ep = this.getPlacer();
-				BlockTieredResource bt = (BlockTieredResource)id;
-				boolean harvest = ep != null && bt.isPlayerSufficientTier(world, x, y, z, ep);
-				items = harvest ? bt.getHarvestResources(world, x, y, z, fortune, ep) : bt.getNoHarvestResources(world, x, y, z, fortune, ep);
-			}
-			if (items != null) {
-				for (ItemStack is : items) {
-					if (!this.chestCheck(world, x, y, z, is)) {
-						ReikaItemHelper.dropItem(world, x+0.5, y+1.125, z+0.5, is, 3);
-					}
+			ArrayList<ItemStack> items = id.getDrops(world, xread, yread, zread, meta, this.getEnchantment(Enchantment.fortune));
+			for (int i = 0; i < items.size(); i++) {
+				ItemStack is = items.get(i);
+				if (!this.chestCheck(world, x, y, z, is)) {
+					ReikaItemHelper.dropItem(world, x+0.5, y+1.125, z+0.5, is, 3);
 				}
 			}
 		}
@@ -550,8 +433,6 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 			return false;
 		if (id instanceof BlockLiquid || id instanceof BlockFluidBase)
 			return false;
-		if (id instanceof BlockTieredResource)
-			return false;
 		if (id.hasTileEntity(world.getBlockMetadata(x, y, z)))
 			return false;
 		return true;
@@ -605,11 +486,8 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 					xread = x+step*xstep+a*(i-3);
 					yread = y+step*ystep+(4-j);
 					zread = z+step*zstep+b*(i-3);
-					Block bk = world.getBlock(xread, yread, zread);
-					if (this.dropBlocks(xread, yread, zread, world, x, y, z, bk, world.getBlockMetadata(xread, yread, zread))) {
-						ReikaSoundHelper.playBreakSound(world, xread, yread, zread, bk);
+					if (this.dropBlocks(xread, yread, zread, world, x, y, z, world.getBlock(xread, yread, zread), world.getBlockMetadata(xread, yread, zread)))
 						world.setBlock(xread, yread, zread, BlockRegistry.MININGPIPE.getBlockInstance(), pipemeta, 3);
-					}
 					else {
 						step--;
 					}
@@ -660,7 +538,6 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 		super.writeSyncTag(NBT);
 		NBT.setInteger("step", step);
 		NBT.setBoolean("jam", jammed);
-		NBT.setInteger("dura", durability);
 	}
 
 	@Override
@@ -669,7 +546,6 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 		super.readSyncTag(NBT);
 		step = NBT.getInteger("step");
 		jammed = NBT.getBoolean("jam");
-		durability = NBT.getInteger("dura");
 	}
 
 	@Override
@@ -711,7 +587,7 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 	}
 
 	@Override
-	protected void makeBeam(World world, int x, int y, int z, int meta) {}
+	public void makeBeam(World world, int x, int y, int z, int meta) {}
 
 	@Override
 	public boolean hasModelTransparency() {

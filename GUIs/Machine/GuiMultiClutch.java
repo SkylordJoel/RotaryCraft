@@ -9,15 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine;
 
-import java.awt.Color;
-
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-
-import org.lwjgl.opengl.GL11;
-
 import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
@@ -26,6 +17,13 @@ import Reika.RotaryCraft.Auxiliary.RotaryAux;
 import Reika.RotaryCraft.Base.GuiNonPoweredMachine;
 import Reika.RotaryCraft.Registry.PacketRegistry;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityMultiClutch;
+
+import java.awt.Color;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 
 public class GuiMultiClutch extends GuiNonPoweredMachine {
 
@@ -52,7 +50,7 @@ public class GuiMultiClutch extends GuiNonPoweredMachine {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton b) {
+	public void actionPerformed(GuiButton b) {
 		super.actionPerformed(b);
 		if (b.id < 16) {
 			int side = multi.getNextSideForState(b.id);
@@ -73,8 +71,6 @@ public class GuiMultiClutch extends GuiNonPoweredMachine {
 			api.drawItemStack(itemRender, fontRendererObj, new ItemStack(Items.redstone), 3+70*(i/8), 15+16*(i%8));
 		}
 
-		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glColor4f(1, 1, 1, 1);
 		for (int i = 0; i < 16; i++) {
 			fontRendererObj.drawString(String.format("%d", i), 18+70*(i/8), 20+16*(i%8), 0);
 			Color color = RotaryAux.sideColors[multi.getSideOfState(i)];
@@ -84,11 +80,10 @@ public class GuiMultiClutch extends GuiNonPoweredMachine {
 			this.drawRect(18+70*(i/8)+14, 20+16*(i%8)-2, 18+70*(i/8)+51, 20+16*(i%8)+9, border);
 			this.drawRect(18+70*(i/8)+15, 20+16*(i%8)-1, 18+70*(i/8)+50, 20+16*(i%8)+8, 0xff000000+color.getRGB());
 		}
-		GL11.glEnable(GL11.GL_LIGHTING);
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "multigui";
 	}
 

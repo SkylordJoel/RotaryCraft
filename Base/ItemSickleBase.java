@@ -9,6 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
+import Reika.ChromatiCraft.API.TreeGetter;
+import Reika.DragonAPI.ModList;
+import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaCropHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaPlantHelper;
+import Reika.DragonAPI.ModRegistry.ModCropList;
+import Reika.DragonAPI.ModRegistry.ModWoodList;
+
 import java.util.ArrayList;
 
 import net.minecraft.block.Block;
@@ -19,15 +29,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.IShearable;
-import Reika.ChromatiCraft.API.TreeGetter;
-import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaCropHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaPlantHelper;
-import Reika.DragonAPI.ModRegistry.ModCropList;
-import Reika.DragonAPI.ModRegistry.ModWoodList;
 
 public abstract class ItemSickleBase extends ItemRotaryTool {
 
@@ -53,7 +54,7 @@ public abstract class ItemSickleBase extends ItemRotaryTool {
 						Block id2 = world.getBlock(x+i, y+j, z+k);
 						int meta2 = world.getBlockMetadata(x+i, y+j, z+k);
 						ModWoodList leaf2 = ModWoodList.getModWoodFromLeaf(id2, meta2);
-						if (id2 == id || (leaf2 == leaf && leaf != null)) {
+						if (id2 == id || leaf2 == leaf) {
 							Block b2 = id2;
 							b2.dropBlockAsItem(world, x+i, y+j, z+k, meta2, fortune);
 							ReikaSoundHelper.playBreakSound(world, x+i, y+j, z+k, b2, 0.25F, 1);
@@ -64,7 +65,8 @@ public abstract class ItemSickleBase extends ItemRotaryTool {
 			}
 			return true;
 		}
-		else if (ModList.CHROMATICRAFT.isLoaded() && (id == TreeGetter.getNaturalDyeLeafID() || id == TreeGetter.getHeldDyeLeafID())) {
+		else if (ModList.DYETREES.isLoaded() && (id == TreeGetter.getNaturalDyeLeafID() || id == TreeGetter.getHeldDyeLeafID())) {
+			;
 			int fortune = ReikaEnchantmentHelper.getEnchantmentLevel(Enchantment.fortune, is);
 			int r = this.getLeafRange();
 			for (int i = -r; i <= r; i++) {
@@ -83,7 +85,8 @@ public abstract class ItemSickleBase extends ItemRotaryTool {
 			}
 			return true;
 		}
-		else if (ModList.CHROMATICRAFT.isLoaded() && id == TreeGetter.getRainbowLeafID()) {
+		else if (ModList.DYETREES.isLoaded() && id == TreeGetter.getRainbowLeafID()) {
+			;
 			int fortune = ReikaEnchantmentHelper.getEnchantmentLevel(Enchantment.fortune, is);
 			int r = this.getLeafRange();
 			ArrayList<ItemStack> items = new ArrayList();
@@ -92,7 +95,7 @@ public abstract class ItemSickleBase extends ItemRotaryTool {
 					for (int k = -r; k <= r; k++) {
 						Block id2 = world.getBlock(x+i, y+j, z+k);
 						int meta2 = world.getBlockMetadata(x+i, y+j, z+k);
-						if (id2 == id) {
+						if (id2 == TreeGetter.getRainbowLeafID()) {
 							Block b2 = id2;
 							//b.dropBlockAsItem(world, x+i, y+j, z+k, meta, fortune);
 							ReikaItemHelper.addToList(items, b2.getDrops(world, x, y, z, meta2, fortune));
@@ -106,7 +109,7 @@ public abstract class ItemSickleBase extends ItemRotaryTool {
 			ReikaItemHelper.dropItems(world, x, y, z, items);
 			return true;
 		}
-		else if (ModList.CHROMATICRAFT.isLoaded() && id == TreeGetter.getDyeFlowerID()) {
+		else if (ModList.DYETREES.isLoaded() && id == TreeGetter.getDyeFlowerID()) {
 			;
 			int fortune = ReikaEnchantmentHelper.getEnchantmentLevel(Enchantment.fortune, is);
 			int r = this.getPlantRange();

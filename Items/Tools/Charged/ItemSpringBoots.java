@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Charged;
 
+import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
+import Reika.RotaryCraft.Base.ItemChargedArmor;
+import Reika.RotaryCraft.Items.Tools.Bedrock.ItemBedrockArmor;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,10 +26,6 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
-import Reika.RotaryCraft.Base.ItemChargedArmor;
-import Reika.RotaryCraft.Items.Tools.Bedrock.ItemBedrockArmor;
-import Reika.RotaryCraft.Registry.ItemRegistry;
 
 public class ItemSpringBoots extends ItemChargedArmor {
 
@@ -75,19 +76,10 @@ public class ItemSpringBoots extends ItemChargedArmor {
 					this.warnCharge(is);
 				}
 			}
-			//ReikaPlayerAPI.schedulePlayerTick(ep, 5);
 		}
 		else
 			ep.stepHeight = 0.5F;
 	}
-	/*
-	@SubscribeEvent
-	public void undoStepHeight(ScheduledTickEvent evt) {
-		if (evt.type == TickType.PLAYER) {
-			EntityPlayer ep = (EntityPlayer)evt.getData(0);
-			ep.stepHeight = 0.5F;
-		}
-	}*/
 
 	@Override
 	public void getSubItems(Item id, CreativeTabs cr, List li) //Adds the metadata blocks to the creative inventory

@@ -9,16 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.World;
 
-import java.util.List;
-
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
 import Reika.DragonAPI.Libraries.ReikaEntityHelper;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
@@ -31,6 +21,17 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
 import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import java.util.List;
+
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
 
 public class TileEntityIgniter extends InventoriedPowerReceiver implements TemperatureTE, RangedEffect, ConditionalOperation {
 
@@ -75,13 +76,12 @@ public class TileEntityIgniter extends InventoriedPowerReceiver implements Tempe
 			int fy = y-yspread+rand.nextInt(yspread+1);
 			this.fire(world, x, y, z, fx, fy, fz);
 		}
-
-		if (temperature >= ANIMALIGNITION) {
-			AxisAlignedBB box = AxisAlignedBB.getBoundingBox(x, y, z, x+1, y+1, z+1).expand(spread, yspread, spread);
-			List<EntityLivingBase> in = world.getEntitiesWithinAABB(EntityLivingBase.class, box);
-			for (EntityLivingBase ent : in) {
-				ent.setFire(1);
-			}
+		if (temperature < ANIMALIGNITION)
+			return;
+		List in = world.getEntitiesWithinAABB(EntityLivingBase.class, AxisAlignedBB.getBoundingBox(x, y, z, x+1, y+1, z+1).expand(spread, yspread, spread));
+		for (int i = 0; i < in.size(); i++) {
+			EntityLivingBase ent = (EntityLivingBase)in.get(i);
+			ent.setFire(1);
 		}
 	}
 

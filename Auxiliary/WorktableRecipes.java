@@ -9,6 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
+import Reika.DragonAPI.Instantiable.Data.ImmutableList;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,26 +27,31 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Instantiable.Data.ImmutableList;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 
 public class WorktableRecipes
 {
+	/** The static instance of this class */
 	private static final WorktableRecipes instance = new WorktableRecipes();
 
+	/** A list of all the recipes added */
 	private ImmutableList<IRecipe> recipes = new ImmutableList();
 
+	/**
+	 * Returns the static instance of this class
+	 */
 	public static final WorktableRecipes getInstance()
 	{
 		return instance;
 	}
 
-	public static void addRecipe(IRecipe recipe) {
+	public static void addRecipe(IRecipe recipe)
+	{
 		getInstance().recipes.add(recipe);
 	}
 
 	private WorktableRecipes()
 	{
+
 		Collections.sort(recipes, new RecipeSorter(this));
 	}
 
@@ -212,9 +221,13 @@ public class WorktableRecipes
 		}
 	}
 
+	/**
+	 * returns the List<> of all recipes in copy to disallow editing<br>
+	 * This one is for you, NEI.
+	 */
 	public List getRecipeListCopy()
 	{
-		return Collections.unmodifiableList(recipes);
+		return ReikaJavaLibrary.copyList(recipes);
 	}
 
 	public IRecipe getInputRecipe(ItemStack is) {

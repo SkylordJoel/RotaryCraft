@@ -9,7 +9,27 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base.TileEntity;
 
-import micdoodle8.mods.galacticraft.api.world.IAtmosphericGas;
+import Reika.DragonAPI.Instantiable.HybridTank;
+import Reika.DragonAPI.Instantiable.ParallelTicker;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaTimeHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.RotaryConfig;
+import Reika.RotaryCraft.API.PowerGenerator;
+import Reika.RotaryCraft.API.ShaftMerger;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.Auxiliary.PowerSourceList;
+import Reika.RotaryCraft.Auxiliary.Interfaces.PartialInventory;
+import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
+import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
+import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
+import Reika.RotaryCraft.Registry.EngineType;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityEngineController;
+
 import micdoodle8.mods.galacticraft.api.world.IGalacticraftWorldProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
@@ -27,29 +47,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
-import Reika.DragonAPI.Instantiable.HybridTank;
-import Reika.DragonAPI.Instantiable.ParallelTicker;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaTimeHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.DragonAPI.ModRegistry.InterfaceCache;
-import Reika.RotaryCraft.API.PowerGenerator;
-import Reika.RotaryCraft.API.ShaftMerger;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Auxiliary.PowerSourceList;
-import Reika.RotaryCraft.Auxiliary.RotaryAux;
-import Reika.RotaryCraft.Auxiliary.Interfaces.PartialInventory;
-import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
-import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
-import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.EngineType;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityEngineController;
-import Reika.RotaryCraft.TileEntities.Engine.TileEntityHydroEngine;
 
 public abstract class TileEntityEngine extends TileEntityInventoryIOMachine implements TemperatureTE, SimpleProvider,
 PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
@@ -126,7 +123,7 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 	protected abstract void consumeFuel();
 
 	protected int getConsumedFuel() {
-		return 10;
+		return type == EngineType.JET ? 20 : 10;
 	}
 
 	protected abstract void internalizeFuel();
@@ -136,9 +133,9 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 	protected final boolean hasAir(World world, int x, int y, int z) {
 		if (this.isDrowned(world, x, y, z))
 			return false;
-		if (InterfaceCache.IGALACTICWORLD.instanceOf(world.provider)) {
+		if (world.provider instanceof IGalacticraftWorldProvider) {
 			IGalacticraftWorldProvider ig = (IGalacticraftWorldProvider)world.provider;
-			if (!ig.hasBreathableAtmosphere() || !ig.isGasPresent(IAtmosphericGas.OXYGEN))
+			if (ig.getSoundVolReductionAmount() > 1)
 				return false;
 		}
 		return true;
@@ -229,6 +226,7 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 			break;
 		}
 
+		timer.setCap("fuel", type.getFuelUnitDuration());
 		timer.setCap("sound", this.getSoundLength());
 
 		if (timer.checkCap("temperature")) {
@@ -280,7 +278,7 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 		}
 	}
 
-	protected abstract void playSounds(World world, int x, int y, int z, float pitchMultiplier, float vol);
+	protected abstract void playSounds(World world, int x, int y, int z, float pitchMultiplier);
 
 	protected final boolean isMuffled(World world, int x, int y, int z) {
 		if (world.getBlock(x, y+1, z) == Blocks.wool) {
@@ -315,10 +313,7 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 			power = 0;
 		}
 		else {
-			timer.setCap("fuel", type.getFuelUnitDuration());
-			if (!worldObj.isRemote || RotaryAux.getPowerOnClient) {
-				this.initialize(world, x, y, z, meta);
-			}
+			this.initialize(world, x, y, z, meta);
 			power = (long)torque*(long)omega;
 			if (power > 0)
 				this.affectSurroundings(world, x, y, z, meta);
@@ -336,9 +331,8 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 							int max = (int)(type.getSpeed()*te.getSpeedMultiplier());
 							//this.updateSpeed(max, omega < max);
 						}
-						timer.setCap("fuel", type.getFuelUnitDuration());
 						int fuelcap = timer.getCapOf("fuel");
-						fuelcap = fuelcap*te.getFuelMultiplier(type.type);
+						fuelcap = fuelcap*te.getFuelMultiplier();
 						timer.setCap("fuel", fuelcap);
 						pitch = te.getSoundStretch();
 						soundfactor = 1F/te.getSoundStretch();
@@ -352,7 +346,7 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 					else {
 						//this.updateSpeed(0, false);
 						this.resetPower();
-						soundtick = 0;
+						return;
 					}
 				}
 			}
@@ -360,16 +354,13 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 
 		this.basicPowerReceiver();
 
+		timer.updateTicker("fuel");
 		this.internalizeFuel();
-		if (power > 0) {
-			timer.updateTicker("fuel");
-			if (type.burnsFuel() && timer.checkCap("fuel") && this.canConsumeFuel())
-				this.consumeFuel();
-		}
+		if (type.burnsFuel() && timer.checkCap("fuel") && this.canConsumeFuel())
+			this.consumeFuel();
 
 		if (power > 0) {
-			if (ConfigRegistry.ENGINESOUNDS.getState())
-				this.playSounds(world, x, y, z, pitch, ConfigRegistry.ENGINEVOLUME.getFloat());
+			this.playSounds(world, x, y, z, pitch);
 		}
 		else if (soundtick < this.getSoundLength(soundfactor))
 			soundtick = 2000;
@@ -521,11 +512,6 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 		if (type == EngineType.JET)
 			pow = 1.1;
 		if (type == EngineType.HYDRO) {
-			TileEntityHydroEngine te = (TileEntityHydroEngine)this;
-			if (te.failed) {
-				phi += 16;
-				return;
-			}
 			mult = 256F/type.getSpeed();
 		}
 		phi += ReikaMathLibrary.doubpow(ReikaMathLibrary.logbase((int)(mult*omega+1), 2), pow);
@@ -588,7 +574,7 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 		float factor = type.getFuelUnitDuration()/(float)timer.getCapOf("fuel"); //to compensate for 4x burn during spinup
 		if (factor <= 0)
 			return 0;
-		return (int)((fuel*type.getFuelUnitDuration()*(burnprogress))*5/factor/1000*10D/this.getConsumedFuel());
+		return (int)((fuel*type.getFuelUnitDuration()*(burnprogress))*5/factor/1000);
 	}
 
 	/** In seconds */
@@ -664,7 +650,7 @@ PipeConnector, PowerGenerator, IFluidHandler, PartialInventory {
 	}
 
 	@Override
-	public PowerSourceList getPowerSources(TileEntityIOMachine io, ShaftMerger caller) {
+	public final PowerSourceList getPowerSources(TileEntityIOMachine io, ShaftMerger caller) {
 		return new PowerSourceList().addSource(this);
 	}
 

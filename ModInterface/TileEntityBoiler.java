@@ -9,6 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
+import Reika.DragonAPI.Instantiable.StepTimer;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.DragonAPI.ModInteract.ReikaRailCraftHelper;
+import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
+import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidIO;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -18,13 +26,6 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.IFluidHandler;
-import Reika.DragonAPI.Instantiable.StepTimer;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.DragonAPI.ModInteract.ReikaRailCraftHelper;
-import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
-import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidIO;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityBoiler extends PoweredLiquidIO implements TemperatureTE {
 
@@ -85,23 +86,18 @@ public class TileEntityBoiler extends PoweredLiquidIO implements TemperatureTE {
 		if (te instanceof IFluidHandler) {
 			IFluidHandler ic = (IFluidHandler)te;
 			if (output.getFluid() != null) {
-				int amt = ic.fill(ForgeDirection.DOWN, output.getFluid(), true);
-				if (amt > 0)
-					output.removeLiquid(amt);
+				ic.fill(ForgeDirection.DOWN, output.getFluid(), true);
+				output.drain(output.getFluid().amount, true);
 			}
 		}
 	}
 
 	private void makeSteam() {
-		if (this.getWater() >= FluidContainerRegistry.BUCKET_VOLUME && (output.isEmpty() || output.canTakeIn(this.getProducedSteam()))) {
+		if (this.getWater() >= FluidContainerRegistry.BUCKET_VOLUME && (output.isEmpty() || output.canTakeIn(1000))) {
 			input.removeLiquid(FluidContainerRegistry.BUCKET_VOLUME);
-			output.addLiquid(this.getProducedSteam(), FluidRegistry.getFluid("steam"));
+			output.fill(FluidRegistry.getFluidStack("steam", FluidContainerRegistry.BUCKET_VOLUME), true);
 			storedEnergy -= ReikaRailCraftHelper.getSteamBucketEnergy(this.getWaterTemp());
 		}
-	}
-
-	private int getProducedSteam() {
-		return 8000;
 	}
 
 	private int getWaterTemp() {

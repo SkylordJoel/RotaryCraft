@@ -9,18 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.IIcon;
-import net.minecraftforge.fluids.Fluid;
-
-import org.lwjgl.opengl.GL11;
-
 import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
 import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Base.GuiMachine;
 import Reika.RotaryCraft.Containers.ContainerCrystallizer;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityCrystallizer;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.IIcon;
+import net.minecraftforge.fluids.Fluid;
+
+import org.lwjgl.opengl.GL11;
 
 public class GuiCrystallizer extends GuiMachine
 {
@@ -83,7 +83,7 @@ public class GuiCrystallizer extends GuiMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "crystalgui";
 	}
 

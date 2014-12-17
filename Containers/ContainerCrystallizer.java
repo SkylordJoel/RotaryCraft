@@ -9,14 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ICrafting;
+import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
 import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityCrystallizer;
 
-public class ContainerCrystallizer extends ContainerIOMachine
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ICrafting;
+
+public class ContainerCrystallizer extends CoreContainer
 {
 	private TileEntityCrystallizer te;
 
@@ -28,6 +30,7 @@ public class ContainerCrystallizer extends ContainerIOMachine
 		int posY = te.yCoord;
 		int posZ = te.zCoord;
 
+		ReikaJavaLibrary.pConsole(this);
 		this.addSlot(0, 80, 35);
 		this.addSlot(1, 125, 35);
 
@@ -43,7 +46,7 @@ public class ContainerCrystallizer extends ContainerIOMachine
 		{
 			ICrafting icrafting = (ICrafting)crafters.get(i);
 
-			icrafting.sendProgressBarUpdate(this, 0, te.freezeTick);
+			icrafting.sendProgressBarUpdate(this, 0, te.smeltTick);
 			//icrafting.sendProgressBarUpdate(this, 1, te.getLevel());
 		}
 
@@ -55,7 +58,7 @@ public class ContainerCrystallizer extends ContainerIOMachine
 	{
 		switch(par1) {
 		//case 1: te.setLevel(par2); break;
-		case 0: te.freezeTick = par2; break;
+		case 0: te.smeltTick = par2; break;
 		}
 	}
 }

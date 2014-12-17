@@ -9,18 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.API;
 
+import Reika.DragonAPI.Libraries.IO.ReikaColorAPI;
+
+import java.util.HashMap;
 import java.util.Set;
 
 import net.minecraft.block.Block;
-import Reika.DragonAPI.Instantiable.BlockKey;
-import Reika.DragonAPI.Instantiable.Data.BlockMap;
-import Reika.DragonAPI.Libraries.IO.ReikaColorAPI;
+import net.minecraft.item.ItemStack;
 
-/** This is used to add block color codes to the GPR (Ground Penetrating Radar) map. Without doing this, your blocks will be the same
- * shade of purple in the GUI as MCEdit uses for unknown blocks. */
 public class BlockColorInterface {
 
-	private static final BlockMap<Integer> map = new BlockMap();
+	private static final HashMap<ItemStack, Integer> map = new HashMap(2);
 
 	public static void addGPRBlockColor(Block blockID, int color) {
 		for (int i = 0; i < 16; i++) {
@@ -29,19 +28,19 @@ public class BlockColorInterface {
 	}
 
 	public static void addGPRBlockColor(Block blockID, int metadata, int color) {
-		map.put(blockID, metadata, color);
+		map.put(new ItemStack(blockID, metadata), color);
 	}
 
 	public static void addGPRBlockColor(Block blockID, int metadata, int red, int green, int blue) {
 		addGPRBlockColor(blockID, metadata, ReikaColorAPI.RGBtoHex(red, green, blue));
 	}
 
-	public static Set<BlockKey> getMappedBlocks() {
+	public static Set<ItemStack> getMappedBlocks() {
 		return map.keySet();
 	}
 
 	public static int getColor(Block ID, int meta) {
-		return map.get(ID, meta);
+		return map.get(new ItemStack(ID, meta));
 	}
 
 }

@@ -9,52 +9,9 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.item.EntityXPOrb;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidContainerRegistry;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
 import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
-import Reika.DragonAPI.ASM.DependentMethodStripper.ModDependent;
 import Reika.DragonAPI.Base.TileEntityBase;
 import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper.NBTTypes;
 import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
 import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
@@ -98,14 +55,13 @@ import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityMirror;
 import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityScreen;
 import Reika.RotaryCraft.TileEntities.Decorative.TileEntityDisplay;
 import Reika.RotaryCraft.TileEntities.Decorative.TileEntityMusicBox;
-import Reika.RotaryCraft.TileEntities.Farming.TileEntityBaitBox;
 import Reika.RotaryCraft.TileEntities.Farming.TileEntityFertilizer;
 import Reika.RotaryCraft.TileEntities.Piping.TileEntityPipe;
+import Reika.RotaryCraft.TileEntities.Processing.TileEntityAutoCrafter;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityBigFurnace;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityExtractor;
 import Reika.RotaryCraft.TileEntities.Processing.TileEntityPulseFurnace;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityBedrockBreaker;
-import Reika.RotaryCraft.TileEntities.Production.TileEntityBorer;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityFermenter;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityLavaMaker;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityPump;
@@ -124,7 +80,47 @@ import Reika.RotaryCraft.TileEntities.World.TileEntityFloodlight;
 import Reika.RotaryCraft.TileEntities.World.TileEntityLamp;
 import Reika.RotaryCraft.TileEntities.World.TileEntityLightBridge;
 
-@Strippable(value = {"mcp.mobius.waila.api.IWailaDataProvider"})
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IIcon;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.Explosion;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
+
 public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 
 	/** Icons by metadata 0-15 and side 0-6. Nonmetadata blocks can just set the first index to 0 at all times. */
@@ -237,27 +233,6 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 				return true;
 			}
 		}
-		if (m == MachineRegistry.SPLITTER) {
-			if (is != null && ReikaItemHelper.matchStacks(is, ItemStacks.bedrock2x)) {
-				TileEntitySplitter tile = (TileEntitySplitter)te;
-				tile.setBedrock();
-				if (!ep.capabilities.isCreativeMode)
-					is.stackSize--;
-				((TileEntityBase)te).syncAllData(true);
-				return true;
-			}
-		}
-		if (m == MachineRegistry.BORER) {
-			if (is != null && ReikaItemHelper.matchStacks(is, ItemStacks.drill)) {
-				TileEntityBorer tile = (TileEntityBorer)te;
-				if (tile.repair()) {
-					if (!ep.capabilities.isCreativeMode)
-						is.stackSize--;
-				}
-				((TileEntityBase)te).syncAllData(true);
-				return true;
-			}
-		}
 		if (m == MachineRegistry.BUSCONTROLLER) {
 			if (is != null) {
 				if (FluidContainerRegistry.isFilledContainer(is)) {
@@ -302,6 +277,18 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 						}
 					}
 				}
+			}
+		}
+		if (m == MachineRegistry.CRAFTER) {
+			if (is != null && is.getItem() == ItemRegistry.CRAFTPATTERN.getItemInstance()) {
+				TileEntityAutoCrafter tc = (TileEntityAutoCrafter)te;
+				ItemStack[] items = new ItemStack[9];
+				for (int i = 0; i < 9; i++)
+					if (i != 4)
+						items[i] = new ItemStack(Blocks.planks);
+				tc.writePattern(is, items);
+				((TileEntityBase)te).syncAllData(true);
+				return true;
 			}
 		}
 		if (m == MachineRegistry.RESERVOIR) {
@@ -397,21 +384,13 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 		}
 		if (m == MachineRegistry.EXTRACTOR) {
 			TileEntityExtractor ex = (TileEntityExtractor)te;
-			if (is != null) {
-				if (is.getItem() == Items.water_bucket && ex.getLevel()+1000 <= ex.CAPACITY) {
-					ex.addLiquid(1000);
-					if (!ep.capabilities.isCreativeMode) {
-						ep.setCurrentItemOrArmor(0, new ItemStack(Items.bucket));
-					}
-					((TileEntityBase)te).syncAllData(true);
-					return true;
+			if (ex.getLevel()+1000 <= ex.CAPACITY && is != null && is.getItem() == Items.water_bucket) {
+				ex.addLiquid(1000);
+				if (!ep.capabilities.isCreativeMode) {
+					ep.setCurrentItemOrArmor(0, new ItemStack(Items.bucket));
 				}
-				else if (ReikaItemHelper.matchStacks(is, ItemStacks.bedrockdrill)) {
-					if (ex.upgrade() && !ep.capabilities.isCreativeMode)
-						is.stackSize--;
-					((TileEntityBase)te).syncAllData(true);
-					return true;
-				}
+				((TileEntityBase)te).syncAllData(true);
+				return true;
 			}
 		}
 		if (m == MachineRegistry.PULSEJET) {
@@ -509,7 +488,7 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 				try {
 					TileEntityDisplay td = (TileEntityDisplay)te;
 					NBTTagCompound nbt = is.stackTagCompound;
-					NBTTagList li = nbt.getTagList("pages", NBTTypes.STRING.ID);
+					NBTTagList li = nbt.getTagList("pages", 8); //8 == string
 					ArrayList<String> s = new ArrayList();
 					for (int i = 0; i < li.tagCount(); i++) {
 						String ns = li.getStringTagAt(i);
@@ -532,10 +511,6 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 				((TileEntityBase)te).syncAllData(true);
 				return true;
 			}
-		}
-		if (m == MachineRegistry.BLOWER) {
-			if (is != null && ReikaItemHelper.matchStacks(is, m.getCraftedProduct()))
-				return false;
 		}
 		if (m == MachineRegistry.MIRROR) {
 			TileEntityMirror tm = (TileEntityMirror)te;
@@ -662,7 +637,7 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 		if (te instanceof IInventory && !(te instanceof TileEntityScaleableChest))
 			ReikaItemHelper.dropInventory(world, x, y, z);
 		if (te instanceof TileEntityVacuum) {
-			ReikaWorldHelper.splitAndSpawnXP(world, x+par5Random.nextFloat(), y+par5Random.nextFloat(), z+par5Random.nextFloat(), ((TileEntityVacuum)(te)).getExperience());
+			ReikaWorldHelper.splitAndSpawnXP(world, x+par5Random.nextFloat(), y+par5Random.nextFloat(), z+par5Random.nextFloat(), ((TileEntityVacuum)(te)).experience);
 		}
 		if (te instanceof TileEntityLightBridge) {
 			((TileEntityLightBridge)te).lightsOut(world, x, y, z);
@@ -675,9 +650,6 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 		}
 		if (te instanceof TileEntityLamp) {
 			((TileEntityLamp)te).clearAll();
-		}
-		if (te instanceof TileEntityBaitBox) {
-			((TileEntityBaitBox)te).onBreak();
 		}
 		if (te instanceof TileEntityBeamMirror) {
 			((TileEntityBeamMirror)te).lightsOut();
@@ -703,12 +675,12 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 				}
 			}
 			tile.resetOther();
-		}/*
+		}
 		if (te instanceof TileEntityAutoCrafter) {
 			TileEntityAutoCrafter tile = (TileEntityAutoCrafter)te;
 			ArrayList<ItemStack> li = tile.getAllIngredients();
 			//ReikaItemHelper.dropItems(world, x+0.5, y+0.5, z+0.5, li);
-		}*/
+		}
 		super.breakBlock(world, x, y, z, par5, par6);
 	}
 
@@ -717,6 +689,9 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 		return MachineRegistry.createTEFromIDAndMetadata(this, meta);
 	}
 
+	/**
+	 * Triggered whenever an entity collides with this block (enters into the block). Args: world, x, y, z, entity
+	 */
 	@Override
 	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity e)
 	{
@@ -741,7 +716,7 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 		}
 		if (m == MachineRegistry.RESERVOIR) {
 			TileEntityReservoir tr = (TileEntityReservoir)tile;
-			if (!tr.isEmpty() && e instanceof EntityLivingBase) {
+			if (!tr.isEmpty()) {
 				if (tr.getFluid().equals(FluidRegistry.LAVA) || tr.getFluid().getTemperature(world, x, y, z) > 500) {
 					e.attackEntityFrom(DamageSource.lava, 4);
 					e.setFire(12);
@@ -750,29 +725,25 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 					e.extinguish();
 				}
 				else if (tr.getFluid().equals(FluidRegistry.getFluid("rc ethanol"))) {
-					EntityLivingBase eb = (EntityLivingBase)e;
-					PotionEffect eff = eb.getActivePotionEffect(Potion.confusion);
-					int dura = 1;
-					if (eff != null) {
-						dura = eff.getDuration()+1;
+					if (e instanceof EntityLivingBase) {
+						EntityLivingBase eb = (EntityLivingBase)e;
+						PotionEffect eff = eb.getActivePotionEffect(Potion.confusion);
+						int dura = 1;
+						if (eff != null) {
+							dura = eff.getDuration()+1;
+						}
+						if (dura > 600)
+							dura = 600;
+						eb.addPotionEffect(new PotionEffect(Potion.confusion.id, dura, 3));
 					}
-					if (dura > 600)
-						dura = 600;
-					eb.addPotionEffect(new PotionEffect(Potion.confusion.id, dura, 3));
 				}
-				else if (tr.getFluid().equals(FluidRegistry.getFluid("jet fuel"))) {
+				else if (tr.getFluid().getName().toLowerCase().contains("ammonia")) {
 					if (e instanceof EntityLivingBase) {
 						EntityLivingBase eb = (EntityLivingBase)e;
 						PotionEffect eff = eb.getActivePotionEffect(Potion.poison);
 						if (eff == null)
 							eb.addPotionEffect(new PotionEffect(Potion.poison.id, 200, 0));
 					}
-				}
-				else if (tr.getFluid().getName().toLowerCase().contains("ammonia")) {
-					EntityLivingBase eb = (EntityLivingBase)e;
-					PotionEffect eff = eb.getActivePotionEffect(Potion.poison);
-					if (eff == null)
-						eb.addPotionEffect(new PotionEffect(Potion.poison.id, 200, 0));
 				}
 				else {
 					Fluid f = tr.getFluid();
@@ -914,12 +885,10 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 		return 0;
 	}
 
-	@ModDependent(ModList.WAILA)
 	public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config) {
 		return MachineRegistry.getMachineFromIDandMetadata(this, accessor.getMetadata()).getCraftedProduct();
 	}
 
-	@ModDependent(ModList.WAILA)
 	public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor acc, IWailaConfigHandler config) {
 		World world = acc.getWorld();
 		MovingObjectPosition mov = acc.getPosition();
@@ -932,7 +901,6 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 		return currenttip;
 	}
 
-	@ModDependent(ModList.WAILA)
 	public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor acc, IWailaConfigHandler config) {
 		RotaryCraftTileEntity te = (RotaryCraftTileEntity)acc.getTileEntity();
 		te.syncAllData(false);
@@ -1046,7 +1014,6 @@ public abstract class BlockBasicMultiTE extends BlockRotaryCraftMachine {
 		return currenttip;
 	}
 
-	@ModDependent(ModList.WAILA)
 	public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor acc, IWailaConfigHandler config) {
 		String s1 = EnumChatFormatting.ITALIC.toString();
 		String s2 = EnumChatFormatting.BLUE.toString();

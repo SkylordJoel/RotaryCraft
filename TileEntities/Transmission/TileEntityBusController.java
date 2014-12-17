@@ -9,18 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Transmission;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import Reika.DragonAPI.DragonAPICore;
 import Reika.DragonAPI.Instantiable.StepTimer;
 import Reika.RotaryCraft.Auxiliary.ShaftPowerBus;
 import Reika.RotaryCraft.Auxiliary.Interfaces.TransmissionReceiver;
 import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidReceiver;
-import Reika.RotaryCraft.Registry.DifficultyEffects;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 
 public class TileEntityBusController extends PoweredLiquidReceiver implements TransmissionReceiver {
 
@@ -75,7 +75,7 @@ public class TileEntityBusController extends PoweredLiquidReceiver implements Tr
 	}
 
 	private int getLubricantUsed() {
-		return Math.max(1, (int)(DifficultyEffects.LUBEUSAGE.getChance()*2*bus.getSize()+bus.getTotalOutputSides()));
+		return 2*bus.getSize()+bus.getTotalOutputSides();
 	}
 
 	public void getIOSides(World world, int x, int y, int z, int metadata) {

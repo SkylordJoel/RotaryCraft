@@ -9,6 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Placers;
 
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.RotaryNames;
+import Reika.RotaryCraft.Auxiliary.RotaryAux;
+import Reika.RotaryCraft.Base.ItemBlockPlacer;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.Registry.MaterialRegistry;
+import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
+
 import java.util.List;
 
 import net.minecraft.block.material.Material;
@@ -21,15 +31,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.RotaryNames;
-import Reika.RotaryCraft.Auxiliary.RotaryAux;
-import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
-import Reika.RotaryCraft.Base.ItemBlockPlacer;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.Registry.MaterialRegistry;
-import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -86,8 +87,6 @@ public class ItemGearPlacer extends ItemBlockPlacer {
 			if (RotaryAux.shouldSetFlipped(world, x, y, z)) {
 				((TileEntityGearbox)tile).isFlipped = true;
 			}
-			int Tb = ReikaWorldHelper.getAmbientTemperatureAt(world, x, y, z);
-			((TemperatureTE)tile).addTemperature(Tb);
 		}
 		return true;
 	}
@@ -98,11 +97,11 @@ public class ItemGearPlacer extends ItemBlockPlacer {
 			return;
 		MaterialRegistry mat = MaterialRegistry.matList[is.getItemDamage()%MaterialRegistry.matList.length];
 		if (is.stackTagCompound.hasKey("damage") && mat.isDamageableGear()) {
-			int dmg = TileEntityGearbox.getDamagePercent(is.stackTagCompound.getInteger("damage"));
+			int dmg = (int)(100*(1-ReikaMathLibrary.doubpow(0.99, is.stackTagCompound.getInteger("damage"))));
 			par3List.add("Damage: "+dmg+"%");
 		}
 
-		if (is.stackTagCompound.hasKey("lube") && mat.needsLubricant()) {
+		if (is.stackTagCompound.hasKey("lube") && mat.isDamageableGear()) {
 			par3List.add("Lubricant: "+is.stackTagCompound.getInteger("lube")+" mB");
 		}
 	}
@@ -125,14 +124,5 @@ public class ItemGearPlacer extends ItemBlockPlacer {
 	@Override
 	public String getItemStackDisplayName(ItemStack is) {
 		return ItemRegistry.getEntry(is).getMultiValuedName(is.getItemDamage());
-	}
-
-	@Override
-	protected double getBrokenFraction(ItemStack is) {
-		if (is.stackTagCompound != null) {
-			int dmg = is.stackTagCompound.getInteger("damage");
-			return TileEntityGearbox.getDamagePercent(dmg)/100D;
-		}
-		return 0;
 	}
 }

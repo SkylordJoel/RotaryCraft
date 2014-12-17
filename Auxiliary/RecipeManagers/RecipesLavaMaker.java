@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary.RecipeManagers;
 
+import Reika.DragonAPI.ModList;
+import Reika.DragonAPI.Instantiable.Data.ItemHashMap;
+import Reika.DragonAPI.ModInteract.MagicCropHandler;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+
 import java.util.ArrayList;
 
 import net.minecraft.block.Block;
@@ -20,12 +25,6 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
-import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.Instantiable.Data.ItemHashMap;
-import Reika.DragonAPI.ModInteract.MagicCropHandler;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
 
 public class RecipesLavaMaker {
 
@@ -55,18 +54,10 @@ public class RecipesLavaMaker {
 		this.addRecipe(Items.ender_pearl, "ender", 250, 400, 240000);
 		this.addRecipe("dustCoal", "coal", 250, 300, 60000);
 
-		if (ModList.THERMALFOUNDATION.isLoaded()) {
-			ItemStack pyro = GameRegistry.findItemStack(ModList.THERMALFOUNDATION.modLabel, "dustPyrotheum", 1);
-			this.addRecipe(pyro, "pyrotheum", 100, 1800, 9000000);
-
-			ItemStack cryo = GameRegistry.findItemStack(ModList.THERMALFOUNDATION.modLabel, "dustCryotheum", 1);
-			this.addRecipe(cryo, "cryotheum", 100, -200, 2000);
-		}
-
 		this.addRecipe("shardCrystal", "potion crystal", 8000, 500, 80000);
 		this.addRecipe(ItemRegistry.ETHANOL.getStackOf(), "rc ethanol", 100, 180, 6000);
 
-		if (ModList.MAGICCROPS.isLoaded() && MagicCropHandler.EssenceType.XP.getEssence() != null)
+		if (ModList.MAGICCROPS.isLoaded())
 			this.addRecipe(MagicCropHandler.EssenceType.XP.getEssence(), "mobessence", 200, 600, 360000);
 	}
 
@@ -108,14 +99,9 @@ public class RecipesLavaMaker {
 	}
 
 	private void addRecipe(ItemStack in, FluidStack out, int temperature, long energy) {
-		if (in != null) {
-			list.put(in, out);
-			temperatures.put(in, temperature);
-			energies.put(in, energy);
-		}
-		else {
-			RotaryCraft.logger.logError("Null itemstack for recipe for "+out+"!");
-		}
+		list.put(in, out);
+		temperatures.put(in, temperature);
+		energies.put(in, energy);
 	}
 
 	private boolean validateFluid(String s) {

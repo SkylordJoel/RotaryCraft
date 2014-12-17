@@ -8,10 +8,40 @@
  * explicit, prior permission from the owner.
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
+import Reika.DragonAPI.ModList;
+import Reika.DragonAPI.Base.BlockTEBase;
+import Reika.DragonAPI.Interfaces.SidedTextureIndex;
+import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.ModInteract.DartItemHandler;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.RotaryNames;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.Auxiliary.RotaryAux;
+import Reika.RotaryCraft.Auxiliary.Interfaces.PressureTE;
+import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
+import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidIO;
+import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidProducer;
+import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidReceiver;
+import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping;
+import Reika.RotaryCraft.Registry.EngineType;
+import Reika.RotaryCraft.Registry.GuiRegistry;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.TileEntities.Engine.TileEntityJetEngine;
+import Reika.RotaryCraft.TileEntities.Engine.TileEntityPerformanceEngine;
+import Reika.RotaryCraft.TileEntities.Surveying.TileEntityCaveFinder;
+import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear;
+import Reika.RotaryCraft.TileEntities.Transmission.TileEntityFlywheel;
+import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
+import Reika.RotaryCraft.TileEntities.Transmission.TileEntityShaft;
 
 import java.util.List;
 import java.util.Random;
 
+import mcp.mobius.waila.api.IWailaBlock;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import net.minecraft.block.Block;
@@ -33,35 +63,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
-import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.ASM.DependentMethodStripper.ModDependent;
-import Reika.DragonAPI.Interfaces.SidedTextureIndex;
-import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.ModInteract.DartItemHandler;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.RotaryNames;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Auxiliary.RotaryAux;
-import Reika.RotaryCraft.Auxiliary.Interfaces.PressureTE;
-import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
-import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidIO;
-import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidProducer;
-import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidReceiver;
-import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping;
-import Reika.RotaryCraft.Registry.GuiRegistry;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.TileEntities.Engine.TileEntityPerformanceEngine;
-import Reika.RotaryCraft.TileEntities.Surveying.TileEntityCaveFinder;
-import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear;
-import Reika.RotaryCraft.TileEntities.Transmission.TileEntityFlywheel;
-import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
-import Reika.RotaryCraft.TileEntities.Transmission.TileEntityShaft;
 
-public abstract class BlockBasicMachine extends BlockRotaryCraftMachine implements SidedTextureIndex {
+
+public abstract class BlockBasicMachine extends BlockTEBase implements SidedTextureIndex, IWailaBlock {
 
 	protected Random par5Random = new Random();
 
@@ -84,7 +88,7 @@ public abstract class BlockBasicMachine extends BlockRotaryCraftMachine implemen
 
 	@Override
 	public abstract IIcon getIcon(int s, int meta);
-	/* Sides: 0 bottom, 1 top, 2 back, 3 front, 4 right, 5 left */
+	/** Sides: 0 bottom, 1 top, 2 back, 3 front, 4 right, 5 left */
 	@Override
 	public abstract void registerBlockIcons(IIconRegister par1IconRegister);
 
@@ -155,6 +159,120 @@ public abstract class BlockBasicMachine extends BlockRotaryCraftMachine implemen
 					if (!ep.capabilities.isCreativeMode)
 						ep.setCurrentItemOrArmor(0, new ItemStack(Items.bucket));
 					return true;
+				}
+			}
+		}
+		else if (te instanceof TileEntityEngine) {
+			if (is != null && is.getItem() == ItemRegistry.FUEL.getItemInstance())
+				return false;
+			TileEntityEngine tile = (TileEntityEngine)te;
+			if (is != null && ReikaItemHelper.matchStacks(is, ItemStacks.turbine)) {
+				if (tile.getEngineType() == EngineType.JET && ((TileEntityJetEngine)tile).FOD > 0) {
+					((TileEntityJetEngine)tile).repairJet();
+					if (!ep.capabilities.isCreativeMode)
+						--is.stackSize;
+					return true;
+				}
+			}
+			if (is != null && ReikaItemHelper.matchStacks(is, ItemStacks.compressor)) {
+				if (tile.getEngineType() == EngineType.JET && ((TileEntityJetEngine)tile).FOD > 0) {
+					((TileEntityJetEngine)tile).repairJetPartial();
+					if (!ep.capabilities.isCreativeMode)
+						--is.stackSize;
+					return true;
+				}
+			}
+			if (is != null && is.stackSize == 1) {
+				if (is.getItem() == Items.bucket) {
+					if (tile.getEngineType().isEthanolFueled()) {
+						if (tile.getFuelLevel() >= 1000) {
+							ep.setCurrentItemOrArmor(0, ItemStacks.ethanolbucket.copy());
+							tile.subtractFuel(1000);
+						}
+						else {
+							ReikaChatHelper.clearChat();
+							ReikaChatHelper.write("Engine does not have enough fuel to extract!");
+						}
+						return true;
+					}
+					if (tile.getEngineType().isJetFueled()) {
+						if (tile.getFuelLevel() >= 1000) {
+							ep.setCurrentItemOrArmor(0, ItemStacks.fuelbucket.copy());
+							tile.subtractFuel(1000);
+						}
+						else {
+							ReikaChatHelper.clearChat();
+							ReikaChatHelper.write("Engine does not have enough fuel to extract!");
+						}
+						return true;
+					}
+					if (tile.getEngineType().requiresLubricant()) {
+						if (tile.getLube() >= 1000) {
+							ep.setCurrentItemOrArmor(0, ItemStacks.lubebucket.copy());
+							tile.removeLubricant(1000);
+						}
+						else {
+							ReikaChatHelper.clearChat();
+							ReikaChatHelper.write("Engine does not have enough fuel to extract!");
+						}
+						return true;
+					}
+				}
+				if (tile.getEngineType().isJetFueled()) {
+					if (ReikaItemHelper.matchStacks(is, ItemStacks.fuelbucket)) {
+						if (tile.getFuelLevel() <= tile.FUELCAP-1000) {
+							if (!ep.capabilities.isCreativeMode)
+								ep.setCurrentItemOrArmor(0, new ItemStack(Items.bucket));
+							tile.addFuel(1000);
+						}
+						else {
+							ReikaChatHelper.clearChat();
+							ReikaChatHelper.write("Engine is too full to add fuel!");
+						}
+						return true;
+					}
+				}
+				if (tile.getEngineType().isEthanolFueled()) {
+					if (ReikaItemHelper.matchStacks(is, ItemStacks.ethanolbucket)) {
+						if (tile.getFuelLevel() <= tile.FUELCAP-1000) {
+							if (!ep.capabilities.isCreativeMode)
+								ep.setCurrentItemOrArmor(0, new ItemStack(Items.bucket));
+							tile.addFuel(1000);
+						}
+						else {
+							ReikaChatHelper.clearChat();
+							ReikaChatHelper.write("Engine is too full to add fuel!");
+						}
+						return true;
+					}
+				}
+				if (tile.getEngineType().requiresLubricant()) {
+					if (ReikaItemHelper.matchStacks(is, ItemStacks.lubebucket)) {
+						if (tile.getLube() <= tile.LUBECAP-1000) {
+							if (!ep.capabilities.isCreativeMode)
+								ep.setCurrentItemOrArmor(0, new ItemStack(Items.bucket));
+							tile.addLubricant(1000);
+						}
+						else {
+							ReikaChatHelper.clearChat();
+							ReikaChatHelper.write("Engine is too full to add lubricant!");
+						}
+						return true;
+					}
+				}
+				if (tile.getEngineType().needsWater()) {
+					if (is != null && is.getItem() == Items.water_bucket) {
+						if (tile.getWater() <= tile.CAPACITY-1000) {
+							if (!ep.capabilities.isCreativeMode)
+								ep.setCurrentItemOrArmor(0, new ItemStack(Items.bucket));
+							tile.addWater(1000);
+						}
+						else {
+							ReikaChatHelper.clearChat();
+							ReikaChatHelper.write("Engine is too full to add water!");
+						}
+						return true;
+					}
 				}
 			}
 		}
@@ -229,6 +347,12 @@ public abstract class BlockBasicMachine extends BlockRotaryCraftMachine implemen
 	}
 
 	@Override
+	public final boolean canBeReplacedByLeaves(IBlockAccess world, int x, int y, int z)
+	{
+		return false;
+	}
+
+	@Override
 	public final boolean canSilkHarvest(World world, EntityPlayer player, int x, int y, int z, int metadata)
 	{
 		return false;
@@ -259,12 +383,10 @@ public abstract class BlockBasicMachine extends BlockRotaryCraftMachine implemen
 		return "/Reika/RotaryCraft/Textures/Terrain/textures.png"; //return the block texture where the block texture is saved in
 	}
 
-	@ModDependent(ModList.WAILA)
 	public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config) {
 		return MachineRegistry.getMachineFromIDandMetadata(this, accessor.getMetadata()).getCraftedProduct();
 	}
 
-	@ModDependent(ModList.WAILA)
 	public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor acc, IWailaConfigHandler config) {
 		World world = acc.getWorld();
 		MovingObjectPosition mov = acc.getPosition();
@@ -277,10 +399,8 @@ public abstract class BlockBasicMachine extends BlockRotaryCraftMachine implemen
 		return currenttip;
 	}
 
-	@ModDependent(ModList.WAILA)
 	public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor acc, IWailaConfigHandler config) {
 		RotaryCraftTileEntity te = (RotaryCraftTileEntity)acc.getTileEntity();
-		te.syncAllData(false);
 		if (te instanceof TemperatureTE && !(te instanceof TileEntityEngine))
 			currenttip.add(String.format("Temperature: %dC", ((TemperatureTE) te).getTemperature()));
 		if (te instanceof PressureTE)
@@ -342,7 +462,6 @@ public abstract class BlockBasicMachine extends BlockRotaryCraftMachine implemen
 		return currenttip;
 	}
 
-	@ModDependent(ModList.WAILA)
 	public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor acc, IWailaConfigHandler config) {
 		String s1 = EnumChatFormatting.ITALIC.toString();
 		String s2 = EnumChatFormatting.BLUE.toString();

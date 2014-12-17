@@ -9,12 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidRegistry;
 import Reika.DragonAPI.Instantiable.StepTimer;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
@@ -25,6 +19,13 @@ import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerLiquidProducer;
 import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
+
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidRegistry;
 
 public class TileEntityRefrigerator extends InventoriedPowerLiquidProducer implements DiscreteFunction {
 
@@ -79,21 +80,16 @@ public class TileEntityRefrigerator extends InventoriedPowerLiquidProducer imple
 			return false;
 		if (inv[0] == null)
 			return false;
-		if (!tank.canTakeIn(this.getProducedLN2()))
+		if (tank.isFull())
 			return false;
 		return ReikaItemHelper.matchStackWithBlock(inv[0], Blocks.ice) && (inv[1] == null || inv[1].stackSize < inv[1].getMaxStackSize());
 	}
 
 	private void cycle() {
 		ReikaInventoryHelper.decrStack(0, inv);
-		tank.addLiquid(this.getProducedLN2(), FluidRegistry.getFluid("liquid nitrogen"));
-		if (rand.nextInt(4) == 0)
+		tank.addLiquid(100, FluidRegistry.getFluid("liquid nitrogen"));
+		if (rand.nextInt(5) == 0)
 			ReikaInventoryHelper.addOrSetStack(ItemStacks.dryice, inv, 1);
-	}
-
-	private int getProducedLN2() {
-		int over = torque/MINTORQUE;
-		return Math.min(2000, 100*over*over);
 	}
 
 	public void setLevel(int lvl) {
@@ -132,7 +128,7 @@ public class TileEntityRefrigerator extends InventoriedPowerLiquidProducer imple
 
 	@Override
 	public int getCapacity() {
-		return 12000;
+		return 4000;
 	}
 
 	@Override

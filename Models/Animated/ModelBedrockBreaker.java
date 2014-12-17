@@ -16,14 +16,14 @@
 
 package Reika.RotaryCraft.Models.Animated;
 
+import Reika.DragonAPI.Instantiable.Rendering.LODModelPart;
+import Reika.RotaryCraft.Base.RotaryModelBase;
+
 import java.util.ArrayList;
 
 import net.minecraft.tileentity.TileEntity;
 
 import org.lwjgl.opengl.GL11;
-
-import Reika.DragonAPI.Instantiable.Rendering.LODModelPart;
-import Reika.RotaryCraft.Base.RotaryModelBase;
 
 
 public class ModelBedrockBreaker extends RotaryModelBase
@@ -444,9 +444,8 @@ public class ModelBedrockBreaker extends RotaryModelBase
 		Shape3cca.render(te, f5);
 		Shape3dd.render(te, f5);
 
-		for (int i = 1; i < Math.min(step, 360); i++) {
+		for (int i = 1; i < step; i++) {
 			int a = i-1;
-			GL11.glPushMatrix();
 			GL11.glTranslated(a, 0, 0);
 			Shape7.render(te, f5);
 			Shape7a.render(te, f5);
@@ -456,7 +455,7 @@ public class ModelBedrockBreaker extends RotaryModelBase
 			Shape7e.render(te, f5);
 			Shape7f.render(te, f5);
 			Shape7g.render(te, f5);
-			GL11.glPopMatrix();
+			GL11.glTranslated(-a, 0, 0);
 		}
 		GL11.glTranslated(0, 1, 0);
 		GL11.glRotatef(-phi, 1, 0, 0);

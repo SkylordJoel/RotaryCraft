@@ -9,10 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
-import net.minecraft.entity.player.EntityPlayer;
 import Reika.RotaryCraft.Base.GuiPowerOnlyMachine;
 import Reika.RotaryCraft.Containers.ContainerDefoliator;
 import Reika.RotaryCraft.TileEntities.World.TileEntityDefoliator;
+
+import net.minecraft.entity.player.EntityPlayer;
 
 public class GuiDefoliator extends GuiPowerOnlyMachine
 {
@@ -60,7 +61,7 @@ public class GuiDefoliator extends GuiPowerOnlyMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "defoliatorgui";
 	}
 }

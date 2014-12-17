@@ -9,6 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
+import Reika.DragonAPI.ModList;
+import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.ClientProxy;
+import Reika.RotaryCraft.ItemMachineRenderer;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.Registry.EngineType;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.Registry.MaterialRegistry;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -22,17 +34,6 @@ import net.minecraft.tileentity.TileEntity;
 
 import org.lwjgl.opengl.GL11;
 
-import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.ClientProxy;
-import Reika.RotaryCraft.ItemMachineRenderer;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Registry.EngineType;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.Registry.MaterialRegistry;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -82,7 +83,7 @@ public class RightClickHandler extends TemplateRecipeHandler {
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		//ReikaTextureHelper.bindTexture(RotaryCraft.class, this.getGuiTexture());
-		//ReikaGuiAPI.instance.drawTexturedModalRectWithDepth(0, 0, 5, 11, 166, 70, -300);
+		//ReikaGuiAPI.instance.drawTexturedModalRect(0, 0, 5, 11, 166, 70);
 	}
 
 	@Override
@@ -187,7 +188,7 @@ public class RightClickHandler extends TemplateRecipeHandler {
 		REPAIRMIRROR(MachineRegistry.MIRROR, ItemStacks.mirror, "Repairs Mirror"),
 		REPAIRSHAFT(MachineRegistry.SHAFT, MaterialRegistry.STEEL.getShaftItem(), ItemStacks.shaftitem, "Repairs Shaft"),
 		REPAIRGEAR(MachineRegistry.GEARBOX, MaterialRegistry.STEEL.getGearItem(4), ItemStacks.gearunit, "Repairs Gearbox"),
-		REPAIRJET(MachineRegistry.ENGINE, EngineType.JET.getCraftedProduct(), ItemStacks.compoundturb, "Repairs Engine"),
+		REPAIRJET(MachineRegistry.ENGINE, EngineType.JET.getItem(), ItemStacks.compoundturb, "Repairs Engine"),
 		PNEU1(MachineRegistry.PNEUENGINE, ItemStacks.impeller, "Upgrades To Tier 1"),
 		PNEU2(MachineRegistry.PNEUENGINE, ItemStacks.turbine, "Upgrades To Tier 2"),
 		PNEU3(MachineRegistry.PNEUENGINE, ItemStacks.compoundturb, "Upgrades To Tier 3"),

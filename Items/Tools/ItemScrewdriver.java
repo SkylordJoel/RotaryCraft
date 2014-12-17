@@ -9,20 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools;
 
-import java.util.HashMap;
-
-import mrtjp.projectred.api.IScrewdriver;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRedstoneDiode;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import santa.api.interfaces.wrench.IWrench;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
 import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
@@ -36,10 +22,8 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.MaterialRegistry;
 import Reika.RotaryCraft.TileEntities.TileEntityBucketFiller;
-import Reika.RotaryCraft.TileEntities.TileEntityVacuum;
 import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityCoolingFin;
 import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityEngineController;
-import Reika.RotaryCraft.TileEntities.Processing.TileEntityAutoCrafter;
 import Reika.RotaryCraft.TileEntities.Surveying.TileEntityCCTV;
 import Reika.RotaryCraft.TileEntities.Surveying.TileEntityGPR;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear;
@@ -50,14 +34,24 @@ import Reika.RotaryCraft.TileEntities.Transmission.TileEntityShaft;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntitySplitter;
 import Reika.RotaryCraft.TileEntities.Weaponry.TileEntityTNTCannon;
 import Reika.RotaryCraft.TileEntities.World.TileEntityFloodlight;
+
+import java.util.HashMap;
+
+import mrtjp.projectred.api.IScrewdriver;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockRedstoneDiode;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 import binnie.extratrees.api.IToolHammer;
 import buildcraft.api.tools.IToolWrench;
 
-import com.carpentersblocks.api.ICarpentersHammer;
-@Strippable(value = {"buildcraft.api.tools.IToolWrench", "mrtjp.projectred.api.IScrewdriver", "binnie.extratrees.api.IToolHammer",
-		"powercrystals.minefactoryreloaded.api.IToolHammer", "santa.api.interfaces.wrench.IWrench", "com.carpentersblocks.api.ICarpentersHammer"})
-public class ItemScrewdriver extends ItemRotaryTool implements IToolWrench, IScrewdriver, IToolHammer,
-powercrystals.minefactoryreloaded.api.IToolHammer, IWrench, ICarpentersHammer
+
+public class ItemScrewdriver extends ItemRotaryTool implements IToolWrench, IScrewdriver, IToolHammer, powercrystals.minefactoryreloaded.api.IToolHammer
 {
 	public static HashMap<Block, Integer> maxdamage = new HashMap(); //Max damage values (or tileentity datas) for the block ids associated
 
@@ -84,12 +78,6 @@ powercrystals.minefactoryreloaded.api.IToolHammer, IWrench, ICarpentersHammer
 		maxdamage.put(Blocks.quartz_stairs, 7);
 		maxdamage.put(Blocks.dropper, 5);
 		maxdamage.put(Blocks.lit_pumpkin, 3);
-	}
-
-	@Override
-	public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer player) {
-		TileEntity te = world.getTileEntity(x, y, z);
-		return !(te instanceof RotaryCraftTileEntity || te instanceof Screwdriverable);
 	}
 
 	@Override
@@ -273,18 +261,6 @@ powercrystals.minefactoryreloaded.api.IToolHammer, IWrench, ICarpentersHammer
 				}
 				return true;
 			}
-			if (m == MachineRegistry.VACUUM) {
-				TileEntityVacuum clicked = (TileEntityVacuum)te;
-				if (ep.isSneaking())
-					clicked.equidistant = !clicked.equidistant;
-				return true;
-			}
-			if (m == MachineRegistry.CRAFTER) {
-				TileEntityAutoCrafter clicked = (TileEntityAutoCrafter)te;
-				if (ep.isSneaking())
-					clicked.continuous = !clicked.continuous;
-				return true;
-			}
 			if (m == MachineRegistry.GEARBOX) {
 				if (ep.isSneaking()) {
 					TileEntityGearbox clicked = (TileEntityGearbox)te;
@@ -390,21 +366,5 @@ powercrystals.minefactoryreloaded.api.IToolHammer, IWrench, ICarpentersHammer
 	@Override
 	public void onHammerUsed(ItemStack is, EntityPlayer ep) {
 		//extratrees
-	}
-
-	@Override
-	public boolean isWrench() {
-		return true; //hairy spice
-	}
-
-	//Carpenter's Blocks
-	@Override
-	public void onHammerUse(World world, EntityPlayer player) {
-
-	}
-
-	@Override
-	public boolean canUseHammer(World world, EntityPlayer player) {
-		return true;
 	}
 }

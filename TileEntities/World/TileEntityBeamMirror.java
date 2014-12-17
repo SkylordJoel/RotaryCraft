@@ -9,14 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.World;
 
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import Reika.DragonAPI.Instantiable.Data.BlockArray;
 import Reika.DragonAPI.Interfaces.SemiTransparent;
 import Reika.DragonAPI.Libraries.ReikaEntityHelper;
@@ -27,6 +19,15 @@ import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
 import Reika.RotaryCraft.Registry.BlockRegistry;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityBeamMirror extends RotaryCraftTileEntity implements RangedEffect {
 
@@ -90,7 +91,8 @@ public class TileEntityBeamMirror extends RotaryCraftTileEntity implements Range
 	private void burnMobs(World world, int x, int y, int z) {
 		AxisAlignedBB box = this.getBurningBox(world, x, y, z);
 		List<EntityLivingBase> inbox = world.getEntitiesWithinAABB(EntityLivingBase.class, box);
-		for (EntityLivingBase e : inbox) {
+		for (int i = 0; i < inbox.size(); i++) {
+			EntityLivingBase e = inbox.get(i);
 			if (ReikaEntityHelper.burnsInSun(e)) {
 				e.setFire(10);
 			}

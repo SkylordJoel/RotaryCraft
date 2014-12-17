@@ -9,24 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.Language;
-import net.minecraftforge.fluids.FluidContainerRegistry;
 import Reika.DragonAPI.Instantiable.IO.XMLInterface;
 import Reika.DragonAPI.Libraries.Java.ReikaObfuscationHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaStringParser;
 import Reika.DragonAPI.Libraries.MathSci.ReikaEngLibrary;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.ModInteract.ReikaBuildCraftHelper;
-import Reika.DragonAPI.ModInteract.ReikaEUHelper;
+import Reika.RotaryCraft.RotaryConfig;
 import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesFrictionHeater;
 import Reika.RotaryCraft.ModInterface.TileEntityAirCompressor;
 import Reika.RotaryCraft.ModInterface.TileEntityDynamo;
 import Reika.RotaryCraft.ModInterface.TileEntityFuelEngine;
+import Reika.RotaryCraft.ModInterface.TileEntityGenerator;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.EngineType;
 import Reika.RotaryCraft.Registry.HandbookRegistry;
@@ -63,6 +57,14 @@ import Reika.RotaryCraft.TileEntities.Weaponry.TileEntityHeatRay;
 import Reika.RotaryCraft.TileEntities.Weaponry.TileEntitySonicWeapon;
 import Reika.RotaryCraft.TileEntities.World.TileEntityLamp;
 import Reika.RotaryCraft.TileEntities.World.TileEntityPileDriver;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.Language;
+import net.minecraftforge.fluids.FluidContainerRegistry;
 
 public final class RotaryDescriptions {
 
@@ -200,12 +202,13 @@ public final class RotaryDescriptions {
 
 			if (m.isDummiedOut()) {
 				desc += "\nThis machine is currently unavailable.";
-				if (m.getModDependency() != null && !m.getModDependency().isLoaded())
+				if (m.hasPrerequisite() && !m.getPrerequisite().isLoaded())
 					desc += "\nThis machine depends on another mod.";
 				aux += "\nNote: Dummied Out";
 			}
 			if (m.hasPrerequisite()) {
-				aux += "\nDependencies: "+m.getPrerequisite();
+				String sg = m.getPrerequisite().getModLabel().replaceAll("[|]", "");
+				aux += "\nDependencies: "+ReikaStringParser.splitCamelCase(sg).replaceAll(" Craft", "Craft");
 			}
 			if (m.isIncomplete()) {
 				desc += "\nThis machine is incomplete. Use at your own risk.";
@@ -237,7 +240,6 @@ public final class RotaryDescriptions {
 		for (int i = 0; i < resourcetabs.length; i++) {
 			HandbookRegistry h = resourcetabs[i];
 			String desc = resources.getValueAtNode("resource:"+h.name().toLowerCase());
-			desc = String.format(desc, miscData.get(h));
 			addEntry(h, desc);
 		}
 
@@ -367,10 +369,10 @@ public final class RotaryDescriptions {
 		addData(MachineRegistry.RESERVOIR, TileEntityReservoir.CAPACITY/FluidContainerRegistry.BUCKET_VOLUME);
 		addData(MachineRegistry.FAN, PowerReceivers.FAN.getMinPower(), TileEntityFan.MAXPOWER);
 		addData(MachineRegistry.COMPACTOR, TileEntityCompactor.REQPRESS, TileEntityCompactor.REQTEMP);
-		addData(MachineRegistry.BLASTFURNACE, TileEntityBlastFurnace.SMELTTEMP, TileEntityBlastFurnace.BEDROCKTEMP);
+		addData(MachineRegistry.BLASTFURNACE, TileEntityBlastFurnace.SMELTTEMP);
 		addData(MachineRegistry.SCALECHEST, TileEntityScaleableChest.MAXSIZE);
 		addData(MachineRegistry.PURIFIER, TileEntityPurifier.SMELTTEMP);
-		addData(MachineRegistry.GENERATOR, ReikaEUHelper.WATTS_PER_EU);
+		addData(MachineRegistry.GENERATOR, TileEntityGenerator.OUTPUT_VOLTAGE);
 		addData(MachineRegistry.BELT, TileEntityBeltHub.getMaxTorque(), TileEntityBeltHub.getMaxSmoothSpeed());
 		addData(MachineRegistry.DYNAMO, TileEntityDynamo.MAXTORQUE, TileEntityDynamo.MAXOMEGA);
 
@@ -455,7 +457,5 @@ public final class RotaryDescriptions {
 		addNotes(MachineRegistry.ANTIAIR, PowerReceivers.ANTIAIR.getMinPower(), PowerReceivers.ANTIAIR.getMinTorque());
 		addNotes(MachineRegistry.PIPEPUMP, PowerReceivers.PIPEPUMP.getMinPower(), PowerReceivers.PIPEPUMP.getMinSpeed());
 		addNotes(MachineRegistry.CENTRIFUGE, PowerReceivers.CENTRIFUGE.getMinPower(), PowerReceivers.CENTRIFUGE.getMinSpeed());
-
-		addData(HandbookRegistry.TUNGSTEN, RecipesFrictionHeater.getRecipes().getRecipeByInput(ItemStacks.tungstenflakes).requiredTemperature);
 	}
 }

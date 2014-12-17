@@ -9,6 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities;
 
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +24,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper.NBTTypes;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntitySorting extends TileEntityPowerReceiver {
 
@@ -62,7 +62,8 @@ public class TileEntitySorting extends TileEntityPowerReceiver {
 	}
 
 	private void sortItems(World world, int x, int y, int z, List<EntityItem> li) {
-		for (EntityItem ei : li) {
+		for (int i = 0; i < li.size(); i++) {
+			EntityItem ei = li.get(i);
 			ItemStack eis = ei.getEntityItem();
 			ItemStack is = eis.copy();
 			if (eis.stackSize <= 1)
@@ -192,7 +193,7 @@ public class TileEntitySorting extends TileEntityPowerReceiver {
 	{
 		super.readSyncTag(NBT);
 
-		NBTTagList nbttaglist = NBT.getTagList("Items", NBTTypes.COMPOUND.ID);
+		NBTTagList nbttaglist = NBT.getTagList("Items", NBT.getId());
 		mappings = new ItemStack[LENGTH*3];
 
 		for (int i = 0; i < nbttaglist.tagCount(); i++)

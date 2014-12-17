@@ -9,6 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Entities;
 
+import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.Base.EntityTurretShot;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.TileEntities.Weaponry.TileEntityRailGun;
+
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -19,11 +25,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.Base.EntityTurretShot;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.TileEntities.Weaponry.TileEntityRailGun;
 
 public class EntityExplosiveShell extends EntityTurretShot {
 

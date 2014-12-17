@@ -9,14 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
-import java.util.Random;
-
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import Reika.DragonAPI.Interfaces.IndexedItemSprites;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.RotaryCraft.RotaryCraft;
@@ -25,6 +17,15 @@ import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.MaterialRegistry;
 import Reika.RotaryCraft.Registry.RotaryAchievements;
+
+import java.util.Random;
+
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -105,9 +106,8 @@ public class ItemBasic extends Item implements IndexedItemSprites {
 
 	@Override
 	public String getTexture(ItemStack is) {
-		int index = ItemRegistry.getEntry(is).getTextureSheet();
-		String s = index > 0 ? String.valueOf(index) : "";
-		return "/Reika/RotaryCraft/Textures/Items/items"+s+".png";
+		ItemRegistry item = ItemRegistry.getEntry(is);
+		return item != null ? "/Reika/RotaryCraft/Textures/Items/items2.png" : "/Reika/RotaryCraft/Textures/Items/items1.png";
 	}
 
 	@Override

@@ -9,6 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Auxiliary;
 
+import Reika.DragonAPI.Libraries.ReikaEntityHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaRenderHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaPhysicsHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.Registry.PacketRegistry;
+
 import java.util.List;
 
 import micdoodle8.mods.galacticraft.api.world.ISolarLevel;
@@ -18,18 +30,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.ReikaEntityHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaRenderHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaPhysicsHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.DragonAPI.ModRegistry.InterfaceCache;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.Registry.PacketRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 
@@ -60,8 +60,9 @@ public class TileEntityMirror extends RotaryCraftTileEntity {
 
 		if (!world.isRemote) {
 			AxisAlignedBB above = AxisAlignedBB.getBoundingBox(x+0.25, y+1, z+0.25, x+0.75, y+1.5, z+0.75);
-			List<Entity> in = world.getEntitiesWithinAABB(Entity.class, above);
-			for (Entity e : in) {
+			List in = world.getEntitiesWithinAABB(Entity.class, above);
+			for (int i = 0; i < in.size(); i++) {
+				Entity e = (Entity)in.get(i);
 				double m = ReikaEntityHelper.getEntityMass(e);
 				//ReikaJavaLibrary.pConsole(m+" kg moving at "+e.motionY+" b/s, E: "+(m-e.motionY*20));
 				if (e.motionY < -0.1 && m-e.motionY*20 > 80) {
@@ -95,7 +96,7 @@ public class TileEntityMirror extends RotaryCraftTileEntity {
 		if (!worldObj.canBlockSeeTheSky(xCoord, yCoord, zCoord))
 			return 0;
 		float sun = ReikaWorldHelper.getSunIntensity(worldObj);
-		if (InterfaceCache.ISOLARLEVEL.instanceOf(worldObj.provider)) {
+		if (worldObj.provider instanceof ISolarLevel) {
 			ISolarLevel isl = (ISolarLevel)worldObj.provider;
 			sun *= isl.getSolarEnergyMultiplier();
 		}

@@ -9,6 +9,9 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary.RecipeManagers;
 
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+
 import java.util.HashMap;
 
 import net.minecraft.init.Blocks;
@@ -17,16 +20,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.Registry.ItemRegistry;
 
 public class RecipesCrystallizer
 {
 	private static final RecipesCrystallizer CrystallizerBase = new RecipesCrystallizer();
 
+	/** The list of smelting results. */
 	private HashMap<Fluid, ItemStack> recipeList = new HashMap();
 	private HashMap<Fluid, Integer> amounts = new HashMap();
 
+	/**
+	 * Used to call methods addSmelting and getSmeltingResult.
+	 */
 	public static final RecipesCrystallizer getRecipes()
 	{
 		return CrystallizerBase;
@@ -42,7 +47,7 @@ public class RecipesCrystallizer
 		this.addRecipe(FluidRegistry.WATER, 1000, new ItemStack(Blocks.ice));
 		this.addRecipe(FluidRegistry.LAVA, 1000, new ItemStack(Blocks.stone));
 
-		this.addRecipe("rc ethanol", 1000, ItemRegistry.ETHANOL.getStackOf());
+		this.addRecipe("rc ethanol", 100, ItemRegistry.ETHANOL.getStackOf());
 	}
 
 	private void addRecipe(Fluid f, int amount, ItemStack out)
@@ -87,9 +92,5 @@ public class RecipesCrystallizer
 				return amounts.get(f);
 		}
 		return 0;
-	}
-
-	public boolean isValidFluid(Fluid f) {
-		return recipeList.containsKey(f);
 	}
 }

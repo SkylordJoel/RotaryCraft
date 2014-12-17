@@ -9,21 +9,20 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Engine;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.RotaryAchievements;
 import Reika.RotaryCraft.Registry.SoundRegistry;
 
-public class TileEntitySteamEngine extends TileEntityEngine {
+import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
 
-	private int dryTicks = 0;
+public class TileEntitySteamEngine extends TileEntityEngine {
 
 	@Override
 	public boolean canConsumeFuel() {
@@ -37,16 +36,7 @@ public class TileEntitySteamEngine extends TileEntityEngine {
 
 	@Override
 	protected void internalizeFuel() {
-		if (water.isEmpty() && temperature >= 100) {
-			dryTicks++;
-		}
-		else {
-			if (dryTicks > 900) {
-				worldObj.setBlockToAir(xCoord, yCoord, zCoord);
-				worldObj.createExplosion(null, xCoord+0.5, yCoord+0.5, zCoord+0.5, 6, false);
-			}
-			dryTicks = 0;
-		}
+
 	}
 
 	@Override
@@ -61,10 +51,13 @@ public class TileEntitySteamEngine extends TileEntityEngine {
 	}
 
 	@Override
-	protected void playSounds(World world, int x, int y, int z, float pitchMultiplier, float volume) {
+	protected void playSounds(World world, int x, int y, int z, float pitchMultiplier) {
 		soundtick++;
+		if (!ConfigRegistry.ENGINESOUNDS.getState())
+			return;
+		float volume = 1;
 		if (this.isMuffled(world, x, y, z)) {
-			volume *= 0.3125F;
+			volume = 0.3125F;
 		}
 
 		if (soundtick < this.getSoundLength(1F/pitchMultiplier) && soundtick < 2000)
@@ -118,22 +111,6 @@ public class TileEntitySteamEngine extends TileEntityEngine {
 	@Override
 	protected void affectSurroundings(World world, int x, int y, int z, int meta) {
 
-	}
-
-	@Override
-	protected void writeSyncTag(NBTTagCompound NBT)
-	{
-		super.writeSyncTag(NBT);
-
-		NBT.setInteger("dry", dryTicks);
-	}
-
-	@Override
-	protected void readSyncTag(NBTTagCompound NBT)
-	{
-		super.readSyncTag(NBT);
-
-		dryTicks = NBT.getInteger("dry");
 	}
 
 }

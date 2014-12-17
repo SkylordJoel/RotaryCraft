@@ -9,12 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-
-import org.lwjgl.opengl.GL11;
-
 import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
 import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
@@ -23,6 +17,13 @@ import Reika.RotaryCraft.Base.GuiPowerOnlyMachine;
 import Reika.RotaryCraft.Containers.ContainerScaleChest;
 import Reika.RotaryCraft.Registry.PacketRegistry;
 import Reika.RotaryCraft.TileEntities.Storage.TileEntityScaleableChest;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+
+import org.lwjgl.opengl.GL11;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -78,7 +79,7 @@ public class GuiScaleChest extends GuiPowerOnlyMachine
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) {
+	public void actionPerformed(GuiButton button) {
 		super.actionPerformed(button);
 		int oldpage = page;
 		if (button.id == 0 && page < scale.getMaxPage()-1)
@@ -143,7 +144,7 @@ public class GuiScaleChest extends GuiPowerOnlyMachine
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "/Reika/RotaryCraft/Textures/GUI/basicstorage.png";
 	}
 }

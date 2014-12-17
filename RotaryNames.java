@@ -9,11 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft;
 
-import net.minecraft.util.StatCollector;
 import Reika.DragonAPI.DragonOptions;
 import Reika.DragonAPI.ModRegistry.ModOreList;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.MaterialRegistry;
+
+import net.minecraft.util.StatCollector;
 
 public class RotaryNames {
 
@@ -63,7 +64,7 @@ public class RotaryNames {
 	public static final String[] enginePartNames = {
 		"crafting.impeller", "crafting.compressor", "crafting.turbine", "crafting.diffuser", "crafting.combustor", "crafting.cylinder",
 		"crafting.radiator", "crafting.condenser", "crafting.goldcoil", "crafting.woodgear", "crafting.stonegear", "crafting.diamondgear",
-		"crafting.bedrockgear", "crafting.paddle", "crafting.shaftcore", "crafting.ignition", "crafting.diamondcore"
+		"crafting.bedrockgear", "crafting.paddle", "crafting.shaftcore", "crafting.ignition"
 	};
 
 	public static final String[] shaftPartNames = {
@@ -75,7 +76,7 @@ public class RotaryNames {
 	public static final String[] miscPartNames = {
 		"crafting.barrel", "crafting.lens", "crafting.power", "crafting.heatcore", "crafting.lim", "crafting.prop", "crafting.hub",
 		"crafting.mirror", "crafting.generator", "crafting.accel", "crafting.turretbase", "crafting.aiming", "crafting.compound",
-		"crafting.bedcoil", "crafting.chain", "crafting.beddrill"
+		"crafting.bedcoil", "crafting.chain"
 	};
 
 	public static final String[] gearUnitNames = {
@@ -86,14 +87,13 @@ public class RotaryNames {
 	};
 
 	public static final String[] borerPartNames = {
-		"crafting.drill", "crafting.pressure", "crafting.radar", "crafting.sonar", "crafting.pcb", "crafting.screen", "crafting.mixer",
-		"crafting.saw", "crafting.bearing",
+		"crafting.drill", "crafting.pressure", "crafting.radar", "crafting.sonar", "crafting.pcb", "crafting.screen", "crafting.mixer", "crafting.saw", "crafting.bearing",
 		"crafting.belt", "crafting.ballbearing", "crafting.brake", "crafting.coil",
 		"crafting.stoneshaft", "crafting.diamondshaft", "crafting.bedrockshaft"
 	};
 
 	public static final String[] blockNames = {
-		"block.steel", "block.anthra", "block.lonsda", "block.shield", "block.bedrockingot"
+		"block.steel", "block.anthra", "block.lonsda", "block.shield"
 	};
 
 	public static final String[] powderNames = {
@@ -123,12 +123,11 @@ public class RotaryNames {
 
 	public static final String[] compactNames = {
 		"misc.anthra", "misc.prisma", "misc.lonsda", "misc.bedingot", "misc.alingot", "misc.wingot", "misc.redgoldingot", "misc.agingot",
-		"misc.coke", "misc.springingot"
+		"misc.coke"
 	};
 
 	public static final String[] pipeNames = {
-		"machine.hose", "machine.pipe", "machine.fuelline", "machine.spiller", "machine.valve", "machine.bypass", "machine.separation",
-		"machine.bedpipe"
+		"machine.hose", "machine.pipe", "machine.fuelline", "machine.spiller", "machine.valve", "machine.bypass", "machine.separation"
 	};
 
 	private static String getName(String[] names, int i) {

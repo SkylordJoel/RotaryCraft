@@ -9,25 +9,21 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
+import Reika.DragonAPI.ModInteract.RailcraftHandler;
+import Reika.RotaryCraft.RotaryCraft;
+
 import java.util.List;
 
-import minechem.api.IDecomposerControl;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
-import Reika.DragonAPI.ModInteract.RailcraftHandler;
-import Reika.RotaryCraft.RotaryCraft;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-
-@Strippable(value = {"minechem.api.IDecomposerControl"})
-public abstract class ItemBlockPlacer extends ItemBasic implements IDecomposerControl {
+public abstract class ItemBlockPlacer extends ItemBasic {
 
 	public ItemBlockPlacer() {
 		super(0);
@@ -41,7 +37,7 @@ public abstract class ItemBlockPlacer extends ItemBasic implements IDecomposerCo
 	public abstract boolean onItemUse(ItemStack is, EntityPlayer ep, World world, int x, int y, int z, int side, float par8, float par9, float par10);
 
 	protected boolean checkValidBounds(ItemStack is, EntityPlayer ep, World world, int x, int y, int z) {
-		return y >= 0 && y < world.provider.getHeight()-1;
+		return y >= 0 && y < world.provider.getHeight();
 	}
 
 	protected void checkAndBreakAdjacent(World world, int x, int y, int z) {}
@@ -66,13 +62,5 @@ public abstract class ItemBlockPlacer extends ItemBasic implements IDecomposerCo
 		Block b = world.getBlock(x, y, z);
 		if (b == RailcraftHandler.getInstance().hiddenID)
 			world.setBlockToAir(x, y, z);
-	}
-
-	public double getDecomposerMultiplier(ItemStack is) {
-		return MathHelper.clamp_double(1-this.getBrokenFraction(is), 0, 1);
-	}
-
-	protected double getBrokenFraction(ItemStack is) {
-		return 0;
 	}
 }

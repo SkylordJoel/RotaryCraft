@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
+import Reika.DragonAPI.Libraries.ReikaDirectionHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Base.BlockBasic;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -21,10 +26,6 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import Reika.DragonAPI.Libraries.ReikaDirectionHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.BlockBasic;
 
 public class BlockMiningPipe extends BlockBasic {
 
@@ -117,7 +118,7 @@ public class BlockMiningPipe extends BlockBasic {
 		}
 	}
 
-	public static ForgeDirection getDirectionFromMeta(int meta) {
+	private ForgeDirection getDirectionFromMeta(int meta) {
 		switch (meta) {
 		case 0:
 			return ForgeDirection.EAST;

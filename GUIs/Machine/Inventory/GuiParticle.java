@@ -9,10 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
-import java.util.ArrayList;
-
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
 import Reika.DragonAPI.Base.OneSlotContainer;
 import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
@@ -22,6 +18,11 @@ import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Base.GuiNonPoweredMachine;
 import Reika.RotaryCraft.Registry.PacketRegistry;
 import Reika.RotaryCraft.TileEntities.Decorative.TileEntityParticleEmitter;
+
+import java.util.ArrayList;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.entity.player.EntityPlayer;
 
 public class GuiParticle extends GuiNonPoweredMachine {
 
@@ -104,7 +105,7 @@ public class GuiParticle extends GuiNonPoweredMachine {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) {
+	public void actionPerformed(GuiButton button) {
 		super.actionPerformed(button);
 		this.initGui();
 		if (button.id < 24000) {
@@ -115,7 +116,7 @@ public class GuiParticle extends GuiNonPoweredMachine {
 	}
 
 	@Override
-	protected String getGuiTexture() {
+	public String getGuiTexture() {
 		return "particlegui";
 	}
 

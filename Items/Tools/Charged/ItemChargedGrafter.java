@@ -9,18 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Charged;
 
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Base.ItemChargedTool;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import Reika.DragonAPI.ASM.APIStripper.Strippable;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Base.ItemChargedTool;
 import forestry.api.arboriculture.IToolGrafter;
 
-@Strippable(value = {"forestry.api.arboriculture.IToolGrafter"})
 public class ItemChargedGrafter extends ItemChargedTool implements IToolGrafter {
 
 	public ItemChargedGrafter(int index) {

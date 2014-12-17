@@ -9,6 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Charged;
 
+import Reika.DragonAPI.Libraries.ReikaEntityHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
+import Reika.DragonAPI.Libraries.World.ReikaBlockHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.Base.ItemChargedTool;
+import Reika.RotaryCraft.Registry.SoundRegistry;
+
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -23,12 +30,6 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.BlockFluidBase;
-import Reika.DragonAPI.Libraries.ReikaEntityHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
-import Reika.DragonAPI.Libraries.World.ReikaBlockHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.Base.ItemChargedTool;
-import Reika.RotaryCraft.Registry.SoundRegistry;
 
 public class ItemStunGun extends ItemChargedTool {
 
@@ -87,7 +88,7 @@ public class ItemStunGun extends ItemChargedTool {
 			Block id = world.getBlock(x, y, z);
 			int meta = world.getBlockMetadata(x, y, z);
 			Material mat = ReikaWorldHelper.getMaterial(world, x, y, z);
-			if (id != Blocks.air && !(id instanceof BlockLiquid || id instanceof BlockFluidBase) && (id == Blocks.web || id == Blocks.red_mushroom ||
+			if (id != Blocks.air && (id instanceof BlockLiquid || id instanceof BlockFluidBase) && (id == Blocks.web || id == Blocks.red_mushroom ||
 					id == Blocks.gravel ||  id == Blocks.monster_egg  || id == Blocks.brown_mushroom ||
 					id == Blocks.waterlily || id == Blocks.flower_pot ||
 					ReikaBlockHelper.isOre(id, meta) || (ReikaWorldHelper.softBlocks(id) && id != Blocks.snow))) {

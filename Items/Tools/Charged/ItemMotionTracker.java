@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Charged;
 
+import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Base.ItemChargedTool;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+
 import java.util.List;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -29,10 +34,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Base.ItemChargedTool;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
 
 public class ItemMotionTracker extends ItemChargedTool {
 

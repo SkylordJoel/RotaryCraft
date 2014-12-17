@@ -9,17 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
+import Reika.DragonAPI.Interfaces.IDRegistry;
+import Reika.RotaryCraft.RotaryCraft;
+
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
-import Reika.DragonAPI.Interfaces.IDRegistry;
-import Reika.RotaryCraft.RotaryCraft;
 
 public enum ExtraConfigIDs implements IDRegistry {
 
 	//ACHIEVEMENT("Extra IDs", "Achievement Base ID", 24000, null),
 
-	FREEZEID("Other IDs", "Freeze Potion ID", 35, Potion.class);
+	FREEZEID("Other IDs", "Freeze Potion ID", 35, Potion.class),
+	GROWTHID("Other IDs", "Growth Hormone ID", 36, Potion.class);
 	//DEAFID("Other IDs", "Deafness ID", 37, Potion.class);
 
 	private String name;
@@ -27,7 +29,7 @@ public enum ExtraConfigIDs implements IDRegistry {
 	private int defaultID;
 	private Class type;
 
-	public static final ExtraConfigIDs[] idList = values();
+	public static final ExtraConfigIDs[] idList = ExtraConfigIDs.values();
 
 	private ExtraConfigIDs(String cat, String n, int d, Class c) {
 		name = n;

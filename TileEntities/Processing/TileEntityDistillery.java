@@ -9,12 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Processing;
 
+import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidIO;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
-import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidIO;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityDistillery extends PoweredLiquidIO {
 
@@ -58,7 +59,7 @@ public class TileEntityDistillery extends PoweredLiquidIO {
 
 	@Override
 	public boolean canConnectToPipe(MachineRegistry m) {
-		return m == MachineRegistry.PIPE || m == MachineRegistry.HOSE || m == MachineRegistry.FUELLINE;
+		return m == MachineRegistry.PIPE || m == MachineRegistry.HOSE;
 	}
 
 	@Override
@@ -90,12 +91,12 @@ public class TileEntityDistillery extends PoweredLiquidIO {
 
 	@Override
 	public boolean canIntakeFromPipe(MachineRegistry p) {
-		return p == MachineRegistry.PIPE || p == MachineRegistry.HOSE || p == MachineRegistry.FUELLINE;
+		return p == MachineRegistry.PIPE;
 	}
 
 	@Override
 	public boolean canOutputToPipe(MachineRegistry p) {
-		return p == MachineRegistry.HOSE || p == MachineRegistry.PIPE || p == MachineRegistry.FUELLINE;
+		return p == MachineRegistry.HOSE || p == MachineRegistry.PIPE;
 	}
 
 	@Override

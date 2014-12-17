@@ -9,12 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.IFluidHandler;
 import Reika.DragonAPI.Instantiable.StepTimer;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaBiomeHelper;
@@ -23,7 +17,13 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.DiscreteFunction;
 import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
 import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidProducer;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.TileEntities.Piping.TileEntityPipe;
+
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.IFluidHandler;
 
 public class TileEntityAggregator extends PoweredLiquidProducer implements TemperatureTE, DiscreteFunction {
 
@@ -69,16 +69,7 @@ public class TileEntityAggregator extends PoweredLiquidProducer implements Tempe
 		for (int i = 2; i < 6; i++) {
 			ForgeDirection dir = dirs[i];
 			TileEntity te = this.getAdjacentTileEntity(dir);
-			if (te instanceof TileEntityPipe) {
-				TileEntityPipe p = (TileEntityPipe)te;
-				int dL = (tank.getLevel()-p.getFluidLevel())/4;
-				if (dL > 0 && (p.getFluidType() == null || tank.getActualFluid().equals(p.getFluidType()))) {
-					p.setFluid(tank.getActualFluid());
-					p.addFluid(dL);
-					tank.removeLiquid(dL);
-				}
-			}
-			else if (te instanceof IFluidHandler) {
+			if (te instanceof IFluidHandler) {
 				IFluidHandler ifl = (IFluidHandler)te;
 				int added = ifl.fill(dir.getOpposite(), tank.getFluid(), true);
 				if (added > 0) {
@@ -128,7 +119,7 @@ public class TileEntityAggregator extends PoweredLiquidProducer implements Tempe
 
 	@Override
 	public boolean canConnectToPipe(MachineRegistry m) {
-		return m.isStandardPipe();
+		return m == MachineRegistry.PIPE;
 	}
 
 	@Override

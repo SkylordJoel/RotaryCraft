@@ -9,14 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Engine;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.DragonAPI.Libraries.World.ReikaRedstoneHelper;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 public class TileEntityACEngine extends TileEntityEngine {
 
@@ -51,27 +53,21 @@ public class TileEntityACEngine extends TileEntityEngine {
 
 		if (!world.isRemote && ac && timer.checkCap("fuel")) {
 			int m = is.stackTagCompound.getInteger("magnet");
-			this.magnetize(is, m-1);
+			m--;
+			is.stackTagCompound.setInteger("magnet", m);
 		}
 
 		return ac;
 	}
 
-	private void magnetize(ItemStack is, int amt) {
-		if (amt > 0)
-			is.stackTagCompound.setInteger("magnet", amt);
-		else {
-			is.stackTagCompound.removeTag("magnet");
-			if (is.stackTagCompound.hasNoTags())
-				is.stackTagCompound = null;
-		}
-	}
-
 	@Override
-	protected void playSounds(World world, int x, int y, int z, float pitchMultiplier, float volume) {
+	protected void playSounds(World world, int x, int y, int z, float pitchMultiplier) {
 		soundtick++;
+		if (!ConfigRegistry.ENGINESOUNDS.getState())
+			return;
+		float volume = 1;
 		if (this.isMuffled(world, x, y, z)) {
-			volume *= 0.3125F;
+			volume = 0.3125F;
 		}
 
 		if (soundtick < this.getSoundLength(1F/pitchMultiplier) && soundtick < 2000)

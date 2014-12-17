@@ -9,6 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Auxiliary;
 
+import Reika.DragonAPI.Instantiable.HybridTank;
+import Reika.DragonAPI.Libraries.Java.ReikaStringParser;
+import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
+import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
+import Reika.RotaryCraft.ModInterface.TileEntityFuelEngine;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -17,15 +26,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
-import Reika.DragonAPI.Instantiable.HybridTank;
-import Reika.DragonAPI.Libraries.Java.ReikaStringParser;
-import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
-import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
-import Reika.RotaryCraft.ModInterface.TileEntityFuelEngine;
-import Reika.RotaryCraft.Registry.EngineType.EngineClass;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityEngineController extends RotaryCraftTileEntity implements PipeConnector, IFluidHandler {
 
@@ -34,8 +34,6 @@ public class TileEntityEngineController extends RotaryCraftTileEntity implements
 	private HybridTank tank = new HybridTank("ecu", FUELCAP);
 
 	public boolean redstoneMode;
-	private int redstoneTick = 0;
-	private int prevRedstone;
 
 	private EngineSettings setting = EngineSettings.FULL;
 
@@ -74,7 +72,7 @@ public class TileEntityEngineController extends RotaryCraftTileEntity implements
 	}
 
 	public boolean canProducePower() {
-		if (prevRedstone > 0 && !redstoneMode)
+		if (worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord) && !redstoneMode)
 			return false;
 		return setting.speedFactor != 0;
 	}
@@ -95,11 +93,8 @@ public class TileEntityEngineController extends RotaryCraftTileEntity implements
 		return 0;
 	}
 
-	public int getFuelMultiplier(EngineClass e) {
-		int base = setting.fuelFactor;
-		if (e == EngineClass.TURBINE)
-			base /= 8;
-		return Math.max(1, base);
+	public int getFuelMultiplier() {
+		return setting.fuelFactor;
 	}
 
 	public float getSoundStretch() {
@@ -139,16 +134,8 @@ public class TileEntityEngineController extends RotaryCraftTileEntity implements
 
 	@Override
 	public void updateEntity(World world, int x, int y, int z, int meta) {
-
-		if (redstoneTick > 0)
-			redstoneTick--;
-		int power = redstoneTick == 0 ? world.getBlockPowerInput(x, y, z) : prevRedstone;
-		if (prevRedstone != power)
-			redstoneTick = 60;
-		prevRedstone = power;
-		//ReikaJavaLibrary.pConsole(prevRedstone+":"+this.canProducePower(), Side.SERVER);
-
 		if (redstoneMode) {
+			int power = world.getBlockPowerInput(x, y, z);
 			setting = power == 15 ? EngineSettings.SHUTDOWN : EngineSettings.list[4-power/3];
 		}
 		//ReikaJavaLibrary.pConsole(tank);

@@ -9,6 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Weaponry;
 
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityInventoriedCannon;
+import Reika.RotaryCraft.Entities.EntityFreezeGunShot;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,14 +28,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityInventoriedCannon;
-import Reika.RotaryCraft.Entities.EntityFreezeGunShot;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityFreezeGun extends TileEntityInventoriedCannon {
 
@@ -56,14 +57,9 @@ public class TileEntityFreezeGun extends TileEntityInventoriedCannon {
 
 	private void convertSnow() {
 		int slot = ReikaInventoryHelper.locateInInventory(Blocks.snow, inv);
-		if (slot != -1 && ReikaInventoryHelper.canAcceptMoreOf(Items.snowball, 0, 4, this)) {
+		if (slot != -1 && ReikaInventoryHelper.canAcceptMoreOf(Items.snowball, 0, inv)) {
 			ReikaInventoryHelper.decrStack(slot, inv);
 			ReikaInventoryHelper.addToIInv(new ItemStack(Items.snowball, 4, 0), this);
-		}
-		slot = ReikaInventoryHelper.locateInInventory(Blocks.ice, inv);
-		if (slot != -1 && ReikaInventoryHelper.canAcceptMoreOf(Items.snowball, 0, 16, this)) {
-			ReikaInventoryHelper.decrStack(slot, inv);
-			ReikaInventoryHelper.addToIInv(new ItemStack(Items.snowball, 16, 0), this);
 		}
 	}
 
@@ -102,10 +98,11 @@ public class TileEntityFreezeGun extends TileEntityInventoriedCannon {
 		double[] xyzb = new double[4];
 		int r = this.getRange();
 		AxisAlignedBB range = AxisAlignedBB.getBoundingBox(x-r, y-r, z-r, x+1+r, y+1+r, z+1+r);
-		List<EntityLivingBase> inrange = world.getEntitiesWithinAABB(EntityLivingBase.class, range);
+		List inrange = world.getEntitiesWithinAABB(EntityLivingBase.class, range);
 		double mindist = this.getRange()+2;
-		EntityLivingBase i_at_min = null;
-		for (EntityLivingBase ent : inrange) {
+		int i_at_min = -1;
+		for (int i = 0; i < inrange.size(); i++) {
+			EntityLivingBase ent = (EntityLivingBase)inrange.get(i);
 			double dist = ReikaMathLibrary.py3d(ent.posX-x-0.5, ent.posY-y-0.5, ent.posZ-z-0.5);
 			if (this.isValidTarget(ent)) {
 				if (ReikaWorldHelper.canBlockSee(world, x, y, z, ent.posX, ent.posY, ent.posZ, this.getRange())) {
@@ -116,18 +113,19 @@ public class TileEntityFreezeGun extends TileEntityInventoriedCannon {
 						if ((reqtheta <= dir*MAXLOWANGLE && dir == -1) || (reqtheta >= dir*MAXLOWANGLE && dir == 1))
 							if (dist < mindist && !ent.getActivePotionEffects().contains(RotaryCraft.freeze)) {
 								mindist = dist;
-								i_at_min = ent;
+								i_at_min = i;
 							}
 					}
 				}
 			}
 		}
-		if (i_at_min == null)
+		if (i_at_min == -1)
 			return xyzb;
-		closestMob = i_at_min;
-		xyzb[0] = closestMob.posX+this.randomOffset();
-		xyzb[1] = closestMob.posY+closestMob.getEyeHeight()*0.25+this.randomOffset();
-		xyzb[2] = closestMob.posZ+this.randomOffset();
+		EntityLivingBase ent = (EntityLivingBase)inrange.get(i_at_min);
+		closestMob = ent;
+		xyzb[0] = ent.posX+this.randomOffset();
+		xyzb[1] = ent.posY+ent.getEyeHeight()*0.25+this.randomOffset();
+		xyzb[2] = ent.posZ+this.randomOffset();
 		xyzb[3] = 1;
 		return xyzb;
 	}

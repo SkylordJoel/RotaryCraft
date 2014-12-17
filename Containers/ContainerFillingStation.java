@@ -9,14 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
-import net.minecraft.entity.player.EntityPlayer;
+import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Instantiable.ArmorSlot;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
 import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.ContainerIOMachine;
 import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityFillingStation;
 
-public class ContainerFillingStation extends ContainerIOMachine {
+import net.minecraft.entity.player.EntityPlayer;
+
+public class ContainerFillingStation extends CoreContainer {
 
 	private TileEntityFillingStation tile;
 

@@ -9,24 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Placers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.block.material.Material;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.world.World;
-
-import org.lwjgl.input.Keyboard;
-
 import Reika.DragonAPI.Libraries.MathSci.ReikaEngLibrary;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
@@ -48,6 +30,25 @@ import Reika.RotaryCraft.Registry.PowerReceivers;
 import Reika.RotaryCraft.TileEntities.Storage.TileEntityScaleableChest;
 import Reika.RotaryCraft.TileEntities.Surveying.TileEntityGPR;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityPowerBus;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.world.World;
+
+import org.lwjgl.input.Keyboard;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -82,7 +83,7 @@ public class ItemMachinePlacer extends ItemBlockPlacer {
 		List inblock = world.getEntitiesWithinAABB(EntityLivingBase.class, box);
 		if (inblock.size() > 0)
 			return false;
-		MachineRegistry m = MachineRegistry.machineList.get(is.getItemDamage());
+		MachineRegistry m = MachineRegistry.machineList[is.getItemDamage()];
 		if (!ep.canPlayerEdit(x, y, z, 0, is))
 			return false;
 		else
@@ -219,7 +220,7 @@ public class ItemMachinePlacer extends ItemBlockPlacer {
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List) {
 		for (int i = 0; i < MachineRegistry.machineList.length; i++) {
-			MachineRegistry m = MachineRegistry.machineList.get(i);
+			MachineRegistry m = MachineRegistry.machineList[i];
 			if (!m.hasCustomPlacerItem() && m.isAvailableInCreativeInventory()) {
 				ItemMachineRenderer ir = ClientProxy.machineItems;
 				TileEntity te = m.createTEInstanceForRender(0);
@@ -257,14 +258,14 @@ public class ItemMachinePlacer extends ItemBlockPlacer {
 
 	@Override
 	public int getMetadata(int meta) {
-		return MachineRegistry.machineList.get(meta).getMachineMetadata();
+		return MachineRegistry.machineList[meta].getMachineMetadata();
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void addInformation(ItemStack is, EntityPlayer ep, List li, boolean verbose) {
 		int i = is.getItemDamage();
-		MachineRegistry m = MachineRegistry.machineList.get(i);
+		MachineRegistry m = MachineRegistry.machineList[i];
 		ItemMachineRenderer ir = ClientProxy.machineItems;
 		TileEntity te = ir.getRenderingInstance(m, 0);
 		if (m.isIncomplete()) {

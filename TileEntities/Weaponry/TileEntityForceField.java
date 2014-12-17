@@ -9,6 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Weaponry;
 
+import Reika.DragonAPI.ModList;
+import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
+import Reika.DragonAPI.ModInteract.ModExplosiveHandler;
+import Reika.MeteorCraft.Entity.EntityMeteor;
+import Reika.RotaryCraft.Auxiliary.Interfaces.EnchantableMachine;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityProtectionDome;
+import Reika.RotaryCraft.Entities.EntityRailGunShot;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import icbm.api.IMissile;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,17 +52,6 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
-import Reika.DragonAPI.ModInteract.ModExplosiveHandler;
-import Reika.DragonAPI.ModRegistry.InterfaceCache;
-import Reika.MeteorCraft.Entity.EntityMeteor;
-import Reika.RotaryCraft.Auxiliary.Interfaces.EnchantableMachine;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityProtectionDome;
-import Reika.RotaryCraft.Entities.EntityRailGunShot;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityForceField extends TileEntityProtectionDome implements EnchantableMachine {
 
@@ -83,13 +85,14 @@ public class TileEntityForceField extends TileEntityProtectionDome implements En
 		this.spawnParticles(world, x, y, z);
 		this.setColor(64*4/tickcount, 128+128*4/tickcount, 255);
 		AxisAlignedBB field = this.getRangedBox();
-		List<Entity> threats = world.getEntitiesWithinAABB(Entity.class, field);
-		for (Entity e : threats) {
-			this.protect(world, e);
+		List threats = world.getEntitiesWithinAABB(Entity.class, field);
+		for (int i = 0; i < threats.size(); i++) {
+			this.protect(world, threats, i);
 		}
 	}
 
-	private void protect(World world, Entity threat) {
+	private void protect(World world, List threats, int i) {
+		Entity threat = (Entity)threats.get(i);
 		double x = threat.posX;
 		double y = threat.posY;
 		double z = threat.posZ;
@@ -131,7 +134,7 @@ public class TileEntityForceField extends TileEntityProtectionDome implements En
 					List var2 = Items.potionitem.getEffects(((EntityPotion)threat).getPotionDamage());
 					if (var2 != null && !var2.isEmpty()) {
 						AxisAlignedBB var3 = ((EntityPotion)threat).boundingBox.expand(4.0D, 2.0D, 4.0D);
-						List<EntityPotion> var4 = ((EntityPotion)threat).worldObj.getEntitiesWithinAABB(EntityLivingBase.class, var3);
+						List var4 = ((EntityPotion)threat).worldObj.getEntitiesWithinAABB(EntityLivingBase.class, var3);
 						if (var4 != null && !var4.isEmpty()) {
 							Iterator var5 = var4.iterator();
 							while (var5.hasNext()) {
@@ -209,7 +212,7 @@ public class TileEntityForceField extends TileEntityProtectionDome implements En
 					world.createExplosion(null, x, y, z, 4F, true);
 				tickcount = 0;
 			}
-			if (InterfaceCache.IMISSILE.instanceOf(threat)) {
+			if (threat instanceof IMissile) {
 				threat.setDead();
 				if (!world.isRemote)
 					world.createExplosion(null, x, y, z, 4F, true);

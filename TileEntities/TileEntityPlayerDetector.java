@@ -9,12 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities;
 
-import java.util.List;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
 import Reika.DragonAPI.Interfaces.GuiController;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
@@ -22,8 +16,15 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 
+import java.util.List;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+
 public class TileEntityPlayerDetector extends TileEntityPowerReceiver implements GuiController, RangedEffect {
-	public static final int FALLOFF = 128; // 1kW per meter range
+	public static final int FALLOFF = 1024; // 1kW per meter range
 	public static final int SPEEDFACTOR = 32; //32 rad/s per -tick
 	public static final int BASESPEED = 100; //5s reaction time by default
 
@@ -109,7 +110,7 @@ public class TileEntityPlayerDetector extends TileEntityPowerReceiver implements
 		//else
 		inbox = world.getEntitiesWithinAABB(EntityPlayer.class, box);
 		//ModLoader.getMinecraftInstance().thePlayer.addChatMessage(String.format("%d", inbox.size()));
-		return inbox.size() > 0;
+		return (inbox.size() > 0);
 	}
 
 	public int getRange() {

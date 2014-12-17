@@ -9,6 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Storage;
 
+import Reika.DragonAPI.Interfaces.MultiPageInventory;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
+import Reika.RotaryCraft.Containers.ContainerScaleChest;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,13 +28,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import Reika.DragonAPI.Interfaces.MultiPageInventory;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper.NBTTypes;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
-import Reika.RotaryCraft.Containers.ContainerScaleChest;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
 
 
 public class TileEntityScaleableChest extends InventoriedPowerReceiver implements MultiPageInventory {
@@ -316,7 +316,7 @@ public class TileEntityScaleableChest extends InventoriedPowerReceiver implement
 
 	public void readInventoryFromItem(ItemStack is) {
 		if (is.stackTagCompound != null) {
-			NBTTagList nbttaglist = is.stackTagCompound.getTagList("Items", NBTTypes.COMPOUND.ID);
+			NBTTagList nbttaglist = is.stackTagCompound.getTagList("Items", is.stackTagCompound.getId());
 			inv = new ItemStack[this.getSizeInventory()];
 
 			for (int i = 0; i < nbttaglist.tagCount(); i++)

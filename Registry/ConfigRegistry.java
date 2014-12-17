@@ -9,7 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
-import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Auxiliary.EnumDifficulty;
 import Reika.DragonAPI.Interfaces.ConfigList;
 import Reika.RotaryCraft.RotaryConfig;
@@ -19,7 +18,6 @@ import Reika.RotaryCraft.RotaryCraft;
 public enum ConfigRegistry implements ConfigList {
 
 	ENGINESOUNDS("Engine Running Sounds", true),
-	ENGINEVOLUME("Engine Volume", 1F),
 	GPRORES("GPR Renders Ores", true),
 	INSTACUT("Instant Woodcutter", true),
 	RENDERFORCEFIELD("Show Force Fields", true),
@@ -58,13 +56,13 @@ public enum ConfigRegistry implements ConfigList {
 	RAILGUNDAMAGE("Railgun Block Damage", true),
 	GRAVELPLAYER("Allow Gravel Gun PvP", true),
 	CHESTGEN("Chest Generation Tier", 4),
-	//HOSTILECRASH("Crash on hostile interference from other mods", true),
+	HOSTILECRASH("Crash on hostile interference from other mods", true),
 	PROJECTORLINES("Render projector lines", true),
 	COLORBLIND("Color Blind Mode", false),
 	TURRETPLAYERS("Turrets can target players", true),
 	HSLADICT("Allow RC steel to be used in other mods", false),
 	PREENCHANT("Lock enchants on bedrock tools", true),
-	//EXPLODEPACK("Explode jetpack if player is in lava", true),
+	EXPLODEPACK("Explode jetpack if player is in lava", true),
 	SPRINKLER("Sprinkler Particle Density", 4),
 	HANDBOOK("Spawn with RC Handbook", true),
 	CONSERVEPACK("Conservative Jetpack Firing", true),
@@ -74,22 +72,13 @@ public enum ConfigRegistry implements ConfigList {
 	FLOWSPEED("Fluid Flow Speed", 5),
 	ATTACKBLOCKS("Block Damage from Destructive Machines", true),
 	VOIDHOLE("Allow Bedrock Breaker to Break Y=0", false),
-	JETFUELPACK("Jetpack Requires Jet Fuel", false),
+	JETFUELPACK("Jetpack Uses Jet Fuel", false),
 	ALLOWTNTCANNON("Allow TNT Cannon", true),
-	ALLOWEMP("Allow EMP", true),
 	EXTRAIRON("Iron Ore Density", 1F),
 	TEGLASS("Allow Blast Glass to be Used as TE Hardened Glass", false),
 	CLEARCHAT("Tools Clear Chat", true),
 	KICKFLYING("Jetpack bypasses allow-flight property", true),
-	BLOWERSPILL("Item Pump Spills Items If Dumping To Air", true),
-	EXTRACTORMAINTAIN("Extractor Drill Wears Down", false),
-	HARDGRAVELGUN("Hardmode Gravel Gun", false),
-	BORERMAINTAIN("Borer Requires Maintenance", false),
-	NOMINERS("Disable Automining Machines", false),
-	HARDEU("Hard Mode EU Compatibility", ModList.GREGTECH.isLoaded()),
-	PIPEHARDNESS("Pipe Block Hardness", 0F),
-	BLASTMAT("Blast Furnace Crafting Material", 0),
-	FRICTIONXP("Spawn XP from Friction Heater", true);
+	BLOWERSPILL("Item Pump Spills Items If Dumping To Air", true);
 
 	private String label;
 	private boolean defaultState;

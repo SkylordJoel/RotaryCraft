@@ -9,10 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary.Interfaces;
 
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidStack;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
 import Reika.RotaryCraft.Registry.MachineRegistry;
+
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
 
 /** To declare a machine output-only, return 0 for addFluid for all cases.
  * To declare a machine input-only, return 0 for removeFluid for all cases. */
@@ -21,7 +22,7 @@ public interface PipeConnector {
 	public boolean canConnectToPipe(MachineRegistry m);
 
 	/** Side is relative to the piping block (so DOWN means the block is below the pipe); p is the pipe type */
-	public boolean canConnectToPipeOnSide(MachineRegistry m, ForgeDirection side);
+	public boolean canConnectToPipeOnSide(MachineRegistry p, ForgeDirection side);
 
 	/** This is for "can this TE accept fluid f on this side EVER", not for
 	 * "if tank has space and can accept fluid f" */
