@@ -9,17 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
+import net.minecraft.block.Block;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.DragonAPI.ModInteract.ReikaBuildCraftHelper;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import cofh.api.energy.IEnergyHandler;
 
 public class TileEntityDynamo extends TileEntityPowerReceiver implements IEnergyHandler {
@@ -66,11 +64,12 @@ public class TileEntityDynamo extends TileEntityPowerReceiver implements IEnergy
 		int writey = y+write.offsetY;
 		int writez = z+write.offsetZ;
 		if (power > 0) {
-			Block b = world.getBlock(writex, writey, writez);
-			if (b != Blocks.air) {
+			int id = world.getBlockId(writex, writey, writez);
+			if (id != 0) {
+				Block b = Block.blocksList[id];
 				int metadata = world.getBlockMetadata(writex, writey, writez);
 				if (b.hasTileEntity(metadata)) {
-					TileEntity tile = world.getTileEntity(writex, writey, writez);
+					TileEntity tile = world.getBlockTileEntity(writex, writey, writez);
 					if (tile instanceof IEnergyHandler) {
 						IEnergyHandler rc = (IEnergyHandler)tile;
 						if (rc.canInterface(facingDir.getOpposite())) {

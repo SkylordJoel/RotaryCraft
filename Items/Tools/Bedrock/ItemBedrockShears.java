@@ -9,12 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Bedrock;
 
-import Reika.DragonAPI.Interfaces.IndexedItemSprites;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.ModRegistry.ModWoodList;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -24,18 +18,22 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemShears;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IShearable;
+import Reika.DragonAPI.Interfaces.IndexedItemSprites;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.ModRegistry.ModWoodList;
+import Reika.RotaryCraft.RotaryCraft;
 
 public class ItemBedrockShears extends ItemShears implements IndexedItemSprites {
 
 	private int index;
 
-	public ItemBedrockShears(int tex) {
+	public ItemBedrockShears(int ID, int tex) {
+		super(ID);
 		this.setIndex(tex);
 		maxStackSize = 1;
 		this.setMaxDamage(0);
@@ -73,13 +71,13 @@ public class ItemBedrockShears extends ItemShears implements IndexedItemSprites 
 	}
 
 	@Override
-	public boolean onBlockDestroyed(ItemStack par1ItemStack, World par2World, Block par3, int par4, int par5, int par6, EntityLivingBase par7EntityLivingBase)
+	public boolean onBlockDestroyed(ItemStack par1ItemStack, World par2World, int par3, int par4, int par5, int par6, EntityLivingBase par7EntityLivingBase)
 	{
 		return true;
 	}
 
 	@Override
-	public boolean canHarvestBlock(Block par1Block, ItemStack is)
+	public boolean canHarvestBlock(Block par1Block)
 	{
 		return true;
 	}
@@ -90,16 +88,17 @@ public class ItemBedrockShears extends ItemShears implements IndexedItemSprites 
 		if (player.worldObj.isRemote)
 			return false;
 		else {
-			Block b = player.worldObj.getBlock(x, y, z);
+			int id = player.worldObj.getBlockId(x, y, z);
 			int meta = player.worldObj.getBlockMetadata(x, y, z);
 			boolean drop = false;
 			boolean flag = false;
+			Block b = Block.blocksList[id];
 			if (b != null) {
 				if (b instanceof IShearable) {
 					drop = true;
 					flag = true;
 				}
-				else if (b.getMaterial() == Material.plants) {
+				else if (b.blockMaterial == Material.plants) {
 					drop = true;
 					flag = true;
 				}
@@ -107,22 +106,22 @@ public class ItemBedrockShears extends ItemShears implements IndexedItemSprites 
 					flag = super.onBlockStartBreak(is, x, y, z, player);
 			}
 			if (drop) {
-				ItemStack block = new ItemStack(b, 1, this.getDroppedMeta(b, meta));
+				ItemStack block = new ItemStack(id, 1, this.getDroppedMeta(id, meta));
 				ReikaItemHelper.dropItem(player.worldObj, x+0.5, y+0.5, z+0.5, block);
-				player.worldObj.setBlockToAir(x, y, z);
+				player.worldObj.setBlock(x, y, z, 0);
 			}
 			return flag;
 		}
 	}
 
-	private int getDroppedMeta(Block id, int meta) {
-		if (id == Blocks.leaves || id == Blocks.leaves2)
+	private int getDroppedMeta(int id, int meta) {
+		if (id == Block.leaves.blockID)
 			return meta&3;
-		if (id == Blocks.vine)
+		if (id == Block.vine.blockID)
 			return 0;
-		if (id == Blocks.waterlily)
+		if (id == Block.waterlily.blockID)
 			return 0;
-		if (id == Blocks.sapling)
+		if (id == Block.sapling.blockID)
 			return meta&3;
 		ModWoodList wood = ModWoodList.getModWoodFromLeaf(id, meta);
 		if (wood != null) {
@@ -157,29 +156,24 @@ public class ItemBedrockShears extends ItemShears implements IndexedItemSprites 
 	}
 
 	@Override
-	public float getDigSpeed(ItemStack is, Block b, int meta)
+	public float getStrVsBlock(ItemStack is, Block b)
 	{
 		float f = 0.75F;
 		if (b != null) {
 			if (b instanceof IShearable) {
 				f = 8F;
 			}
-			else if (b.getMaterial() == Material.plants) {
+			else if (b.blockMaterial == Material.plants) {
 				f = 8F;
 			}
-			else if (b.getMaterial() == Material.web || b == Blocks.web) {
+			else if (b.blockMaterial == Material.web || b.blockID == Block.web.blockID) {
 				f = 40F;
 			}
-			else if (b.getMaterial() == Material.cloth || b == Blocks.wool) {
+			else if (b.blockMaterial == Material.cloth || b.blockID == Block.cloth.blockID) {
 				f = 16;
 			}
 		}
 		return f;
-	}
-
-	@Override
-	public String getItemStackDisplayName(ItemStack is) {
-		return ItemRegistry.getEntry(is).getBasicName();
 	}
 
 }

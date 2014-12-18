@@ -9,18 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Base.ItemRotaryTool;
 import Reika.RotaryCraft.Registry.GuiRegistry;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-
 public class ItemHandBook extends ItemRotaryTool {
 
-	public ItemHandBook(int tex) {
-		super(tex);
+	public ItemHandBook(int ID, int tex) {
+		super(ID, tex);
 	}
 
 	@Override

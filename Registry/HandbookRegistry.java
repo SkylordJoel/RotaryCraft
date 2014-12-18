@@ -9,6 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
 import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
 import Reika.RotaryCraft.RotaryCraft;
@@ -19,15 +27,6 @@ import Reika.RotaryCraft.Auxiliary.RotaryDescriptions;
 import Reika.RotaryCraft.Auxiliary.Interfaces.HandbookEntry;
 import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 
 public enum HandbookRegistry implements HandbookEntry {
 
@@ -943,7 +942,7 @@ public enum HandbookRegistry implements HandbookEntry {
 		if (this == TERMS)
 			return ItemRegistry.HANDBOOK.getStackOf();
 		if (this == PHYSICS)
-			return new ItemStack(Items.book);
+			return new ItemStack(Item.book);
 		if (this == MATERIAL)
 			return ItemStacks.steelingot;
 		if (this == SHAFTS)
@@ -957,9 +956,9 @@ public enum HandbookRegistry implements HandbookEntry {
 		if (this == MODINTERFACE)
 			return MachineRegistry.COMPRESSOR.getCraftedProduct();
 		if (this == ENCHANTING)
-			return new ItemStack(Items.enchanted_book);
+			return new ItemStack(Item.enchantedBook);
 		if (this == TIMING)
-			return new ItemStack(Items.clock);
+			return new ItemStack(Item.pocketSundial);
 		if (this == COMPUTERCRAFT)
 			return ItemStacks.pcb;
 		if (this == TRANSFER)
@@ -1021,9 +1020,9 @@ public enum HandbookRegistry implements HandbookEntry {
 		if (this == COMPACTS)
 			return ItemStacks.prismane;
 		if (this == GLASS)
-			return BlockRegistry.BLASTGLASS.getStackOf();
+			return new ItemStack(RotaryCraft.blastglass);
 		if (this == SPAWNERS)
-			return ItemRegistry.SPAWNER.getStackOf();
+			return new ItemStack(RotaryCraft.spawner);
 		if (this == YEAST)
 			return ItemStacks.sludge;
 		if (this == SALT)

@@ -9,6 +9,20 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Weaponry;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.effect.EntityLightningBolt;
+import net.minecraft.entity.item.EntityTNTPrimed;
+import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.item.EnumArmorMaterial;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.MinecraftForge;
 import Reika.DragonAPI.Libraries.ReikaAABBHelper;
 import Reika.DragonAPI.Libraries.ReikaEntityHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
@@ -21,22 +35,6 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
 import Reika.RotaryCraft.Entities.EntityDischarge;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.effect.EntityLightningBolt;
-import net.minecraft.entity.item.EntityTNTPrimed;
-import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemArmor.ArmorMaterial;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.DamageSource;
-import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityVanDeGraff extends TileEntityPowerReceiver implements RangedEffect {
 
@@ -58,14 +56,15 @@ public class TileEntityVanDeGraff extends TileEntityPowerReceiver implements Ran
 				int dx = x+dir.offsetX;
 				int dy = y+dir.offsetY;
 				int dz = z+dir.offsetZ;
-				Block b = world.getBlock(dx, dy, dz);
+				int id = world.getBlockId(dx, dy, dz);
 				int metadata = world.getBlockMetadata(dx, dy, dz);
-				if (b != Blocks.air) {
-					Material mat = b.getMaterial();
+				if (id != 0) {
+					Block b = Block.blocksList[id];
+					Material mat = b.blockMaterial;
 					MachineRegistry m = MachineRegistry.getMachine(world, dx, dy, dz);
 					if (m != MachineRegistry.VANDEGRAFF) {
 						if (b.hasTileEntity(metadata)) {
-							TileEntity te = world.getTileEntity(dx, dy, dz);
+							TileEntity te = world.getBlockTileEntity(dx, dy, dz);
 							if (te instanceof Shockable) {
 								this.dischargeToBlock(dx, dy, dz, (Shockable)te);
 								return;
@@ -79,9 +78,9 @@ public class TileEntityVanDeGraff extends TileEntityPowerReceiver implements Ran
 							this.dischargeToBlock(dx, dy, dz, null);
 							return;
 						}
-						else if (b == Blocks.tnt) {
+						else if (id == Block.tnt.blockID) {
 							this.dischargeToBlock(dx, dy, dz, null);
-							world.setBlockToAir(dx, dy, dz);
+							world.setBlock(dx, dy, dz, 0);
 							EntityTNTPrimed var6 = new EntityTNTPrimed(world, dx+0.5D, dy+0.5D, dz+0.5D, null);
 							if (!world.isRemote)
 								world.spawnEntityInWorld(var6);
@@ -126,7 +125,7 @@ public class TileEntityVanDeGraff extends TileEntityPowerReceiver implements Ran
 		EntityLightningBolt b = new EntityLightningBolt(world, x+0.5, y, z+0.5);
 		world.spawnEntityInWorld(b);
 		charge = 0;
-		world.setBlockToAir(x, y, z);
+		world.setBlock(x, y, z, 0);
 		world.newExplosion(null, x+0.5, y+0.5, z+0.5, 4F, true, true);
 	}
 
@@ -153,9 +152,9 @@ public class TileEntityVanDeGraff extends TileEntityPowerReceiver implements Ran
 	private void shock(EntityLivingBase e) {
 		int dmg = this.getAttackDamage();
 
-		if (ReikaEntityHelper.isEntityWearingFullSuitOf(e, ArmorMaterial.CHAIN))
+		if (ReikaEntityHelper.isEntityWearingFullSuitOf(e, EnumArmorMaterial.CHAIN))
 			dmg = 0;
-		else if (ReikaEntityHelper.isEntityWearingFullSuitOf(e, ArmorMaterial.CLOTH))
+		else if (ReikaEntityHelper.isEntityWearingFullSuitOf(e, EnumArmorMaterial.CLOTH))
 			dmg /= 2;
 
 		if (dmg > 0) {

@@ -9,22 +9,20 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Decorative;
 
+import java.util.List;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
 import Reika.DragonAPI.Base.OneSlotMachine;
 import Reika.DragonAPI.Interfaces.GuiController;
 import Reika.DragonAPI.Interfaces.InertIInv;
 import Reika.DragonAPI.Libraries.Registry.ReikaDyeHelper;
 import Reika.RotaryCraft.Base.TileEntity.TileEntitySpringPowered;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import java.util.List;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
 
 public class TileEntityDisplay extends TileEntitySpringPowered implements InertIInv, GuiController, OneSlotMachine {
 
@@ -149,7 +147,7 @@ public class TileEntityDisplay extends TileEntitySpringPowered implements InertI
 			else
 				a = j;
 			for (int i = 1; i <= 3; i++) {
-				if (world.getBlock(x+a, y+i, z+b) != Blocks.air)
+				if (world.getBlockId(x+a, y+i, z+b) != 0)
 					return false;
 			}
 		}

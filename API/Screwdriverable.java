@@ -10,7 +10,7 @@
 package Reika.RotaryCraft.API;
 
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.common.ForgeDirection;
 
 public interface Screwdriverable {
 

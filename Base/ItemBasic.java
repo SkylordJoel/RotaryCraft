@@ -9,6 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
+import java.util.Random;
+
+import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import Reika.DragonAPI.Interfaces.IndexedItemSprites;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.RotaryCraft.RotaryCraft;
@@ -17,15 +25,6 @@ import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.MaterialRegistry;
 import Reika.RotaryCraft.Registry.RotaryAchievements;
-
-import java.util.Random;
-
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -35,13 +34,15 @@ public class ItemBasic extends Item implements IndexedItemSprites {
 
 	private int index;
 
-	public ItemBasic(int tex) {
+	public ItemBasic(int ID, int tex) {
+		super(ID);
 		maxStackSize = 64;
 		this.setCreativeTab(this.isAvailableInCreativeMode() ? this.getCreativePage() : null);
 		this.setIndex(tex);
 	}
 
 	public ItemBasic(int ID, int tex, int max) {
+		super(ID);
 		maxStackSize = max;
 		if (max == 1);
 		hasSubtypes = true;
@@ -72,7 +73,7 @@ public class ItemBasic extends Item implements IndexedItemSprites {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public final void registerIcons(IIconRegister ico) {}
+	public final void registerIcons(IconRegister ico) {}
 
 	@Override
 	public void onCreated(ItemStack is, World world, EntityPlayer ep) {
@@ -84,18 +85,18 @@ public class ItemBasic extends Item implements IndexedItemSprites {
 			RotaryAchievements.MAKERAILGUN.triggerAchievement(player);
 		//if (ReikaItemHelper.matchStacks(item, new ItemStack(RotaryCraft.engineitems.itemID, 1, EngineType.JET.ordinal())))
 		//	RotaryAchievements.MAKEJET.triggerAchievement(player);
-		if (ReikaItemHelper.matchStacks(item, new ItemStack(ItemRegistry.SHAFT.getItemInstance(), 1, MaterialRegistry.STEEL.ordinal())))
+		if (ReikaItemHelper.matchStacks(item, new ItemStack(RotaryCraft.shaftitems.itemID, 1, MaterialRegistry.STEEL.ordinal())))
 			RotaryAchievements.STEELSHAFT.triggerAchievement(player);
 		if (ReikaItemHelper.matchStacks(item, ItemStacks.pcb))
 			RotaryAchievements.PCB.triggerAchievement(player);
-		if (ReikaItemHelper.matchStacks(item, new ItemStack(ItemRegistry.SHAFT.getItemInstance(), 1, MaterialRegistry.BEDROCK.ordinal())))
+		if (ReikaItemHelper.matchStacks(item, new ItemStack(RotaryCraft.shaftitems.itemID, 1, MaterialRegistry.BEDROCK.ordinal())))
 			RotaryAchievements.BEDROCKSHAFT.triggerAchievement(player);
-		if (ReikaItemHelper.matchStacks(item, new ItemStack(ItemRegistry.ADVGEAR.getItemInstance(), 1, 1)))
+		if (ReikaItemHelper.matchStacks(item, new ItemStack(RotaryCraft.advgearitems.itemID, 1, 1)))
 			RotaryAchievements.CVT.triggerAchievement(player);
 		if (ItemRegistry.isRegistered(item) && ItemRegistry.getEntry(item).isBedrockTool())
 			RotaryAchievements.BEDROCKTOOLS.triggerAchievement(player);
 		for (int i = 0; i < 4; i++) {
-			if (ReikaItemHelper.matchStacks(item, new ItemStack(ItemRegistry.GEARBOX.getItemInstance(), 1, MaterialRegistry.DIAMOND.ordinal()+i*5)))
+			if (ReikaItemHelper.matchStacks(item, new ItemStack(RotaryCraft.gbxitems.itemID, 1, MaterialRegistry.DIAMOND.ordinal()+i*5)))
 				RotaryAchievements.DIAMONDGEARS.triggerAchievement(player);
 		}
 	}
@@ -108,11 +109,5 @@ public class ItemBasic extends Item implements IndexedItemSprites {
 	public String getTexture(ItemStack is) {
 		ItemRegistry item = ItemRegistry.getEntry(is);
 		return item != null ? "/Reika/RotaryCraft/Textures/Items/items2.png" : "/Reika/RotaryCraft/Textures/Items/items1.png";
-	}
-
-	@Override
-	public String getItemStackDisplayName(ItemStack is) {
-		ItemRegistry ir = ItemRegistry.getEntry(is);
-		return ir.hasMultiValuedName() ? ir.getMultiValuedName(is.getItemDamage()) : ir.getBasicName();
 	}
 }

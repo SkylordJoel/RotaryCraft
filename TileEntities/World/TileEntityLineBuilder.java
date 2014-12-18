@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.World;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.DragonAPI.Instantiable.StepTimer;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
@@ -22,14 +27,6 @@ import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
-
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityLineBuilder extends InventoriedPowerReceiver implements RangedEffect, ConditionalOperation, DiscreteFunction {
 
@@ -123,15 +120,15 @@ public class TileEntityLineBuilder extends InventoriedPowerReceiver implements R
 			int rx2 = x+dir.offsetX*(i+1);
 			int ry2 = y+dir.offsetY*(i+1);
 			int rz2 = z+dir.offsetZ*(i+1);
-			Block b = world.getBlock(rx, ry, rz);
+			int id = world.getBlockId(rx, ry, rz);
 			int meta = world.getBlockMetadata(rx, ry, rz);
-			world.setBlock(rx2, ry2, rz2, b, meta, 3);
-			world.setBlockToAir(rx, ry, rz);
+			world.setBlock(rx2, ry2, rz2, id, meta, 3);
+			world.setBlock(rx, ry, rz, 0);
 		}
 		int rx = x+dir.offsetX;
 		int ry = y+dir.offsetY;
 		int rz = z+dir.offsetZ;
-		ReikaWorldHelper.setBlock(world, rx, ry, rz, is);
+		world.setBlock(rx, ry, rz, is.itemID, is.getItemDamage(), 3);
 		SoundRegistry.LINEBUILDER.playSoundAtBlock(world, rx, ry, rz);
 		return true;
 	}
@@ -164,13 +161,13 @@ public class TileEntityLineBuilder extends InventoriedPowerReceiver implements R
 		int rx = xCoord+dir.offsetX*i;
 		int ry = yCoord+dir.offsetY*i;
 		int rz = zCoord+dir.offsetZ*i;
-		Block id = worldObj.getBlock(rx, ry, rz);
-		if (id == Blocks.bedrock)
+		int id = worldObj.getBlockId(rx, ry, rz);
+		if (id == Block.bedrock.blockID)
 			return Integer.MIN_VALUE;
-		if (!worldObj.isRemote && !ReikaPlayerAPI.playerCanBreakAt((WorldServer)worldObj, rx, ry, rz, this.getPlacer()))
+		if (!ReikaPlayerAPI.playerCanBreakAt(worldObj, rx, ry, rz, placer))
 			return Integer.MIN_VALUE;
 		int maxr = this.getMaxRange();
-		TileEntity te = worldObj.getTileEntity(rx, ry, rz);
+		TileEntity te = worldObj.getBlockTileEntity(rx, ry, rz);
 		if (te != null)
 			return Integer.MIN_VALUE;
 		while (!ReikaWorldHelper.softBlocks(worldObj, rx, ry, rz) && i <= maxr) {
@@ -178,12 +175,12 @@ public class TileEntityLineBuilder extends InventoriedPowerReceiver implements R
 			rx = xCoord+dir.offsetX*i;
 			ry = yCoord+dir.offsetY*i;
 			rz = zCoord+dir.offsetZ*i;
-			id = worldObj.getBlock(rx, ry, rz);
-			if (id == Blocks.bedrock)
+			id = worldObj.getBlockId(rx, ry, rz);
+			if (id == Block.bedrock.blockID)
 				return Integer.MIN_VALUE;
-			if (!worldObj.isRemote && !ReikaPlayerAPI.playerCanBreakAt((WorldServer)worldObj, rx, ry, rz, this.getPlacer()))
+			if (!ReikaPlayerAPI.playerCanBreakAt(worldObj, rx, ry, rz, placer))
 				return Integer.MIN_VALUE;
-			TileEntity tile = worldObj.getTileEntity(rx, ry, rz);
+			TileEntity tile = worldObj.getBlockTileEntity(rx, ry, rz);
 			if (tile != null)
 				return Integer.MIN_VALUE;
 		}

@@ -9,15 +9,7 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
-import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiComposter;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.TileEntities.Farming.TileEntityComposter;
+import static codechicken.core.gui.GuiDraw.drawTexturedModalRect;
 
 import java.util.ArrayList;
 
@@ -26,6 +18,14 @@ import net.minecraft.item.ItemStack;
 
 import org.lwjgl.opengl.GL11;
 
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
+import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiComposter;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.TileEntities.Farming.TileEntityComposter;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 
@@ -79,7 +79,7 @@ public class ComposterHandler extends TemplateRecipeHandler {
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		ReikaTextureHelper.bindTexture(RotaryCraft.class, this.getGuiTexture());
-		ReikaGuiAPI.instance.drawTexturedModalRect(0, 6, 5, 5, 166, 76);
+		drawTexturedModalRect(0, 6, 5, 5, 166, 76);
 	}
 
 	@Override
@@ -114,7 +114,7 @@ public class ComposterHandler extends TemplateRecipeHandler {
 	public void drawExtras(int recipe)
 	{
 		int l = 27;
-		ReikaGuiAPI.instance.drawTexturedModalRect(18, 16+l, 176, 31+l, 11, 56-l);
+		drawTexturedModalRect(18, 16+l, 176, 31+l, 11, 56-l);
 	}
 
 }

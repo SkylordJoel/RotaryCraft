@@ -9,25 +9,23 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.World;
 
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.DragonAPI.Instantiable.Data.BlockArray;
 import Reika.DragonAPI.Interfaces.SemiTransparent;
 import Reika.DragonAPI.Libraries.ReikaEntityHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
 import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
-import Reika.RotaryCraft.Registry.BlockRegistry;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityBeamMirror extends RotaryCraftTileEntity implements RangedEffect {
 
@@ -101,16 +99,16 @@ public class TileEntityBeamMirror extends RotaryCraftTileEntity implements Range
 
 	private AxisAlignedBB getBurningBox(World world, int x, int y, int z) {
 		int r = this.getRange();
-		AxisAlignedBB box = AxisAlignedBB.getBoundingBox(x, y, z, x+1, y+1, z+1);
+		AxisAlignedBB box = AxisAlignedBB.getAABBPool().getAABB(x, y, z, x+1, y+1, z+1);
 		switch(facingDir) {
 		case EAST:
-			return AxisAlignedBB.getBoundingBox(x, y, z, x+1+r, y+1, z+1);
+			return AxisAlignedBB.getAABBPool().getAABB(x, y, z, x+1+r, y+1, z+1);
 		case NORTH:
-			return AxisAlignedBB.getBoundingBox(x, y, z-r, x+1, y+1, z+1);
+			return AxisAlignedBB.getAABBPool().getAABB(x, y, z-r, x+1, y+1, z+1);
 		case SOUTH:
-			return AxisAlignedBB.getBoundingBox(x, y, z, x+1, y+1, z+1+r);
+			return AxisAlignedBB.getAABBPool().getAABB(x, y, z, x+1, y+1, z+1+r);
 		case WEST:
-			return AxisAlignedBB.getBoundingBox(x-r, y, z, x+1, y+1, z+1);
+			return AxisAlignedBB.getAABBPool().getAABB(x-r, y, z, x+1, y+1, z+1);
 		default:
 			return box;
 		}
@@ -123,11 +121,11 @@ public class TileEntityBeamMirror extends RotaryCraftTileEntity implements Range
 			//ReikaJavaLibrary.pConsole(light);
 			for (int i = 0; i < light.getSize(); i++) {
 				int[] xyz = light.getNthBlock(i);
-				Block b = world.getBlock(xyz[0], xyz[1], xyz[2]);
-				if (b == BlockRegistry.LIGHT.getBlockInstance()) {
+				int id = world.getBlockId(xyz[0], xyz[1], xyz[2]);
+				if (id == RotaryCraft.lightblock.blockID) {
 					//ReikaJavaLibrary.pConsole(Arrays.toString(xyz));
-					world.setBlockToAir(xyz[0], xyz[1], xyz[2]);
-					world.func_147479_m(xyz[0], xyz[1], xyz[2]);
+					world.setBlock(xyz[0], xyz[1], xyz[2], 0);
+					world.markBlockForRenderUpdate(xyz[0], xyz[1], xyz[2]);
 				}
 			}
 			light.clear();
@@ -138,9 +136,9 @@ public class TileEntityBeamMirror extends RotaryCraftTileEntity implements Range
 
 		for (int i = 0; i < light.getSize(); i++) {
 			int[] xyz = light.getNthBlock(i);
-			if (world.getBlock(xyz[0], xyz[1], xyz[2]) == Blocks.air)
-				world.setBlock(xyz[0], xyz[1], xyz[2], BlockRegistry.LIGHT.getBlockInstance(), 15, 3);
-			world.func_147479_m(xyz[0], xyz[1], xyz[2]);
+			if (world.getBlockId(xyz[0], xyz[1], xyz[2]) == 0)
+				world.setBlock(xyz[0], xyz[1], xyz[2], RotaryCraft.lightblock.blockID, 15, 3);
+			world.markBlockForRenderUpdate(xyz[0], xyz[1], xyz[2]);
 		}
 	}
 
@@ -170,8 +168,9 @@ public class TileEntityBeamMirror extends RotaryCraftTileEntity implements Range
 			int dx = xCoord+i*facingDir.offsetX;
 			int dy = yCoord+i*facingDir.offsetY;
 			int dz = zCoord+i*facingDir.offsetZ;
-			Block b = worldObj.getBlock(dx, dy, dz);
-			if (b != Blocks.air) {
+			int id = worldObj.getBlockId(dx, dy, dz);
+			if (id != 0) {
+				Block b = Block.blocksList[id];
 				if (b instanceof SemiTransparent) {
 					if (((SemiTransparent)b).isOpaque(worldObj.getBlockMetadata(dx, dy, dz)))
 						return i;
@@ -192,10 +191,10 @@ public class TileEntityBeamMirror extends RotaryCraftTileEntity implements Range
 		World world = worldObj;
 		for (int i = 0; i < light.getSize(); i++) {
 			int[] xyz = light.getNthBlock(i);
-			Block b = world.getBlock(xyz[0], xyz[1], xyz[2]);
-			if (b == BlockRegistry.LIGHT.getBlockInstance()) {
-				world.setBlockToAir(xyz[0], xyz[1], xyz[2]);
-				world.func_147479_m(xyz[0], xyz[1], xyz[2]);
+			int id = world.getBlockId(xyz[0], xyz[1], xyz[2]);
+			if (id == RotaryCraft.lightblock.blockID) {
+				world.setBlock(xyz[0], xyz[1], xyz[2], 0);
+				world.markBlockForRenderUpdate(xyz[0], xyz[1], xyz[2]);
 			}
 		}
 	}

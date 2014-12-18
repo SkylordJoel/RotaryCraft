@@ -9,6 +9,20 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base.TileEntity;
 
+import java.awt.Color;
+
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 import Reika.DragonAPI.DragonAPICore;
 import Reika.DragonAPI.Instantiable.HybridTank;
 import Reika.DragonAPI.Interfaces.GuiController;
@@ -22,23 +36,6 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.UpgradeableMachine;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import java.awt.Color;
-
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
 
 public abstract class EnergyToPowerBase extends TileEntityIOMachine implements SimpleProvider, PowerGenerator, GuiController, UpgradeableMachine, IFluidHandler, PipeConnector {
 
@@ -92,7 +89,7 @@ public abstract class EnergyToPowerBase extends TileEntityIOMachine implements S
 			if (item.stackTagCompound.getInteger("magnet") < 720)
 				return false;
 		}
-		return item.getItem() == ItemRegistry.UPGRADE.getItemInstance() && item.getItemDamage() == tier+1;
+		return item.itemID == ItemRegistry.UPGRADE.getShiftedID() && item.getItemDamage() == tier+1;
 	}
 
 	protected final boolean isMuffled() {
@@ -100,7 +97,7 @@ public abstract class EnergyToPowerBase extends TileEntityIOMachine implements S
 		int x = xCoord;
 		int y = yCoord;
 		int z = zCoord;
-		if (world.getBlock(x, y+1, z) == Blocks.wool && world.getBlock(x, y-1, z) == Blocks.wool) {
+		if (world.getBlockId(x, y+1, z) == Block.cloth.blockID && world.getBlockId(x, y-1, z) == Block.cloth.blockID) {
 			return true;
 		}
 		for (int i = 0; i < 6; i++) {
@@ -110,8 +107,8 @@ public abstract class EnergyToPowerBase extends TileEntityIOMachine implements S
 				int dy = y+dir.offsetY;
 				int dz = z+dir.offsetZ;
 				if ((dir != write.getOpposite() && dir != write) || dir == ForgeDirection.UP) {
-					Block b = world.getBlock(dx, dy, dz);
-					if (b != Blocks.wool)
+					int id = world.getBlockId(dx, dy, dz);
+					if (id != Block.cloth.blockID)
 						return false;
 				}
 			}
@@ -143,9 +140,9 @@ public abstract class EnergyToPowerBase extends TileEntityIOMachine implements S
 	public abstract boolean isValidSupplier(TileEntity te);
 
 	private static enum RedstoneState {
-		IGNORE(Items.gunpowder),
-		LOW(Blocks.unlit_redstone_torch),
-		HI(Blocks.redstone_torch);
+		IGNORE(Item.gunpowder),
+		LOW(Block.torchRedstoneIdle),
+		HI(Block.torchRedstoneActive);
 
 		private final ItemStack iconItem;
 
@@ -374,7 +371,7 @@ public abstract class EnergyToPowerBase extends TileEntityIOMachine implements S
 		int x = xCoord+this.getFacing().offsetX;
 		int y = yCoord+this.getFacing().offsetY;
 		int z = zCoord+this.getFacing().offsetZ;
-		TileEntity te = worldObj.getTileEntity(x, y, z);
+		TileEntity te = worldObj.getBlockTileEntity(x, y, z);
 		return te;
 	}
 

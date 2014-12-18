@@ -9,16 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.DragonAPI.ModInteract.ForestryHandler;
 import Reika.DragonAPI.ModInteract.Bees.BeeSpecies;
+import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Registry.BlockRegistry;
 import Reika.RotaryCraft.Registry.ItemRegistry;
-
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import forestry.api.apiculture.IBeeGenome;
 import forestry.api.apiculture.IBeeHousing;
 import forestry.api.core.EnumHumidity;
@@ -74,7 +72,7 @@ public class CanolaBee extends BeeSpecies {
 
 		@Override
 		public boolean isAcceptedFlower(World world, IIndividual individual, int x, int y, int z) {
-			return world.getBlock(x, y, z) == BlockRegistry.CANOLA.getBlockInstance() && world.getBlockMetadata(x, y, z) < 9;
+			return world.getBlockId(x, y, z) == RotaryCraft.canola.blockID && world.getBlockMetadata(x, y, z) < 9;
 		}
 
 		@Override
@@ -93,11 +91,11 @@ public class CanolaBee extends BeeSpecies {
 						int dy = y+j;
 						int dz = z+k;
 						if (dy > 0) {
-							Block b = world.getBlock(dx, dy, dz);
+							int id = world.getBlockId(dx, dy, dz);
 							int meta = world.getBlockMetadata(dx, dy, dz);
-							if (b == BlockRegistry.CANOLA.getBlockInstance()) {
+							if (id == RotaryCraft.canola.blockID) {
 								if (meta < 9) {
-									world.scheduleBlockUpdate(dx, dy, dz, b, 20+rand.nextInt(300));
+									world.scheduleBlockUpdate(dx, dy, dz, id, 20+rand.nextInt(300));
 									flag = true;
 								}
 							}
@@ -120,7 +118,7 @@ public class CanolaBee extends BeeSpecies {
 
 		@Override
 		public ItemStack[] getItemStacks() {
-			return new ItemStack[]{BlockRegistry.CANOLA.getStackOf()};
+			return new ItemStack[]{new ItemStack(RotaryCraft.canola)};
 		}
 	}
 

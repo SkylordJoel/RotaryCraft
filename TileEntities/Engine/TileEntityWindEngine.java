@@ -9,21 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Engine;
 
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldType;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.EngineType;
 import Reika.RotaryCraft.Registry.SoundRegistry;
-
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.DamageSource;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldType;
 
 public class TileEntityWindEngine extends TileEntityEngine {
 
@@ -109,7 +107,7 @@ public class TileEntityWindEngine extends TileEntityEngine {
 		}
 		for (int i = -1; i <= 1; i++) {
 			for (int j = -1; j <= 1; j++) {
-				Block id = world.getBlock(x+a*i+c, y+j, z+b*i+d);
+				int id = world.getBlockId(x+a*i+c, y+j, z+b*i+d);
 				if (!ReikaWorldHelper.softBlocks(id)) {
 					omega = 0;
 					return false;
@@ -117,9 +115,9 @@ public class TileEntityWindEngine extends TileEntityEngine {
 			}
 		}
 		for (int i = 1; i < 16; i++) {
-			Block id = world.getBlock(x+c*i, y, z+d*i);
-			if (id != Blocks.air) {
-				if (id.getCollisionBoundingBoxFromPool(world, x+c*i, y, z+d*i) != null)
+			int id = world.getBlockId(x+c*i, y, z+d*i);
+			if (id != 0) {
+				if (Block.blocksList[id].getCollisionBoundingBoxFromPool(world, x+c*i, y, z+d*i) != null)
 					return false;
 			}
 		}

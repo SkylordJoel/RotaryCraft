@@ -9,18 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Charged;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityLargeFireball;
+import net.minecraft.item.EnumAction;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Vec3;
+import net.minecraft.world.World;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
 import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
 import Reika.RotaryCraft.Base.ItemChargedTool;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityLargeFireball;
-import net.minecraft.init.Items;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -30,8 +29,8 @@ public class ItemFireballLauncher extends ItemChargedTool {
 	private int texture;
 	private int defaulttex;
 
-	public ItemFireballLauncher(int tex) {
-		super(tex);
+	public ItemFireballLauncher(int ID, int tex) {
+		super(ID, tex);
 		texture = tex;
 		defaulttex = texture;
 	}
@@ -53,11 +52,11 @@ public class ItemFireballLauncher extends ItemChargedTool {
 			world.spawnEntityInWorld(ef);
 		}
 		if (!ep.capabilities.isCreativeMode && par5Random.nextInt(3) == 0)
-			ReikaInventoryHelper.findAndDecrStack(Items.fire_charge, -1, ep.inventory.mainInventory);
+			ReikaInventoryHelper.findAndDecrStack(Item.fireballCharge.itemID, -1, ep.inventory.mainInventory);
 		int decr = (int)(charge/2F);
 		if (decr <= 0)
 			decr = 1;
-		ep.setCurrentItemOrArmor(0, new ItemStack(is.getItem(), is.stackSize, is.getItemDamage()-decr));
+		ep.setCurrentItemOrArmor(0, new ItemStack(is.itemID, is.stackSize, is.getItemDamage()-decr));
 	}
 
 	@Override
@@ -136,7 +135,7 @@ public class ItemFireballLauncher extends ItemChargedTool {
 			return is;
 		}
 		this.warnCharge(is);
-		if (!ReikaPlayerAPI.playerHasOrIsCreative(ep, Items.fire_charge, -1))
+		if (!ReikaPlayerAPI.playerHasOrIsCreative(ep, Item.fireballCharge.itemID, -1))
 			return is;
 		ep.setItemInUse(is, this.getMaxItemUseDuration(is));
 		return is;
@@ -150,7 +149,7 @@ public class ItemFireballLauncher extends ItemChargedTool {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void onUsingTick(ItemStack is, EntityPlayer ep, int count) {
+	public void onUsingItemTick(ItemStack is, EntityPlayer ep, int count) {
 		float power = (is.getMaxItemUseDuration()-count)/20F;
 		if (ep.capabilities.isCreativeMode) {
 			power *= 2;

@@ -9,6 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemPickaxe;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
 import Reika.DragonAPI.ModInteract.MekToolHandler;
@@ -21,20 +34,6 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
 import Reika.RotaryCraft.Registry.GuiRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntitySplitter;
-
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemPickaxe;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.World;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 
@@ -70,7 +69,7 @@ public class RotaryAux {
 	public static final boolean hasGui(World world, int x, int y, int z, EntityPlayer ep) {
 		MachineRegistry m = MachineRegistry.getMachine(world, x, y, z);
 		if (m == MachineRegistry.ENGINE) {
-			TileEntityEngine te = (TileEntityEngine)world.getTileEntity(x, y, z);
+			TileEntityEngine te = (TileEntityEngine)world.getBlockTileEntity(x, y, z);
 			if (te == null)
 				return false;
 			if (te.getEngineType() == null)
@@ -80,7 +79,7 @@ public class RotaryAux {
 			return true;
 		}
 		if (m == MachineRegistry.SPLITTER) {
-			TileEntitySplitter te = (TileEntitySplitter)world.getTileEntity(x, y, z);
+			TileEntitySplitter te = (TileEntitySplitter)world.getBlockTileEntity(x, y, z);
 			return (te.getBlockMetadata() >= 8);
 		}
 		if (m == MachineRegistry.SCREEN)
@@ -204,12 +203,12 @@ public class RotaryAux {
 			return true;
 		if (MekToolHandler.getInstance().isPickTypeTool(eitem) && !MekToolHandler.getInstance().isWood(eitem))
 			return true;
-		if (eitem.getItem() == RedstoneArsenalHandler.getInstance().pickID) {
+		if (eitem.itemID == RedstoneArsenalHandler.getInstance().pickID) {
 			return RedstoneArsenalHandler.getInstance().pickLevel > 0;
 		}
 		if (!(eitem.getItem() instanceof ItemPickaxe))
 			return false;
-		if (eitem.getItem().canHarvestBlock(Blocks.iron_ore, eitem))
+		if (eitem.getItem().canHarvestBlock(Block.oreIron, eitem))
 			return true;
 		return false;
 	}
@@ -236,7 +235,7 @@ public class RotaryAux {
 		int x = te.xCoord;
 		int y = te.yCoord;
 		int z = te.zCoord;
-		if (world.getBlock(x, y+1, z) == Blocks.wool && world.getBlock(x, y-1, z) == Blocks.wool) {
+		if (world.getBlockId(x, y+1, z) == Block.cloth.blockID && world.getBlockId(x, y-1, z) == Block.cloth.blockID) {
 			return true;
 		}
 		return false;

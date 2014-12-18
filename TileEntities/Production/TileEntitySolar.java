@@ -9,6 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
+import java.util.List;
+
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 import Reika.DragonAPI.Instantiable.HybridTank;
 import Reika.DragonAPI.Instantiable.StepTimer;
 import Reika.DragonAPI.Instantiable.Data.BlockArray;
@@ -26,21 +39,6 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.TileEntities.Auxiliary.TileEntityMirror;
-
-import java.util.List;
-
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
 
 public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMachine, SimpleProvider, PipeConnector, PowerGenerator, IFluidHandler {
 
@@ -78,7 +76,7 @@ public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMa
 			for (int j = -3; j <= 3; j++) {
 				if (ConfigRegistry.BLOCKDAMAGE.getState())
 					ReikaWorldHelper.temperatureEnvironment(world, x+i, y+1, z+j, temp);
-				AxisAlignedBB above = AxisAlignedBB.getBoundingBox(x+i, y+1, z+j, x+i+1, y+2, z+j+1);
+				AxisAlignedBB above = AxisAlignedBB.getAABBPool().getAABB(x+i, y+1, z+j, x+i+1, y+2, z+j+1);
 				List in = world.getEntitiesWithinAABB(EntityLivingBase.class, above);
 				for (int k = 0; k < in.size(); k++) {
 					EntityLivingBase e = (EntityLivingBase)in.get(k);
@@ -87,14 +85,14 @@ public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMa
 				}
 			}
 		}
-		if (world.getBlock(x, y-1, z) == Blocks.air || MachineRegistry.getMachine(world, x, y-1, z) != this.getMachine()) {
+		if (world.getBlockId(x, y-1, z) == 0 || MachineRegistry.getMachine(world, x, y-1, z) != this.getMachine()) {
 			//ReikaJavaLibrary.pConsole("TOWER: "+this.getTowerHeight()+";  SIZE: "+this.getArraySize());
 			this.generatePower(world, x, y, z);
 		}
 		else {
 			write = null;
 		}
-		if (world.getBlock(x, y+1, z) != Blocks.air)
+		if (world.getBlockId(x, y+1, z) != 0)
 			return;
 
 		mirrorTimer.update();
@@ -107,7 +105,7 @@ public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMa
 					int[] xyz = solarBlocks.getNextAndMoveOn();
 					MachineRegistry m = MachineRegistry.getMachine(world, xyz[0], xyz[1], xyz[2]);
 					if (m == MachineRegistry.MIRROR) {
-						TileEntityMirror te = (TileEntityMirror)world.getTileEntity(xyz[0], xyz[1], xyz[2]);
+						TileEntityMirror te = (TileEntityMirror)world.getBlockTileEntity(xyz[0], xyz[1], xyz[2]);
 						te.targetloc = new int[]{x,y,z};
 						float light = te.getLightLevel();
 						lightMultiplier += light;
@@ -137,7 +135,7 @@ public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMa
 		power = (long)omega*(long)torque;
 		if (rand.nextInt(20) == 0)
 			if (tank.getLevel() > 0)
-				tank.removeLiquid(1000);
+				tank.removeLiquid(RotaryConfig.MILLIBUCKET);
 	}
 
 	public int getTowerHeight() {
@@ -170,14 +168,14 @@ public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMa
 	}
 
 	public int getArraySize() {
-		TileEntity tile = worldObj.getTileEntity(xCoord, this.getTopOfTower(), zCoord);
+		TileEntity tile = worldObj.getBlockTileEntity(xCoord, this.getTopOfTower(), zCoord);
 		if (tile == null)
 			return 0;
 		return ((TileEntitySolar)tile).numberMirrors;
 	}
 
 	public float getArrayOverallBrightness() {
-		TileEntity tile = worldObj.getTileEntity(xCoord, this.getTopOfTower(), zCoord);
+		TileEntity tile = worldObj.getBlockTileEntity(xCoord, this.getTopOfTower(), zCoord);
 		if (tile == null)
 			return 0;
 		return ((TileEntitySolar)tile).lightMultiplier;
@@ -195,7 +193,7 @@ public class TileEntitySolar extends TileEntityIOMachine implements MultiBlockMa
 		int water = tank.getLevel();
 		int cy = y+1;
 		while (MachineRegistry.getMachine(world, x, cy, z) == MachineRegistry.SOLARTOWER) {
-			TileEntitySolar tile = (TileEntitySolar)(world.getTileEntity(x, cy, z));
+			TileEntitySolar tile = (TileEntitySolar)(world.getBlockTileEntity(x, cy, z));
 			water += tile.tank.getLevel();
 			tile.tank.empty();
 			cy++;

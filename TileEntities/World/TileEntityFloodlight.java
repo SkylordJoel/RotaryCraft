@@ -9,20 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.World;
 
+import net.minecraft.block.Block;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 import Reika.DragonAPI.Instantiable.Data.BlockArray;
 import Reika.DragonAPI.Interfaces.SemiTransparent;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityBeamMachine;
-import Reika.RotaryCraft.Registry.BlockRegistry;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.RotaryAchievements;
-
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 
 public class TileEntityFloodlight extends TileEntityBeamMachine implements RangedEffect {
 
@@ -55,11 +52,11 @@ public class TileEntityFloodlight extends TileEntityBeamMachine implements Range
 			//ReikaJavaLibrary.pConsole(beam);
 			for (int i = 0; i < beam.getSize(); i++) {
 				int[] xyz = beam.getNthBlock(i);
-				Block b = world.getBlock(xyz[0], xyz[1], xyz[2]);
-				if (this.isLightBlock(b)) {
+				int id = world.getBlockId(xyz[0], xyz[1], xyz[2]);
+				if (this.isLightBlock(id)) {
 					//ReikaJavaLibrary.pConsole(Arrays.toString(xyz));
-					world.setBlockToAir(xyz[0], xyz[1], xyz[2]);
-					world.func_147479_m(xyz[0], xyz[1], xyz[2]);
+					world.setBlock(xyz[0], xyz[1], xyz[2], 0);
+					world.markBlockForRenderUpdate(xyz[0], xyz[1], xyz[2]);
 				}
 			}
 			beam.clear();
@@ -70,18 +67,18 @@ public class TileEntityFloodlight extends TileEntityBeamMachine implements Range
 
 		for (int i = 0; i < beam.getSize(); i++) {
 			int[] xyz = beam.getNthBlock(i);
-			if (world.getBlock(xyz[0], xyz[1], xyz[2]) == Blocks.air)
+			if (world.getBlockId(xyz[0], xyz[1], xyz[2]) == 0)
 				world.setBlock(xyz[0], xyz[1], xyz[2], this.getPlacedBlockID(), 15, 3);
-			world.func_147479_m(xyz[0], xyz[1], xyz[2]);
+			world.markBlockForRenderUpdate(xyz[0], xyz[1], xyz[2]);
 		}
 	}
 
-	private Block getPlacedBlockID() {
-		return beammode ? BlockRegistry.BEAM.getBlockInstance() : BlockRegistry.LIGHT.getBlockInstance();
+	private int getPlacedBlockID() {
+		return beammode ? RotaryCraft.beamblock.blockID : RotaryCraft.lightblock.blockID;
 	}
 
-	private boolean isLightBlock(Block id) {
-		return id == BlockRegistry.BEAM.getBlockInstance() || id == BlockRegistry.LIGHT.getBlockInstance();
+	private boolean isLightBlock(int id) {
+		return id == RotaryCraft.beamblock.blockID || id == RotaryCraft.lightblock.blockID;
 	}
 
 	public void lightsOut(World world, int x, int y, int z) {
@@ -89,11 +86,11 @@ public class TileEntityFloodlight extends TileEntityBeamMachine implements Range
 		world.notifyBlocksOfNeighborChange(x, y, z, this.getTileEntityBlockID());
 		for (int i = 0; i < beam.getSize(); i++) {
 			int[] xyz = beam.getNthBlock(i);
-			Block b = world.getBlock(xyz[0], xyz[1], xyz[2]);
-			if (this.isLightBlock(b)) {
+			int id = world.getBlockId(xyz[0], xyz[1], xyz[2]);
+			if (this.isLightBlock(id)) {
 				//ReikaJavaLibrary.pConsole(Arrays.toString(xyz));
-				world.setBlockToAir(xyz[0], xyz[1], xyz[2]);
-				world.func_147479_m(xyz[0], xyz[1], xyz[2]);
+				world.setBlock(xyz[0], xyz[1], xyz[2], 0);
+				world.markBlockForRenderUpdate(xyz[0], xyz[1], xyz[2]);
 				world.markBlockForUpdate(xyz[0], xyz[1], xyz[2]);
 			}
 		}
@@ -139,8 +136,9 @@ public class TileEntityFloodlight extends TileEntityBeamMachine implements Range
 			int dx = xCoord+i*xstep;
 			int dy = yCoord+i*ystep;
 			int dz = zCoord+i*zstep;
-			Block b = worldObj.getBlock(dx, dy, dz);
-			if (b != Blocks.air) {
+			int id = worldObj.getBlockId(dx, dy, dz);
+			if (id != 0) {
+				Block b = Block.blocksList[id];
 				if (b instanceof SemiTransparent) {
 					SemiTransparent sm = (SemiTransparent)b;
 					if (sm.isOpaque(worldObj.getBlockMetadata(dx, dy, dz)))

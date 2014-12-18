@@ -9,11 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Charged;
 
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Base.ItemChargedTool;
-
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -26,11 +21,15 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Base.ItemChargedTool;
 
 public class ItemVacuum extends ItemChargedTool {
 
-	public ItemVacuum(int tex) {
-		super(tex);
+	public ItemVacuum(int ID, int tex) {
+		super(ID, tex);
 	}
 
 	@Override
@@ -42,14 +41,14 @@ public class ItemVacuum extends ItemChargedTool {
 		this.warnCharge(is);
 		if (ep.isSneaking()) {
 			this.empty(is, world, ep);
-			return new ItemStack(is.getItem(), is.stackSize, is.getItemDamage()-2);
+			return new ItemStack(is.itemID, is.stackSize, is.getItemDamage()-2);
 		}
 		AxisAlignedBB range = AxisAlignedBB.getBoundingBox(ep.posX-8, ep.posY-8, ep.posZ-8, ep.posX+8, ep.posY+8, ep.posZ+8);
 		List inrange = world.getEntitiesWithinAABB(EntityItem.class, range);
 		for (int i = 0; i < inrange.size(); i++) {
 			EntityItem ent = (EntityItem)inrange.get(i);
 			ItemStack is2 = ent.getEntityItem();
-			if (ReikaInventoryHelper.canAcceptMoreOf(is2.getItem(), is2.getItemDamage(), ep.inventory.mainInventory)) {
+			if (ReikaInventoryHelper.canAcceptMoreOf(is2.itemID, is2.getItemDamage(), ep.inventory.mainInventory)) {
 				double dx = (ep.posX - ent.posX);
 				double dy = (ep.posY - ent.posY);
 				double dz = (ep.posZ - ent.posZ);
@@ -78,7 +77,7 @@ public class ItemVacuum extends ItemChargedTool {
 			if (!world.isRemote)
 				ent.velocityChanged = true;
 		}
-		return new ItemStack(is.getItem(), is.stackSize, is.getItemDamage()-1);
+		return new ItemStack(is.itemID, is.stackSize, is.getItemDamage()-1);
 	}
 
 	private void empty(ItemStack is, World world, EntityPlayer ep) {
@@ -89,9 +88,9 @@ public class ItemVacuum extends ItemChargedTool {
 		int x = mov.blockX;
 		int y = mov.blockY;
 		int z = mov.blockZ;
-		Block b = world.getBlock(x, y, z);
-		;
-		TileEntity tile = world.getTileEntity(x, y, z);
+		int id = world.getBlockId(x, y, z);
+		Block b = Block.blocksList[id];
+		TileEntity tile = world.getBlockTileEntity(x, y, z);
 		if (tile == null || !(tile instanceof IInventory))
 			return;
 		IInventory ii = (IInventory)tile;

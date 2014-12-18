@@ -9,6 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Renders.DMI;
 
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Icon;
+import net.minecraftforge.client.IItemRenderer;
+import net.minecraftforge.client.IItemRenderer.ItemRenderType;
+import net.minecraftforge.client.MinecraftForgeClient;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
 import Reika.DragonAPI.Interfaces.IndexedItemSprites;
 import Reika.DragonAPI.Interfaces.RenderFetcher;
 import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
@@ -19,19 +32,6 @@ import Reika.RotaryCraft.Base.RotaryTERenderer;
 import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
 import Reika.RotaryCraft.Models.Animated.ModelGrindstone;
 import Reika.RotaryCraft.TileEntities.TileEntityGrindstone;
-
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
-import net.minecraftforge.client.IItemRenderer;
-import net.minecraftforge.client.IItemRenderer.ItemRenderType;
-import net.minecraftforge.client.MinecraftForgeClient;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 public class RenderGrindstone extends RotaryTERenderer
 {
@@ -160,7 +160,7 @@ public class RenderGrindstone extends RotaryTERenderer
 				ReikaTextureHelper.bindTerrainTexture();
 			else
 				ReikaTextureHelper.bindItemTexture();
-			IIcon ico = item.getIcon(is, MinecraftForgeClient.getRenderPass());
+			Icon ico = item.getIcon(is, MinecraftForgeClient.getRenderPass());
 			if (ico == null)
 				return;
 			float u = ico.getMinU();

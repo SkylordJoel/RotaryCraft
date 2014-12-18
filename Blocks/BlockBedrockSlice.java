@@ -9,43 +9,33 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.BlockBasic;
-
 import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import Reika.RotaryCraft.RotaryCraft;
 
-public class BlockBedrockSlice extends BlockBasic
+public class BlockBedrockSlice extends Block
 {
 	private boolean last = false;
-	public static IIcon icon;
+	public static Icon icon;
 
-	public BlockBedrockSlice()
+	public BlockBedrockSlice(int par1)
 	{
-		super(Material.rock);
+		super(par1, Material.rock);
 		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.125F, 1.0F);
 		this.setBlockUnbreakable();
 		this.setResistance(3600000F);
 	}
 
 	@Override
-	protected boolean isAvailableInCreativeMode() {
-		return false;
-	}
-
-	@Override
-	public boolean canEntityDestroy(IBlockAccess world, int x, int y, int z, Entity e)
+	public boolean canEntityDestroy(World world, int x, int y, int z, Entity e)
 	{
 		return false;
 	}
@@ -77,7 +67,7 @@ public class BlockBedrockSlice extends BlockBasic
 
 	/**
 	 * Is this block (a) opaque and (b) a full 1m cube?  This determines whether or not to render the shared face of two
-	 * adjacent blocks and also whether the player can attach torches, redstone wire, etc to this Blocks.
+	 * adjacent blocks and also whether the player can attach torches, redstone wire, etc to this block.
 	 */
 	@Override
 	public boolean isOpaqueCube()
@@ -85,23 +75,36 @@ public class BlockBedrockSlice extends BlockBasic
 		return false;
 	}
 
+	/**
+	 * If this block doesn't render as an ordinary block it will return False (examples: signs, buttons, stairs, etc)
+	 */
 	@Override
 	public boolean renderAsNormalBlock()
 	{
 		return false;
 	}
 
+	/**
+	 * Checks to see if its valid to put this block at the specified coordinates. Args: world, x, y, z
+	 */
 	@Override
 	public boolean canPlaceBlockAt(World world, int x, int y, int z)
 	{
-		Block var5 = world.getBlock(x, y - 1, z);
-		return var5 != Blocks.air && (var5 == Blocks.leaves || var5 == Blocks.leaves2 || var5.isOpaqueCube()) ? ReikaWorldHelper.getMaterial(world, x, y - 1, z).blocksMovement() : false;
+		int var5 = world.getBlockId(x, y - 1, z);
+		return var5 != 0 && (var5 == Block.leaves.blockID || Block.blocksList[var5].isOpaqueCube()) ? world.getBlockMaterial(x, y - 1, z).blocksMovement() : false;
 	}
 
+	/**
+	 * Lets the block know when one of its neighbor changes. Doesn't know which neighbor changed (coordinates passed are
+	 * their own) Args: x, y, z, neighbor blockID
+	 */
+	/**
+	 * Returns the ID of the items to drop on destruction.
+	 */
 	@Override
-	public Item getItemDropped(int par1, Random xRandom, int y)
+	public int idDropped(int par1, Random xRandom, int y)
 	{
-		return null;
+		return 0;
 	}
 
 	/**
@@ -125,19 +128,14 @@ public class BlockBedrockSlice extends BlockBasic
 	}
 
 	@Override
-	public IIcon getIcon(int s, int meta) {
+	public Icon getIcon(int s, int meta) {
 		return icon;
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister) {
+	public void registerIcons(IconRegister par1IconRegister) {
 		if (RotaryCraft.instance.isLocked())
 			return;
 		icon = par1IconRegister.registerIcon("bedrock");
-	}
-
-	@Override
-	public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
-		return 0;
 	}
 }

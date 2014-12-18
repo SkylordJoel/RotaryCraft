@@ -9,18 +9,17 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
+import java.util.ArrayList;
+
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.ChromatiCraft.API.SpaceRift;
 import Reika.DragonAPI.Instantiable.WorldLocation;
 import Reika.RotaryCraft.API.PowerGenerator;
 import Reika.RotaryCraft.API.ShaftMerger;
 import Reika.RotaryCraft.API.ShaftPowerEmitter;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
-
-import java.util.ArrayList;
-
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class PowerSourceList {
 
@@ -57,7 +56,7 @@ public class PowerSourceList {
 		PowerSourceList pwr = new PowerSourceList();
 
 		try {
-			TileEntity tile = world.getTileEntity(x, y, z);
+			TileEntity tile = world.getBlockTileEntity(x, y, z);
 			if (tile instanceof TileEntityIOMachine) {
 				TileEntityIOMachine te = (TileEntityIOMachine)tile;
 				if (te.isReadingFrom(io))

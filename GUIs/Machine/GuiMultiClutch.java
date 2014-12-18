@@ -9,6 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine;
 
+import java.awt.Color;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
@@ -17,13 +23,6 @@ import Reika.RotaryCraft.Auxiliary.RotaryAux;
 import Reika.RotaryCraft.Base.GuiNonPoweredMachine;
 import Reika.RotaryCraft.Registry.PacketRegistry;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityMultiClutch;
-
-import java.awt.Color;
-
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 
 public class GuiMultiClutch extends GuiNonPoweredMachine {
 
@@ -68,11 +67,11 @@ public class GuiMultiClutch extends GuiNonPoweredMachine {
 		int k = (height - ySize) / 2;
 
 		for (int i = 0; i < 16; i++) {
-			api.drawItemStack(itemRender, fontRendererObj, new ItemStack(Items.redstone), 3+70*(i/8), 15+16*(i%8));
+			api.drawItemStack(itemRenderer, fontRenderer, new ItemStack(Item.redstone), 3+70*(i/8), 15+16*(i%8));
 		}
 
 		for (int i = 0; i < 16; i++) {
-			fontRendererObj.drawString(String.format("%d", i), 18+70*(i/8), 20+16*(i%8), 0);
+			fontRenderer.drawString(String.format("%d", i), 18+70*(i/8), 20+16*(i%8), 0);
 			Color color = RotaryAux.sideColors[multi.getSideOfState(i)];
 			int border = 0xff000000;
 			if (color == Color.BLACK)

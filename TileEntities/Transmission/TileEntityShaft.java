@@ -9,6 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Transmission;
 
+import net.minecraft.block.Block;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.MinecraftForge;
 import Reika.ChromatiCraft.API.SpaceRift;
 import Reika.DragonAPI.Instantiable.WorldLocation;
 import Reika.DragonAPI.Libraries.MathSci.ReikaEngLibrary;
@@ -24,16 +33,6 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.MaterialRegistry;
 import Reika.RotaryCraft.Registry.RotaryAchievements;
-
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityShaft extends TileEntity1DTransmitter {
 	public int[] readtorque = new int[2];
@@ -68,19 +67,19 @@ public class TileEntityShaft extends TileEntity1DTransmitter {
 			ItemStack item = null;
 			switch(type) {
 			case WOOD:
-				item = ItemStacks.sawdust.copy();
+				item = new ItemStack(ItemStacks.sawdust.itemID, 1, ItemStacks.sawdust.getItemDamage());
 				break;
 			case STONE:
-				item = new ItemStack(Blocks.gravel, 1, 0);
+				item = new ItemStack(Block.gravel, 1, 0);
 				break;
 			case STEEL:
-				item = ItemStacks.scrap.copy();
+				item = new ItemStack(ItemStacks.scrap.itemID, 1, ItemStacks.scrap.getItemDamage());
 				break;
 			case DIAMOND:
-				item = new ItemStack(Items.diamond, 1, 0);
+				item = new ItemStack(Item.diamond, 1, 0);
 				break;
 			case BEDROCK:
-				item = ItemStacks.bedrockdust.copy();
+				item = new ItemStack(ItemStacks.bedrockdust.itemID, 1, ItemStacks.bedrockdust.getItemDamage());
 				break;
 			}
 			EntityItem ei = new EntityItem(world, x+0.5, y+1.25, z+0.5, item);
@@ -98,19 +97,19 @@ public class TileEntityShaft extends TileEntity1DTransmitter {
 			ItemStack item = null;
 			switch(type) {
 			case WOOD:
-				item = new ItemStack(Items.stick, 1, 0);
+				item = new ItemStack(Item.stick, 1, 0);
 				break;
 			case STONE:
-				item = new ItemStack(Blocks.cobblestone, 1, 0);
+				item = new ItemStack(Block.cobblestone, 1, 0);
 				break;
 			case STEEL:
-				item = ItemStacks.shaftitem.copy();
+				item = new ItemStack(ItemStacks.shaftitem.itemID, 1, ItemStacks.shaftitem.getItemDamage());
 				break;
 			case DIAMOND:
-				item = new ItemStack(Items.diamond, 1, 0);
+				item = new ItemStack(Item.diamond, 1, 0);
 				break;
 			case BEDROCK:
-				item = ItemStacks.bedrockdust.copy();
+				item = new ItemStack(ItemStacks.bedrockdust.itemID, 1, ItemStacks.bedrockdust.getItemDamage());
 				break;
 			}
 			EntityItem ei = new EntityItem(world, x+0.5, y+1, z+0.5, item);
@@ -348,9 +347,9 @@ public class TileEntityShaft extends TileEntity1DTransmitter {
 		int dy2 = y+read2.offsetY;
 		int dz2 = z+read2.offsetZ;
 		MachineRegistry m = isCentered ? this.getMachine(read) : MachineRegistry.getMachine(world, dx, dy, dz);
-		TileEntity te1 = isCentered ? this.getAdjacentTileEntity(read) : world.getTileEntity(dx, dy, dz);
+		TileEntity te1 = isCentered ? this.getAdjacentTileEntity(read) : world.getBlockTileEntity(dx, dy, dz);
 		MachineRegistry m2 = isCentered ? this.getMachine(read2) : MachineRegistry.getMachine(world, dx2, dy2, dz2);
-		TileEntity te2 = isCentered ? this.getAdjacentTileEntity(read2) : world.getTileEntity(dx2, dy2, dz2);
+		TileEntity te2 = isCentered ? this.getAdjacentTileEntity(read2) : world.getBlockTileEntity(dx2, dy2, dz2);
 
 
 		//ReikaJavaLibrary.pConsole(read.name()+":"+read2.name(), Side.SERVER);
@@ -480,7 +479,7 @@ public class TileEntityShaft extends TileEntity1DTransmitter {
 		int dy = y+read.offsetY;
 		int dz = z+read.offsetZ;
 		MachineRegistry m = isCentered ? this.getMachine(read) : MachineRegistry.getMachine(world, dx, dy, dz);
-		TileEntity te = isCentered ? this.getAdjacentTileEntity(read) : world.getTileEntity(dx, dy, dz);
+		TileEntity te = isCentered ? this.getAdjacentTileEntity(read) : world.getBlockTileEntity(dx, dy, dz);
 		if (this.isProvider(te)) {
 			if (m == MachineRegistry.SHAFT) {
 				TileEntityShaft devicein = (TileEntityShaft)te;

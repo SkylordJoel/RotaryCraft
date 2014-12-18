@@ -9,12 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine.Inventory;
 
+import net.minecraft.entity.player.EntityPlayer;
 import Reika.DragonAPI.Libraries.IO.ReikaFormatHelper;
 import Reika.RotaryCraft.Base.GuiNonPoweredMachine;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityEngine;
 import Reika.RotaryCraft.Containers.ContainerEthanol;
-
-import net.minecraft.entity.player.EntityPlayer;
 
 public class GuiEthanol extends GuiNonPoweredMachine
 {
@@ -43,7 +42,7 @@ public class GuiEthanol extends GuiNonPoweredMachine
 		if (api.isMouseInBox(j+84, j+90, k+16, k+71)) {
 			int time = Ethanol.getFuelDuration();
 			String sg = String.format("Fuel: %s", ReikaFormatHelper.getSecondsAsClock(time));
-			api.drawTooltipAt(fontRendererObj, sg, x-j, y-k);
+			api.drawTooltipAt(fontRenderer, sg, x-j, y-k);
 		}
 	}
 

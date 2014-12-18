@@ -9,11 +9,7 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
-import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesLavaMaker;
-import Reika.RotaryCraft.Base.GuiBasicStorage;
+import static codechicken.core.gui.GuiDraw.drawTexturedModalRect;
 
 import java.util.ArrayList;
 
@@ -22,13 +18,17 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.Icon;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import org.lwjgl.opengl.GL11;
 
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesLavaMaker;
+import Reika.RotaryCraft.Base.GuiBasicStorage;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 
@@ -79,7 +79,7 @@ public class LavaMakerHandler extends TemplateRecipeHandler {
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		ReikaTextureHelper.bindTexture(RotaryCraft.class, this.getGuiTexture());
-		ReikaGuiAPI.instance.drawTexturedModalRect(0, 1, 5, 11, 166, 70);
+		drawTexturedModalRect(0, 1, 5, 11, 166, 70);
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public class LavaMakerHandler extends TemplateRecipeHandler {
 		FluidStack fs = RecipesLavaMaker.getRecipes().getMelting(in);
 		if (fs != null) {
 			Fluid f = fs.getFluid();
-			IIcon ico = f.getIcon();
+			Icon ico = f.getIcon();
 			float u = ico.getMinU();
 			float v = ico.getMinV();
 			float du = ico.getMaxU();

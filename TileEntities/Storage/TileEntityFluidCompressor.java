@@ -9,6 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Storage;
 
+import java.util.ArrayList;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 import Reika.DragonAPI.Instantiable.HybridTank;
 import Reika.DragonAPI.Libraries.ReikaNBTHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
@@ -17,17 +27,6 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.PipeConnector;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import java.util.ArrayList;
-
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
 
 public class TileEntityFluidCompressor extends TileEntityPowerReceiver implements IFluidHandler, PipeConnector, NBTMachine {
 
@@ -66,7 +65,7 @@ public class TileEntityFluidCompressor extends TileEntityPowerReceiver implement
 			timer++;
 			//ReikaJavaLibrary.pConsole(timer, Side.SERVER);
 			if (timer > 400) {
-				world.setBlockToAir(x, y, z);
+				world.setBlock(x, y, z, 0);
 				world.createExplosion(null, x+0.5, y+0.5, z+0.5, 8F, ConfigRegistry.BLOCKDAMAGE.getState());
 			}
 			else if (timer > 0) {

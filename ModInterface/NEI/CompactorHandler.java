@@ -9,12 +9,7 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
-import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
-import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesCompactor;
-import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiGrinder;
+import static codechicken.core.gui.GuiDraw.drawTexturedModalRect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +20,10 @@ import net.minecraft.item.ItemStack;
 
 import org.lwjgl.opengl.GL11;
 
+import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesCompactor;
+import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiGrinder;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 
@@ -49,7 +48,7 @@ public class CompactorHandler extends TemplateRecipeHandler {
 		@Override
 		public PositionedStack getIngredient()
 		{
-			return new PositionedStack(ReikaItemHelper.getSizedItemStack(input, 1), 71, 24);
+			return new PositionedStack(new ItemStack(input.itemID, 1, input.getItemDamage()), 71, 24);
 		}
 
 		@Override
@@ -81,7 +80,7 @@ public class CompactorHandler extends TemplateRecipeHandler {
 		GL11.glColor4f(1, 1, 1, 1);
 		ReikaTextureHelper.bindTexture(RotaryCraft.class, this.getGuiTexture());
 		int dy = 4;
-		ReikaGuiAPI.instance.drawTexturedModalRect(0, dy, 5, dy, 166, 75);
+		drawTexturedModalRect(0, dy, 5, dy, 166, 75);
 	}
 
 	@Override
@@ -116,8 +115,8 @@ public class CompactorHandler extends TemplateRecipeHandler {
 	@Override
 	public void drawExtras(int recipe)
 	{
-		ReikaGuiAPI.instance.drawTexturedModalRect(142, 26, 176, 37, 4, 44);
-		ReikaGuiAPI.instance.drawTexturedModalRect(112, 25, 181, 41, 11, 46);
+		drawTexturedModalRect(142, 26, 176, 37, 4, 44);
+		drawTexturedModalRect(112, 25, 181, 41, 11, 46);
 
 		int pressure = this.getPressure(recipe);
 		int temperature = this.getTemperature(recipe);

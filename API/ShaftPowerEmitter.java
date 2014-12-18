@@ -9,7 +9,7 @@
  ******************************************************************************/
 package Reika.RotaryCraft.API;
 
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.common.ForgeDirection;
 
 public interface ShaftPowerEmitter extends ShaftMachine, PowerGenerator {
 

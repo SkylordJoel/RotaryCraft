@@ -9,6 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Engine;
 
+import java.util.List;
+
+import micdoodle8.mods.galacticraft.api.world.IGalacticraftWorldProvider;
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.FluidRegistry;
 import Reika.DragonAPI.Instantiable.Data.BlockArray;
 import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
 import Reika.DragonAPI.Libraries.Java.ReikaRandomHelper;
@@ -23,18 +33,6 @@ import Reika.RotaryCraft.Registry.EngineType;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
 import Reika.RotaryCraft.TileEntities.Storage.TileEntityReservoir;
-
-import java.util.List;
-
-import micdoodle8.mods.galacticraft.api.world.IGalacticraftWorldProvider;
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidRegistry;
 
 public class TileEntityHydroEngine extends TileEntityEngine {
 
@@ -67,14 +65,14 @@ public class TileEntityHydroEngine extends TileEntityEngine {
 		}
 
 		int[] pos = this.getWaterColumnPos();
-		Block id = world.getBlock(pos[0], y, pos[1]);
-		if (id == Blocks.flowing_lava || id == Blocks.lava) {
+		int id = world.getBlockId(pos[0], y, pos[1]);
+		if (id == Block.lavaMoving.blockID || id == Block.lavaStill.blockID) {
 			if (ReikaRandomHelper.doWithChance(2)) {
 				world.createExplosion(null, x+0.5, y+0.5, z+0.5, 2, true);
-				world.setBlockToAir(x, y, z);
+				world.setBlock(x, y, z, 0);
 			}
 		}
-		if (id != Blocks.water && id != Blocks.flowing_water)
+		if (id != Block.waterStill.blockID && id != Block.waterMoving.blockID)
 			return false;
 		if (!ReikaWorldHelper.isLiquidAColumn(world, pos[0], y, pos[1]))
 			return false;
@@ -196,7 +194,7 @@ public class TileEntityHydroEngine extends TileEntityEngine {
 		MachineRegistry from = MachineRegistry.getMachine(worldObj, backx, yCoord, backz);
 		MachineRegistry to = this.getMachine(write);
 		if (from == MachineRegistry.ENGINE && to != MachineRegistry.ENGINE) {
-			TileEntityEngine te = (TileEntityEngine)worldObj.getTileEntity(backx, yCoord, backz);
+			TileEntityEngine te = (TileEntityEngine)worldObj.getBlockTileEntity(backx, yCoord, backz);
 			return te.getEngineType() == EngineType.HYDRO;
 		}
 		return false;
@@ -215,7 +213,7 @@ public class TileEntityHydroEngine extends TileEntityEngine {
 			double size = 0;
 			for (int i = 0; i < b.getSize(); i++) {
 				int[] xyz = b.getNthBlock(i);
-				TileEntity te = worldObj.getTileEntity(xyz[0], xyz[1], xyz[2]);
+				TileEntity te = worldObj.getBlockTileEntity(xyz[0], xyz[1], xyz[2]);
 				if (te instanceof TileEntityHydroEngine) {
 					TileEntityHydroEngine eng = (TileEntityHydroEngine)te;
 					if (eng.getRequirements(worldObj, xyz[0], xyz[1], xyz[2], eng.getBlockMetadata())) {

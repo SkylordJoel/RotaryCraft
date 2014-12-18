@@ -9,21 +9,8 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Weaponry;
 
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.ReikaSpawnerHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaPhysicsHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityLaunchCannon;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-
 import net.minecraft.block.Block;
-import net.minecraft.entity.item.EntityFallingBlock;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
+import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -31,10 +18,20 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.ReikaSpawnerHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaPhysicsHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityLaunchCannon;
+import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityBlockCannon extends TileEntityLaunchCannon {
 
@@ -42,7 +39,7 @@ public class TileEntityBlockCannon extends TileEntityLaunchCannon {
 	public boolean isItemValidForSlot(int slot, ItemStack is) {
 		if (ReikaItemHelper.isBlock(is))
 			return true;
-		return ItemRegistry.SPAWNER.matchItem(is) || FluidContainerRegistry.getFluidForFilledItem(is) != null;
+		return is.itemID == RotaryCraft.spawner.itemID || FluidContainerRegistry.getFluidForFilledItem(is) != null;
 	}
 
 	@Override
@@ -77,7 +74,7 @@ public class TileEntityBlockCannon extends TileEntityLaunchCannon {
 	}
 
 	private double getBlockMass(ItemStack is) {
-		return ReikaPhysicsHelper.getBlockDensity(Block.getBlockFromItem(is.getItem()));
+		return ReikaPhysicsHelper.getBlockDensity(Block.blocksList[is.itemID]);
 	}
 
 	private int getReqTorque(ItemStack is) {
@@ -96,27 +93,27 @@ public class TileEntityBlockCannon extends TileEntityLaunchCannon {
 						return ReikaItemHelper.getSizedItemStack(is, 1);
 					}
 				}
-				else if (ItemRegistry.SPAWNER.matchItem(inv[i])) {
-					ItemStack is = new ItemStack(Blocks.mob_spawner);
+				else if (inv[i].itemID == RotaryCraft.spawner.itemID) {
+					ItemStack is = new ItemStack(Block.mobSpawner);
 					is.stackTagCompound = inv[i].stackTagCompound;
 					if (torque >= this.getReqTorque(is)) {
 						ReikaInventoryHelper.decrStack(i, inv);
 						return is;
 					}
 				}
-				else if (inv[i].getItem() == Items.water_bucket) {
-					ItemStack is = new ItemStack(Blocks.flowing_water);
+				else if (inv[i].itemID == Item.bucketWater.itemID) {
+					ItemStack is = new ItemStack(Block.waterMoving);
 					if (torque >= this.getReqTorque(is)) {
 						ReikaInventoryHelper.decrStack(i, inv);
-						this.dropItem(new ItemStack(Items.bucket));
+						this.dropItem(new ItemStack(Item.bucketEmpty));
 						return is;
 					}
 				}
-				else if (inv[i].getItem() == Items.lava_bucket) {
-					ItemStack is = new ItemStack(Blocks.flowing_lava);
+				else if (inv[i].itemID == Item.bucketLava.itemID) {
+					ItemStack is = new ItemStack(Block.lavaMoving);
 					if (torque >= this.getReqTorque(is)) {
 						ReikaInventoryHelper.decrStack(i, inv);
-						this.dropItem(new ItemStack(Items.bucket));
+						this.dropItem(new ItemStack(Item.bucketEmpty));
 						return is;
 					}
 				}
@@ -125,7 +122,7 @@ public class TileEntityBlockCannon extends TileEntityLaunchCannon {
 					if (fs != null) {
 						Fluid f = fs.getFluid();
 						if (f.canBePlacedInWorld()) {
-							ItemStack is = new ItemStack(f.getBlock());
+							ItemStack is = new ItemStack(Block.blocksList[f.getBlockID()]);
 							if (torque >= this.getReqTorque(is)) {
 								Item cont = inv[i].getItem().getContainerItem();
 								ReikaInventoryHelper.decrStack(i, inv);
@@ -156,20 +153,20 @@ public class TileEntityBlockCannon extends TileEntityLaunchCannon {
 	}
 
 	private void fireBlock(ItemStack is, World world, int x, int y, int z) {
-		EntityFallingBlock e = new EntityFallingBlock(world, x+0.5, y+1+0.5, z+0.5, Block.getBlockFromItem(is.getItem()), is.getItemDamage());
-		if (ReikaItemHelper.matchStackWithBlock(is, Blocks.mob_spawner)) {
+		EntityFallingSand e = new EntityFallingSand(world, x+0.5, y+1+0.5, z+0.5, is.itemID, is.getItemDamage());
+		if (is.itemID == Block.mobSpawner.blockID) {
 			TileEntityMobSpawner spw = new TileEntityMobSpawner();
 			ReikaSpawnerHelper.setSpawnerFromItemNBT(is, spw);
 			NBTTagCompound nbt = new NBTTagCompound();
 			spw.writeToNBT(nbt);
-			e.field_145810_d = nbt;
+			e.fallingBlockTileEntityData = nbt;
 		}
 		double[] vel = ReikaPhysicsHelper.polarToCartesian(velocity/20D, theta, phi);
 		e.motionX = vel[0];
 		e.motionY = vel[1];
 		e.motionZ = vel[2];
 		//e.shouldDropItem = false;
-		e.field_145812_b = -10000;
+		e.fallTime = -10000;
 		if (!world.isRemote)
 			world.spawnEntityInWorld(e);
 	}

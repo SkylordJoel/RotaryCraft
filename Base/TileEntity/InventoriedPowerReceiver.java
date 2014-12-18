@@ -9,17 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base.TileEntity;
 
-import Reika.DragonAPI.Interfaces.InertIInv;
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.RotaryCraft.RotaryCraft;
-
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import Reika.DragonAPI.Interfaces.InertIInv;
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.RotaryCraft.RotaryCraft;
 
 public abstract class InventoriedPowerReceiver extends TileEntityPowerReceiver implements ISidedInventory {
 
@@ -33,33 +31,22 @@ public abstract class InventoriedPowerReceiver extends TileEntityPowerReceiver i
 		inv[par1] = is;
 	}
 
-	public final String getInventoryName() {
-		return this.getMultiValuedName();
+	public void openChest() {
+
 	}
 
-	public void openInventory() {}
+	public void closeChest() {
 
-	public void closeInventory() {}
-
-	@Override
-	public final boolean hasCustomInventoryName() {
-		return true;
-	}
-
-	@Override
-	public final void markDirty() {
-		blockMetadata = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
-		worldObj.markTileEntityChunkModified(xCoord, yCoord, zCoord, this);
-
-		if (this.getBlockType() != Blocks.air)
-		{
-			worldObj.func_147453_f(xCoord, yCoord, zCoord, this.getBlockType());
-		}
 	}
 
 	public int getInventoryStackLimit()
 	{
 		return 64;
+	}
+
+	@Override
+	public final boolean isInvNameLocalized() {
+		return false;
 	}
 
 	public final ItemStack decrStackSize(int par1, int par2) {
@@ -80,6 +67,10 @@ public abstract class InventoriedPowerReceiver extends TileEntityPowerReceiver i
 		if (this instanceof InertIInv)
 			return false;
 		return ((IInventory)this).isItemValidForSlot(i, is);
+	}
+
+	public final String getInvName() {
+		return this.getMultiValuedName();
 	}
 
 	public boolean isUseableByPlayer(EntityPlayer var1) {
@@ -111,12 +102,12 @@ public abstract class InventoriedPowerReceiver extends TileEntityPowerReceiver i
 	{
 		super.readFromNBT(NBT);
 
-		NBTTagList nbttaglist = NBT.getTagList("Items", NBT.getId());
+		NBTTagList nbttaglist = NBT.getTagList("Items");
 		inv = new ItemStack[this.getSizeInventory()];
 
 		for (int i = 0; i < nbttaglist.tagCount(); i++)
 		{
-			NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
+			NBTTagCompound nbttagcompound = (NBTTagCompound)nbttaglist.tagAt(i);
 			short byte0 = nbttagcompound.getShort("Slot");
 
 			if (byte0 >= 0 && byte0 < inv.length) {

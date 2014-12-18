@@ -9,28 +9,28 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary.RecipeManagers;
 
-import Reika.DragonAPI.Instantiable.Data.ItemHashMap;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaOreHelper;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-import Reika.RotaryCraft.Registry.ItemRegistry;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaOreHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
 
 public class RecipesExtractor
 {
 	private static final RecipesExtractor ExtractorBase = new RecipesExtractor();
 
 	/** The list of smelting results. */
-	private ItemHashMap<ItemStack> recipeList = new ItemHashMap();
+	private Map metaSmeltingList = new HashMap();
 
 	/**
 	 * Used to call methods addSmelting and getSmeltingResult.
 	 */
-	public static final RecipesExtractor recipes()
+	public static final RecipesExtractor smelting()
 	{
 		return ExtractorBase;
 	}
@@ -38,42 +38,28 @@ public class RecipesExtractor
 	private RecipesExtractor()
 	{
 		for (int i = 0; i < 24; i++)
-			this.addRecipe(ItemRegistry.EXTRACTS.getStackOfMetadata(i), ItemRegistry.EXTRACTS.getStackOfMetadata(i+8), 0.7F);
+			this.addSmelting(RotaryCraft.extracts.itemID, i, new ItemStack(RotaryCraft.extracts.itemID, 1, i+8), 0.7F);
 
-		this.addRecipe(Blocks.coal_ore, 0, ItemRegistry.EXTRACTS.getStackOfMetadata(0), 0F);
-		this.addRecipe(Blocks.iron_ore, 0, ItemRegistry.EXTRACTS.getStackOfMetadata(1), 0F);
-		this.addRecipe(Blocks.gold_ore, 0, ItemRegistry.EXTRACTS.getStackOfMetadata(2), 0F);
-		this.addRecipe(Blocks.redstone_ore, 0, ItemRegistry.EXTRACTS.getStackOfMetadata(3), 0F);
-		this.addRecipe(Blocks.lapis_ore, 0, ItemRegistry.EXTRACTS.getStackOfMetadata(4), 0F);
-		this.addRecipe(Blocks.diamond_ore, 0, ItemRegistry.EXTRACTS.getStackOfMetadata(5), 0F);
-		this.addRecipe(Blocks.emerald_ore, 0, ItemRegistry.EXTRACTS.getStackOfMetadata(6), 0F);
-		this.addRecipe(Blocks.quartz_ore, 0, ItemRegistry.EXTRACTS.getStackOfMetadata(7), 0.7F);
+		this.addSmelting(Block.oreCoal.blockID, 0, new ItemStack(RotaryCraft.extracts.itemID, 1, 0), 0F);
+		this.addSmelting(Block.oreIron.blockID, 0, new ItemStack(RotaryCraft.extracts.itemID, 1, 1), 0F);
+		this.addSmelting(Block.oreGold.blockID, 0, new ItemStack(RotaryCraft.extracts.itemID, 1, 2), 0F);
+		this.addSmelting(Block.oreRedstone.blockID, 0, new ItemStack(RotaryCraft.extracts.itemID, 1, 3), 0F);
+		this.addSmelting(Block.oreLapis.blockID, 0, new ItemStack(RotaryCraft.extracts.itemID, 1, 4), 0F);
+		this.addSmelting(Block.oreDiamond.blockID, 0, new ItemStack(RotaryCraft.extracts.itemID, 1, 5), 0F);
+		this.addSmelting(Block.oreEmerald.blockID, 0, new ItemStack(RotaryCraft.extracts.itemID, 1, 6), 0F);
+		this.addSmelting(Block.oreNetherQuartz.blockID, 0, new ItemStack(RotaryCraft.extracts.itemID, 1, 7), 0.7F);
 	}
 
-	private void addRecipe(Block in, ItemStack out, float xp)
+	/**
+	 * Add a metadata-sensitive furnace recipe
+	 * @param itemID The Item ID
+	 * @param metadata The Item Metadata
+	 * @param itemstack The ItemStack for the result
+	 */
+	private void addSmelting(int itemID, int metadata, ItemStack itemstack, float xp)
 	{
-		this.addRecipe(new ItemStack(in), out, xp);
-	}
-
-	private void addRecipe(Block in, int meta, ItemStack out, float xp)
-	{
-		this.addRecipe(new ItemStack(in, 1, meta), out, xp);
-	}
-
-	private void addRecipe(Item in, ItemStack out, float xp)
-	{
-		this.addRecipe(new ItemStack(in), out, xp);
-	}
-
-	private void addRecipe(Item in, int dmg, ItemStack out, float xp)
-	{
-		this.addRecipe(new ItemStack(in, 1, dmg), out, xp);
-	}
-
-	private void addRecipe(ItemStack in, ItemStack out, float xp)
-	{
-		recipeList.put(in, out);
-		//this.ExtractorExperience.put(Integer.valueOf(itemstack.getItem), Float.valueOf(xp));
+		metaSmeltingList.put(Arrays.asList(itemID, metadata), itemstack);
+		//this.ExtractorExperience.put(Integer.valueOf(itemStack.itemID), Float.valueOf(xp));
 	}
 
 	/**
@@ -89,30 +75,30 @@ public class RecipesExtractor
 		if (ore != null) {
 			item = ore.getOreBlock();
 		}
-		ItemStack ret = recipeList.get(item);
+		ItemStack ret = (ItemStack)metaSmeltingList.get(Arrays.asList(item.itemID, item.getItemDamage()));
 		return ret;
 	}
 
 	public static boolean isDust(ItemStack is) {
-		if (!ItemRegistry.EXTRACTS.matchItem(is))
+		if (is.itemID != RotaryCraft.extracts.itemID)
 			return false;
 		return is.getItemDamage() < 8;
 	}
 
 	public static boolean isSlurry(ItemStack is) {
-		if (!ItemRegistry.EXTRACTS.matchItem(is))
+		if (is.itemID != RotaryCraft.extracts.itemID)
 			return false;
 		return is.getItemDamage() < 16 && is.getItemDamage() >= 8;
 	}
 
 	public static boolean isSolution(ItemStack is) {
-		if (!ItemRegistry.EXTRACTS.matchItem(is))
+		if (is.itemID != RotaryCraft.extracts.itemID)
 			return false;
 		return is.getItemDamage() < 24 && is.getItemDamage() >= 16;
 	}
 
 	public static boolean isFlakes(ItemStack is) {
-		if (!ItemRegistry.EXTRACTS.matchItem(is))
+		if (is.itemID != RotaryCraft.extracts.itemID)
 			return false;
 		return is.getItemDamage() < 32 && is.getItemDamage() >= 24 || ReikaItemHelper.matchStacks(is, ItemStacks.silverflakes);
 	}

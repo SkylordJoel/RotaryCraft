@@ -9,6 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.RotaryCraft.API.ShaftPowerReceiver;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
@@ -23,14 +30,6 @@ import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityPowerBus;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityShaft;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntitySplitter;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -88,8 +87,8 @@ public class TorqueUsage {
 					}
 				}
 				else {
-					TileEntity di = world.getTileEntity(spl.writeinline[0], tile.yCoord, spl.writeinline[1]); //records both outputs
-					TileEntity di2 = world.getTileEntity(spl.writebend[0], tile.yCoord, spl.writebend[1]);
+					TileEntity di = world.getBlockTileEntity(spl.writeinline[0], tile.yCoord, spl.writeinline[1]); //records both outputs
+					TileEntity di2 = world.getBlockTileEntity(spl.writebend[0], tile.yCoord, spl.writebend[1]);
 					if (!TEMap.containsKey(di) && isPoweredFrom(world, di)) { //calls the recursion first with one output, then with the other
 						addToList(di, tile);
 					}
@@ -198,7 +197,7 @@ public class TorqueUsage {
 			else if (tile instanceof TileEntityBeltHub) {
 				TileEntityBeltHub hub = (TileEntityBeltHub)tile;
 				if (!hub.isEmitting) {
-					TileEntity di = world.getTileEntity(hub.getTargetX(), hub.getTargetY(), hub.getTargetZ());
+					TileEntity di = world.getBlockTileEntity(hub.getTargetX(), hub.getTargetY(), hub.getTargetZ());
 					if (di != null && di instanceof TileEntityBeltHub) {
 						TileEntityBeltHub h2 = (TileEntityBeltHub)di;
 						TileEntity write = h2.getWriteTileEntity();
@@ -232,7 +231,7 @@ public class TorqueUsage {
 				for (int k = 2; k < 6; k++) {
 					ForgeDirection dir = ForgeDirection.VALID_DIRECTIONS[k];
 					if (te.canOutputToSide(dir)) {
-						TileEntity out = world.getTileEntity(te.xCoord+dir.offsetX, te.yCoord+dir.offsetY, te.zCoord+dir.offsetZ);
+						TileEntity out = world.getBlockTileEntity(te.xCoord+dir.offsetX, te.yCoord+dir.offsetY, te.zCoord+dir.offsetZ);
 						if (out != null && out instanceof TileEntityIOMachine) {
 							TileEntityIOMachine io = (TileEntityIOMachine)out;
 							TileEntity read = io.getReadTileEntity();
@@ -333,7 +332,7 @@ public class TorqueUsage {
 		else if (tile instanceof TileEntityBeltHub) {
 			TileEntityBeltHub hub = (TileEntityBeltHub)tile;
 			if (!((TileEntityBeltHub) tile).isEmitting) {
-				TileEntity di = world.getTileEntity(hub.getTargetX(), hub.getTargetY(),hub.getTargetZ());
+				TileEntity di = world.getBlockTileEntity(hub.getTargetX(), hub.getTargetY(),hub.getTargetZ());
 				if (di != null) {
 					TileEntityBeltHub h2 = (TileEntityBeltHub)di;
 					TileEntity write = h2.getWriteTileEntity();

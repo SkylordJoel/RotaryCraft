@@ -9,6 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Processing;
 
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
@@ -19,16 +28,6 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
 import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
 import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import java.util.List;
-
-import net.minecraft.block.material.Material;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityPurifier extends InventoriedPowerReceiver implements TemperatureTE, DiscreteFunction, ConditionalOperation {
 
@@ -80,7 +79,7 @@ public class TileEntityPurifier extends InventoriedPowerReceiver implements Temp
 		}
 		if (count <= 0)
 			return;
-		ReikaInventoryHelper.addOrSetStack(ItemStacks.steelingot.getItem(), count, ItemStacks.steelingot.getItemDamage(), inv, 6);
+		ReikaInventoryHelper.addOrSetStack(ItemStacks.steelingot.itemID, count, ItemStacks.steelingot.getItemDamage(), inv, 6);
 		if (rand.nextInt(25) == 0)
 			ReikaInventoryHelper.decrStack(0, inv);
 		if (rand.nextInt(5) == 0)
@@ -96,11 +95,11 @@ public class TileEntityPurifier extends InventoriedPowerReceiver implements Temp
 			return false;
 		if (inv[0] == null)
 			return false;
-		if (inv[0].getItem() != Items.gunpowder)
+		if (inv[0].itemID != Item.gunpowder.itemID)
 			return false;
 		if (inv[7] == null)
 			return false;
-		if (!ReikaItemHelper.matchStackWithBlock(inv[7], Blocks.sand))
+		if (inv[7].itemID != Block.sand.blockID)
 			return false;
 		for (int i = 1; i < 6; i++) {
 			if (this.isModSteel(inv[i]))
@@ -115,7 +114,7 @@ public class TileEntityPurifier extends InventoriedPowerReceiver implements Temp
 		List steel = ItemStacks.getModSteels();
 		for (int i = 0; i < steel.size(); i++) {
 			ItemStack s = (ItemStack)steel.get(i);
-			if (is.getItem() == s.getItem() && (is.getItemDamage() == s.getItemDamage() || !s.getHasSubtypes()))
+			if (is.itemID == s.itemID && (is.getItemDamage() == s.getItemDamage() || !s.getHasSubtypes()))
 				return true;
 		}
 		return false;
@@ -124,9 +123,9 @@ public class TileEntityPurifier extends InventoriedPowerReceiver implements Temp
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack is) {
 		if (slot == 0)
-			return is.getItem() == Items.gunpowder;
+			return is.itemID == Item.gunpowder.itemID;
 		if (slot == 7)
-			return ReikaItemHelper.matchStackWithBlock(is, Blocks.sand);
+			return is.itemID == Block.sand.blockID;
 		if (slot == 6)
 			return false;
 		return this.isModSteel(is);
@@ -173,13 +172,13 @@ public class TileEntityPurifier extends InventoriedPowerReceiver implements Temp
 		if (waterside != null) {
 			Tamb /= 2;
 		}
-		ForgeDirection iceside = ReikaWorldHelper.checkForAdjBlock(world, x, y, z, Blocks.ice);
+		ForgeDirection iceside = ReikaWorldHelper.checkForAdjBlock(world, x, y, z, Block.ice.blockID);
 		if (iceside != null) {
 			if (Tamb > 0)
 				Tamb /= 4;
-			ReikaWorldHelper.changeAdjBlock(world, x, y, z, iceside, Blocks.flowing_water, 0);
+			ReikaWorldHelper.changeAdjBlock(world, x, y, z, iceside, Block.waterMoving.blockID, 0);
 		}
-		ForgeDirection fireside = ReikaWorldHelper.checkForAdjBlock(world, x, y, z, Blocks.fire);
+		ForgeDirection fireside = ReikaWorldHelper.checkForAdjBlock(world, x, y, z, Block.fire.blockID);
 		if (fireside != null) {
 			Tamb += 200;
 		}
@@ -203,7 +202,7 @@ public class TileEntityPurifier extends InventoriedPowerReceiver implements Temp
 
 	public void overheat(World world, int x, int y, int z) {
 		world.setBlockToAir(x, y, z);
-		ReikaWorldHelper.overheat(world, x, y, z, ItemStacks.scrap.copy(), 0, 7, false, 1F, false, true, 2F);
+		ReikaWorldHelper.overheat(world, x, y, z, ItemStacks.scrap.itemID, ItemStacks.scrap.getItemDamage(), 0, 7, false, 1F, false, true, 2F);
 	}
 
 	@Override
@@ -215,7 +214,7 @@ public class TileEntityPurifier extends InventoriedPowerReceiver implements Temp
 	public int getRedstoneOverride() {
 		if (inv[0] == null)
 			return 15;
-		if (inv[0].getItem() != Items.gunpowder)
+		if (inv[0].itemID != Item.gunpowder.itemID)
 			return 0;
 		boolean hasModSteel = false;
 		for (int i = 1; i < 6; i++) {

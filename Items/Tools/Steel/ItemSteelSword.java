@@ -9,19 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Steel;
 
-import Reika.DragonAPI.Interfaces.IndexedItemSprites;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-
+import net.minecraft.item.EnumToolMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
+import Reika.DragonAPI.Interfaces.IndexedItemSprites;
+import Reika.RotaryCraft.RotaryCraft;
 
 public class ItemSteelSword extends ItemSword implements IndexedItemSprites {
 
 	private int index;
 
-	public ItemSteelSword(int tex) {
-		super(ToolMaterial.IRON);
+	public ItemSteelSword(int par1, int tex) {
+		super(par1, EnumToolMaterial.IRON);
 		this.setIndex(tex);
 		maxStackSize = 1;
 		this.setMaxDamage(600);
@@ -45,11 +44,6 @@ public class ItemSteelSword extends ItemSword implements IndexedItemSprites {
 	@Override
 	public Class getTextureReferenceClass() {
 		return RotaryCraft.class;
-	}
-
-	@Override
-	public String getItemStackDisplayName(ItemStack is) {
-		return ItemRegistry.getEntry(is).getBasicName();
 	}
 
 }

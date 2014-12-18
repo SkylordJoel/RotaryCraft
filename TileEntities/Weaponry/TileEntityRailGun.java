@@ -9,6 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Weaponry;
 
+import java.util.List;
+
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
@@ -18,31 +24,24 @@ import Reika.RotaryCraft.Entities.EntityRailGunShot;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 
-import java.util.List;
-
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-
 public class TileEntityRailGun extends TileEntityInventoriedCannon {
 
 	private boolean isExplosiveShell = false;
 
 	public int getPowerLevel() {
-		int meta = ReikaInventoryHelper.findMaxMetadataOfID(ItemRegistry.RAILGUN.getItemInstance(), inv);
+		int meta = ReikaInventoryHelper.findMaxMetadataOfID(ItemRegistry.RAILGUN.getShiftedID(), inv);
 		return meta;
 	}
 
 	@Override
 	public boolean hasAmmo() {
-		if (ReikaInventoryHelper.checkForItem(ItemRegistry.RAILGUN.getItemInstance(), inv)) {
+		if (ReikaInventoryHelper.checkForItem(ItemRegistry.RAILGUN.getShiftedID(), inv)) {
 			isExplosiveShell = false;
 			return true;
 		}
 		else {
 			isExplosiveShell = true;
-			return ReikaInventoryHelper.checkForItem(ItemRegistry.SHELL.getItemInstance(), inv);
+			return ReikaInventoryHelper.checkForItem(ItemRegistry.SHELL.getShiftedID(), inv);
 		}
 	}
 
@@ -68,7 +67,7 @@ public class TileEntityRailGun extends TileEntityInventoriedCannon {
 	protected double[] getTarget(World world, int x, int y, int z) {
 		double[] xyzb = new double[4];
 		int r = this.getRange();
-		AxisAlignedBB range = AxisAlignedBB.getBoundingBox(x-r, y-r, z-r, x+1+r, y+1+r, z+1+r);
+		AxisAlignedBB range = AxisAlignedBB.getAABBPool().getAABB(x-r, y-r, z-r, x+1+r, y+1+r, z+1+r);
 		List inrange = world.getEntitiesWithinAABB(EntityLivingBase.class, range);
 		double mindist = this.getRange()+2;
 		int i_at_min = -1;
@@ -105,13 +104,13 @@ public class TileEntityRailGun extends TileEntityInventoriedCannon {
 		double speed = 4;
 		int maxmeta = this.getMaxThrust();
 		if (isExplosiveShell) {
-			int m = ReikaInventoryHelper.findMaxMetadataOfIDWithinMaximum(ItemRegistry.SHELL.getItemInstance(), inv, maxmeta);
-			int slot = ReikaInventoryHelper.locateInInventory(ItemRegistry.SHELL.getItemInstance(), m, inv);
+			int m = ReikaInventoryHelper.findMaxMetadataOfIDWithinMaximum(ItemRegistry.SHELL.getShiftedID(), inv, maxmeta);
+			int slot = ReikaInventoryHelper.locateInInventory(ItemRegistry.SHELL.getShiftedID(), m, inv);
 			ReikaInventoryHelper.decrStack(slot, inv);
 		}
 		else {
-			int m = ReikaInventoryHelper.findMaxMetadataOfIDWithinMaximum(ItemRegistry.RAILGUN.getItemInstance(), inv, maxmeta);
-			int slot = ReikaInventoryHelper.locateInInventory(ItemRegistry.RAILGUN.getItemInstance(), m, inv);
+			int m = ReikaInventoryHelper.findMaxMetadataOfIDWithinMaximum(ItemRegistry.RAILGUN.getShiftedID(), inv, maxmeta);
+			int slot = ReikaInventoryHelper.locateInInventory(ItemRegistry.RAILGUN.getShiftedID(), m, inv);
 			ReikaInventoryHelper.decrStack(slot, inv);
 		}
 		double[] v = new double[3];
@@ -180,7 +179,7 @@ public class TileEntityRailGun extends TileEntityInventoriedCannon {
 
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack is) {
-		return is.getItem() == ItemRegistry.RAILGUN.getItemInstance();
+		return is.itemID == ItemRegistry.RAILGUN.getShiftedID();
 	}
 
 	@Override

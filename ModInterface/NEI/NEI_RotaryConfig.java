@@ -9,17 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
+import java.util.ArrayList;
+
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiWorktable;
 import Reika.RotaryCraft.Registry.BlockRegistry;
+import Reika.RotaryCraft.Registry.ExtraConfigIDs;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import java.util.ArrayList;
-
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import codechicken.nei.api.API;
 import codechicken.nei.api.IConfigureNEI;
 import codechicken.nei.recipe.DefaultOverlayHandler;
@@ -109,42 +106,47 @@ public class NEI_RotaryConfig implements IConfigureNEI {
 		API.registerUsageHandler(centrifuge);
 
 		RotaryCraft.logger.log("Hiding technical blocks from NEI!");
-		for (int i = 0; i < BlockRegistry.blockList.length; i++) {
-			if (BlockRegistry.blockList[i].isTechnical())
-				this.hideBlock(BlockRegistry.blockList[i].getBlockInstance());
-		}
+		for (int i = 0; i < BlockRegistry.blockList.length; i++)
+			API.hideItem(BlockRegistry.blockList[i].getBlockID());
+
+		API.hideItem(RotaryCraft.lightblock.blockID);
+		API.hideItem(RotaryCraft.lightbridge.blockID);
+		API.hideItem(RotaryCraft.beamblock.blockID);
+		API.hideItem(RotaryCraft.canola.blockID);
+		API.hideItem(RotaryCraft.miningpipe.blockID);
 
 		for (int i = 0; i < ItemRegistry.itemList.length; i++) {
 			ItemRegistry ir = ItemRegistry.itemList[i];
 			if (ir.isContinuousCreativeMetadatas()) {
 				int max = ir.getNumberMetadatas()-1;
-				Item id = ir.getItemInstance();
-				ArrayList<ItemStack> li = new ArrayList();
-				for (int k = 0; k < ir.getNumberMetadatas(); k++) {
-					li.add(ir.getStackOfMetadata(k));
-				}
-				API.setItemListEntries(id, li);
+				int id = ir.getShiftedID();
+				ArrayList<int[]> li = new ArrayList();
+				li.add(new int[]{0, max});
+				API.setItemDamageVariants(id, li);
 			}
 		}
 
-		ArrayList<ItemStack> li = new ArrayList();
+		ArrayList<Integer> li = new ArrayList();
 		for (int i = 0; i < MachineRegistry.machineList.length; i++) {
 			MachineRegistry m = MachineRegistry.machineList[i];
 			if (m.isAvailableInCreativeInventory() && !m.hasCustomPlacerItem())
-				li.add(m.getCraftedProduct());
+				li.add(i);
 		}
-		API.setItemListEntries(ItemRegistry.MACHINE.getItemInstance(), li);
+		API.setItemDamageVariants(RotaryCraft.machineplacer.itemID, li);
 
 		if (RotaryCraft.instance.isLocked()) {
+			for (int i = 0; i < ExtraConfigIDs.idList.length; i++) {
+				ExtraConfigIDs ID = ExtraConfigIDs.idList[i];
+				if (ID.isBlock())
+					API.hideItem(ID.getValue());
+				else if (ID.isItem())
+					API.hideItem(ID.getShiftedValue());
+			}
 			for (int i = 0; i < ItemRegistry.itemList.length; i++) {
 				ItemRegistry ir = ItemRegistry.itemList[i];
-				API.hideItem(new ItemStack(ir.getItemInstance()));
+				API.hideItem(ir.getShiftedID());
 			}
 		}
-	}
-
-	private void hideBlock(Block b) {
-		API.hideItem(new ItemStack(b));
 	}
 
 	@Override

@@ -9,43 +9,35 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.Base.BlockBasic;
-
 import java.util.ArrayList;
 import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.item.Item;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Base.BlockBasic;
 
 public class BlockLightBridge extends BlockBasic {
 
-	public BlockLightBridge() {
-		super(Material.portal);	//immovable
-		this.setLightLevel(0.5F);
+	public BlockLightBridge(int ID) {
+		super(ID, Material.portal);	//immovable
+		this.setLightValue(0.5F);
 		this.setBlockUnbreakable();
 		this.setResistance(3600000F);
-		this.setStepSound(soundTypeGlass);	//Custom sound from Portal 2?
+		this.setStepSound(soundGlassFootstep);	//Custom sound from Portal 2?
 		////this.requiresSelfNotify[this.blockID] = true;
 
 		//this.blockIndexInTexture = 61;
 	}
 
 	@Override
-	protected boolean isAvailableInCreativeMode() {
-		return false;
-	}
-
-	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
+	public int idDropped(int par1, Random par2Random, int par3)
 	{
-		return null;
+		return 0;
 	}
 
 	@Override
@@ -67,7 +59,7 @@ public class BlockLightBridge extends BlockBasic {
 	}
 
 	@Override
-	public final ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+	public final ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune)
 	{
 		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
 		return ret;
@@ -111,18 +103,18 @@ public class BlockLightBridge extends BlockBasic {
 	}
 
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, Block id)
+	public void onNeighborBlockChange(World world, int x, int y, int z, int id)
 	{
 		//if (id != blockID && id != 0)
 		//	world.setBlock(x, y, z, 0, 0, 2);
 	}
 
 	@Override
-	public IIcon getIcon(int s, int meta) {
+	public Icon getIcon(int s, int meta) {
 		return icons[meta][s];
 	}
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister) {
+	public void registerIcons(IconRegister par1IconRegister) {
 		if (RotaryCraft.instance.isLocked())
 			return;
 		for (int i = 0; i < 2; i++)

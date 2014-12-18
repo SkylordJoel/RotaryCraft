@@ -9,6 +9,21 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
+import java.util.ArrayList;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
@@ -21,26 +36,10 @@ import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MaterialRegistry;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
 
-import java.util.ArrayList;
-
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-
 public class BlockGearbox extends BlockModelledMachine {
 
-	public BlockGearbox(Material mat) {
-		super(mat);
+	public BlockGearbox(int ID, Material mat) {
+		super(ID, mat);
 		//this.blockIndexInTexture = 8;
 		//this.blockHardness = 0.5F;
 	}
@@ -52,8 +51,8 @@ public class BlockGearbox extends BlockModelledMachine {
 	}
 
 	@Override
-	public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face) {
-		TileEntityGearbox tg = (TileEntityGearbox)world.getTileEntity(x, y, z);
+	public int getFlammability(IBlockAccess world, int x, int y, int z, int metadata, ForgeDirection face) {
+		TileEntityGearbox tg = (TileEntityGearbox)world.getBlockTileEntity(x, y, z);
 		if (tg == null)
 			return 0;
 		if (tg.getGearboxType().isFlammable())
@@ -64,7 +63,7 @@ public class BlockGearbox extends BlockModelledMachine {
 	@Override
 	public float getExplosionResistance(Entity ent, World world, int x, int y, int z, double eX, double eY, double eZ)
 	{
-		TileEntityGearbox gbx = (TileEntityGearbox)world.getTileEntity(x, y, z);
+		TileEntityGearbox gbx = (TileEntityGearbox)world.getBlockTileEntity(x, y, z);
 		if (gbx == null)
 			return 0;
 		MaterialRegistry type = gbx.getGearboxType();
@@ -84,12 +83,12 @@ public class BlockGearbox extends BlockModelledMachine {
 	@Override
 	public float getPlayerRelativeBlockHardness(EntityPlayer ep, World world, int x, int y, int z)
 	{
-		TileEntityGearbox gbx = (TileEntityGearbox)world.getTileEntity(x, y, z);
+		TileEntityGearbox gbx = (TileEntityGearbox)world.getBlockTileEntity(x, y, z);
 		if (gbx == null)
 			return 0.01F;
 		int mult = 1;
 		if (ep.inventory.getCurrentItem() != null) {
-			if (ep.inventory.getCurrentItem().getItem() == ItemRegistry.BEDPICK.getItemInstance())
+			if (ep.inventory.getCurrentItem().itemID == ItemRegistry.BEDPICK.getShiftedID())
 				mult = 2;
 		}
 		if (this.canHarvest(world, ep, x, y, z))
@@ -98,18 +97,18 @@ public class BlockGearbox extends BlockModelledMachine {
 	}
 
 	@Override
-	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z, boolean harv)
+	public boolean removeBlockByPlayer(World world, EntityPlayer player, int x, int y, int z)
 	{
 		if (this.canHarvest(world, player, x, y, z))
 			this.harvestBlock(world, player, x, y, z, 0);
-		return world.setBlockToAir(x, y, z);
+		return world.setBlock(x, y, z, 0);
 	}
 
 	public boolean canHarvest(World world, EntityPlayer player, int x, int y, int z)
 	{
 		if (player.capabilities.isCreativeMode)
 			return false;
-		TileEntityGearbox gbx = (TileEntityGearbox)world.getTileEntity(x, y, z);
+		TileEntityGearbox gbx = (TileEntityGearbox)world.getBlockTileEntity(x, y, z);
 		if (gbx == null)
 			return false;
 		MaterialRegistry type = gbx.getGearboxType();
@@ -120,11 +119,11 @@ public class BlockGearbox extends BlockModelledMachine {
 	public void harvestBlock(World world, EntityPlayer ep, int x, int y, int z, int meta) {
 		if (!this.canHarvest(world, ep, x, y, z))
 			return;
-		TileEntityGearbox gbx = (TileEntityGearbox)world.getTileEntity(x, y, z);
+		TileEntityGearbox gbx = (TileEntityGearbox)world.getBlockTileEntity(x, y, z);
 		if (gbx != null) {
 			int type = gbx.getGearboxType().ordinal();
 			int ratio = gbx.getBlockMetadata()/4;
-			ItemStack todrop = ItemRegistry.GEARBOX.getStackOfMetadata(type+5*ratio); //drop gearbox item
+			ItemStack todrop = new ItemStack(RotaryCraft.gbxitems.itemID, 1, type+5*ratio); //drop gearbox item
 			if (todrop.stackTagCompound == null)
 				todrop.setTagCompound(new NBTTagCompound());
 			todrop.stackTagCompound.setInteger("damage", gbx.getDamage());
@@ -170,7 +169,7 @@ public class BlockGearbox extends BlockModelledMachine {
 		if (ep.getCurrentEquippedItem() != null && (ep.getCurrentEquippedItem().getItem() instanceof ItemScrewdriver || ep.getCurrentEquippedItem().getItem() instanceof ItemMeter || ep.getCurrentEquippedItem().getItem() instanceof ItemDebug)) {
 			return false;
 		}
-		TileEntityGearbox tile = (TileEntityGearbox)world.getTileEntity(x, y, z);
+		TileEntityGearbox tile = (TileEntityGearbox)world.getBlockTileEntity(x, y, z);
 		if (tile != null) {
 			ItemStack fix;
 			switch(tile.getGearboxType()) {
@@ -190,7 +189,7 @@ public class BlockGearbox extends BlockModelledMachine {
 				fix = ItemStacks.bedrockgear;
 				break;
 			default:
-				fix = new ItemStack(Blocks.stone);
+				fix = new ItemStack(Block.stone);
 				break;
 			}
 			ItemStack held = ep.getCurrentEquippedItem();
@@ -200,7 +199,7 @@ public class BlockGearbox extends BlockModelledMachine {
 					if (!ep.capabilities.isCreativeMode) {
 						int num = held.stackSize;
 						if (num > 1)
-							ep.inventory.setInventorySlotContents(ep.inventory.currentItem, ReikaItemHelper.getSizedItemStack(fix, num-1));
+							ep.inventory.setInventorySlotContents(ep.inventory.currentItem, new ItemStack(fix.itemID, num-1, fix.getItemDamage()));
 						else
 							ep.inventory.setInventorySlotContents(ep.inventory.currentItem, null);
 					}
@@ -212,7 +211,7 @@ public class BlockGearbox extends BlockModelledMachine {
 						if (tile.canTakeLubricant(amt)) {
 							tile.addLubricant(amt);
 							if (!ep.capabilities.isCreativeMode)
-								ep.setCurrentItemOrArmor(0, new ItemStack(Items.bucket));
+								ep.setCurrentItemOrArmor(0, new ItemStack(Item.bucketEmpty));
 						}
 					}
 					return true;
@@ -220,7 +219,7 @@ public class BlockGearbox extends BlockModelledMachine {
 			}
 		}
 
-		TileEntity tileentity = world.getTileEntity(x, y, z);
+		TileEntity tileentity = world.getBlockTileEntity(x, y, z);
 
 		if (tileentity != null)
 		{
@@ -236,11 +235,11 @@ public class BlockGearbox extends BlockModelledMachine {
 	}
 
 	@Override
-	public final ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+	public final ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune)
 	{
 		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-		TileEntityGearbox gbx = (TileEntityGearbox)world.getTileEntity(x, y, z);
-		ItemStack is = ItemRegistry.GEARBOX.getStackOfMetadata((gbx.getBlockMetadata()/4)*5+gbx.getGearboxType().ordinal());
+		TileEntityGearbox gbx = (TileEntityGearbox)world.getBlockTileEntity(x, y, z);
+		ItemStack is = new ItemStack(RotaryCraft.gbxitems.itemID, 1, (gbx.getBlockMetadata()/4)*5+gbx.getGearboxType().ordinal());
 		is.stackTagCompound = new NBTTagCompound();
 		is.stackTagCompound.setInteger("damage", gbx.getDamage());
 		is.stackTagCompound.setInteger("lube", gbx.getLubricant());

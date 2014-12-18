@@ -9,13 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
-import Reika.RotaryCraft.Base.BlockModelledMultiTE;
-
 import net.minecraft.block.material.Material;
+import Reika.RotaryCraft.Base.BlockModelledMultiTE;
 
 public class BlockSolar extends BlockModelledMultiTE {
 
-	public BlockSolar(Material par3Material) {
-		super(par3Material);
+	public BlockSolar(int par1, Material par3Material) {
+		super(par1, par3Material);
 	}
 }

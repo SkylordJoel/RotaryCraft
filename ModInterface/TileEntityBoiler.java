@@ -9,6 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
+import net.minecraft.block.Block;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.IFluidHandler;
 import Reika.DragonAPI.Instantiable.StepTimer;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
@@ -16,16 +25,6 @@ import Reika.DragonAPI.ModInteract.ReikaRailCraftHelper;
 import Reika.RotaryCraft.Auxiliary.Interfaces.TemperatureTE;
 import Reika.RotaryCraft.Base.TileEntity.PoweredLiquidIO;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidContainerRegistry;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.IFluidHandler;
 
 public class TileEntityBoiler extends PoweredLiquidIO implements TemperatureTE {
 
@@ -82,7 +81,7 @@ public class TileEntityBoiler extends PoweredLiquidIO implements TemperatureTE {
 		if (storedEnergy >= ReikaRailCraftHelper.getSteamBucketEnergy(this.getWaterTemp()) && !world.isRemote)
 			this.makeSteam();
 
-		TileEntity te = world.getTileEntity(x, y+1, z);
+		TileEntity te = world.getBlockTileEntity(x, y+1, z);
 		if (te instanceof IFluidHandler) {
 			IFluidHandler ic = (IFluidHandler)te;
 			if (output.getFluid() != null) {
@@ -131,12 +130,12 @@ public class TileEntityBoiler extends PoweredLiquidIO implements TemperatureTE {
 			this.overheat(world, x, y, z);
 		}
 		if (temperature > 50) {
-			ForgeDirection side = ReikaWorldHelper.checkForAdjBlock(world, x, y, z, Blocks.snow);
+			ForgeDirection side = ReikaWorldHelper.checkForAdjBlock(world, x, y, z, Block.snow.blockID);
 			if (side != null)
-				ReikaWorldHelper.changeAdjBlock(world, x, y, z, side, Blocks.air, 0);
-			side = ReikaWorldHelper.checkForAdjBlock(world, x, y, z, Blocks.ice);
+				ReikaWorldHelper.changeAdjBlock(world, x, y, z, side, 0, 0);
+			side = ReikaWorldHelper.checkForAdjBlock(world, x, y, z, Block.ice.blockID);
 			if (side != null)
-				ReikaWorldHelper.changeAdjBlock(world, x, y, z, side, Blocks.flowing_water, 0);
+				ReikaWorldHelper.changeAdjBlock(world, x, y, z, side, Block.waterMoving.blockID, 0);
 		}
 	}
 
@@ -157,7 +156,7 @@ public class TileEntityBoiler extends PoweredLiquidIO implements TemperatureTE {
 
 	@Override
 	public void overheat(World world, int x, int y, int z) {
-		world.setBlockToAir(x, y, z);
+		world.setBlock(x, y, z, 0);
 		world.createExplosion(null, x+0.5, y+0.5, z+0.5, 6, true);
 	}
 

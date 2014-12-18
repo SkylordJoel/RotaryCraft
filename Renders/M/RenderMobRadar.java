@@ -9,6 +9,16 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Renders.M;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.client.MinecraftForgeClient;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
 import Reika.DragonAPI.Interfaces.RenderFetcher;
 import Reika.DragonAPI.Libraries.ReikaEntityHelper;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
@@ -20,17 +30,6 @@ import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
 import Reika.RotaryCraft.Models.Animated.ModelRadar;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.TileEntities.Surveying.TileEntityMobRadar;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.client.MinecraftForgeClient;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -93,9 +92,9 @@ public class RenderMobRadar extends RotaryTERenderer
 		EntityPlayer ep = te.getPlacer();
 		if (ep == null)
 			return;
-		if (!ReikaInventoryHelper.checkForItem(ItemRegistry.MOTION.getItemInstance(), ep.inventory.mainInventory))
+		if (!ReikaInventoryHelper.checkForItem(ItemRegistry.MOTION.getShiftedID(), ep.inventory.mainInventory))
 			return;
-		if (mc.thePlayer.getCommandSenderName() != ep.getCommandSenderName())
+		if (mc.thePlayer.getEntityName() != ep.getEntityName())
 			return;
 		ReikaRenderHelper.disableLighting();
 		GL11.glPushMatrix();

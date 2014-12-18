@@ -9,6 +9,26 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockFluid;
+import net.minecraft.block.material.Material;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityMobSpawner;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fluids.BlockFluidBase;
 import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Interfaces.GuiController;
 import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
@@ -32,32 +52,8 @@ import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityBeamMachine;
 import Reika.RotaryCraft.Registry.BlockRegistry;
 import Reika.RotaryCraft.Registry.DurationRegistry;
-import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.RotaryAchievements;
-
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.material.Material;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityMobSpawner;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.BlockFluidBase;
 
 public class TileEntityBorer extends TileEntityBeamMachine implements EnchantableMachine, GuiController, DiscreteFunction {
 
@@ -199,28 +195,29 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 	}
 
 	private boolean ignoreBlockExistence(World world, int x, int y, int z) {
-		Block b = world.getBlock(x, y, z);
-		if (b == Blocks.air)
+		int id = world.getBlockId(x, y, z);
+		if (id == 0)
 			return true;
-		Material mat = ReikaWorldHelper.getMaterial(world, x, y, z);
+		Material mat = world.getBlockMaterial(x, y, z);
 		if (mat == Material.water || mat == Material.lava)
 			return true;
-		if (b.isAir(world, x, y, z))
+		Block b = Block.blocksList[id];
+		if (b.isAirBlock(world, x, y, z))
 			return true;
-		if (b instanceof BlockLiquid || b instanceof BlockFluidBase)
+		if (b instanceof BlockFluid || b instanceof BlockFluidBase)
 			return true;
 		if (b instanceof IgnoredByBorer)
 			return ((IgnoredByBorer)b).ignoreHardness(world, world.provider.dimensionId, x, y, z, world.getBlockMetadata(x, y, z));
 		return false;
 	}
 
-	public static boolean isTwilightForestToughBlock(Block id) {
+	public static boolean isTwilightForestToughBlock(int id) {
 		return id == TwilightForestHandler.getInstance().mazeStoneID || id == TwilightForestHandler.getInstance().shieldID;
 	}
 	/*
 	public static boolean isMineableBedrock(World world, int x, int y, int z) {
-		Block b = world.getBlock(x, y, z);
-		if (id != Blocks.bedrock.blockID && id != FactorizationHandler.getInstance().bedrockID)
+		int id = world.getBlockId(x, y, z);
+		if (id != Block.bedrock.blockID && id != FactorizationHandler.getInstance().bedrockID)
 			return false;
 		/*
 		if (y > 4 && y < 40 && world.provider.dimensionId == ReikaTwilightHelper.getDimensionID())
@@ -261,9 +258,9 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 
 	private void reqPowAdd(World world, int xread, int yread, int zread) {
 		if (!this.ignoreBlockExistence(world, xread, yread, zread)) {
-			Block id = world.getBlock(xread, yread, zread);
+			int id = world.getBlockId(xread, yread, zread);
 			int meta = world.getBlockMetadata(xread, yread, zread);
-			float hard = id.getBlockHardness(world, xread, yread, zread);
+			float hard = Block.blocksList[id].getBlockHardness(world, xread, yread, zread);
 			/*
 			if (this.isMineableBedrock(world, xread, yread, zread)) {
 				mintorque += PowerReceivers.BEDROCKBREAKER.getMinTorque();
@@ -276,7 +273,7 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 			else if (hard < 0) {
 				reqpow = -1;
 			}
-			else if (id == BlockRegistry.DECO.getBlockInstance() && meta == ItemStacks.shieldblock.getItemDamage()) {
+			else if (id == ItemStacks.shieldblock.itemID && meta == ItemStacks.shieldblock.getItemDamage()) {
 				reqpow = -1;
 			}
 			else {
@@ -300,13 +297,13 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 					xread = x+step*xstep+a*(i-3);
 					yread = y+step*ystep+(4-j);
 					zread = z+step*zstep+b*(i-3);
-					Block id = world.getBlock(xread, yread+1, zread);
-					if (id == Blocks.sand || id == Blocks.gravel)
+					int id = world.getBlockId(xread, yread+1, zread);
+					if (id == Block.sand.blockID || id == Block.gravel.blockID)
 						if (this.checkTop(i, j)) {
-							if (id == Blocks.sand)
-								world.setBlock(xread, yread+1, zread, Blocks.sandstone);
+							if (id == Block.sand.blockID)
+								world.setBlock(xread, yread+1, zread, Block.sandStone.blockID);
 							else
-								world.setBlock(xread, yread+1, zread, Blocks.stone);
+								world.setBlock(xread, yread+1, zread, Block.stone.blockID);
 						}
 				}
 			}
@@ -322,15 +319,15 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 		return true;
 	}
 
-	private boolean dropBlocks(int xread, int yread, int zread, World world, int x, int y, int z, Block id, int meta) {
+	private boolean dropBlocks(int xread, int yread, int zread, World world, int x, int y, int z, int id, int meta) {
 		if (ModList.TWILIGHT.isLoaded() && id == TwilightForestHandler.getInstance().mazeStoneID)
 			RotaryAchievements.CUTKNOT.triggerAchievement(this.getPlacer());
-		if (!world.isRemote && !ReikaPlayerAPI.playerCanBreakAt((WorldServer)world, xread, yread, zread, id, meta, this.getPlacer()))
+		if (!ReikaPlayerAPI.playerCanBreakAt(world, xread, yread, zread, id, meta, placer))
 			return false;
 		TileEntity tile = this.getTileEntity(xread, yread, zread);
 		if (tile instanceof RotaryCraftTileEntity)
 			return false;
-		if (drops && id != Blocks.air) {
+		if (drops && id != 0) {
 			/*
 			if (this.isMineableBedrock(world, xread, yread, zread)) {
 				ItemStack is = ReikaItemHelper.getSizedItemStack(ItemStacks.bedrockdust.copy(), DifficultyEffects.BEDROCKDUST.getInt());
@@ -339,10 +336,10 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 				}
 				return true;
 			}*/
-			if (id == Blocks.mob_spawner) {
+			if (id == Block.mobSpawner.blockID) {
 				TileEntityMobSpawner spw = (TileEntityMobSpawner)tile;
 				if (spw != null) {
-					ItemStack is = ItemRegistry.SPAWNER.getStackOf();
+					ItemStack is = new ItemStack(RotaryCraft.spawner);
 					ReikaSpawnerHelper.addMobNBTToItem(is, spw);
 					if (!this.chestCheck(world, x, y, z, is))
 						ReikaItemHelper.dropItem(world, x+0.5, y+1.125, z+0.5, is, 3);
@@ -368,7 +365,7 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 				}
 				return true;
 			}
-			ArrayList<ItemStack> items = id.getDrops(world, xread, yread, zread, meta, this.getEnchantment(Enchantment.fortune));
+			ArrayList<ItemStack> items = Block.blocksList[id].getBlockDropped(world, xread, yread, zread, meta, this.getEnchantment(Enchantment.fortune));
 			for (int i = 0; i < items.size(); i++) {
 				ItemStack is = items.get(i);
 				if (!this.chestCheck(world, x, y, z, is)) {
@@ -379,20 +376,20 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 		return true;
 	}
 
-	private int getSilkTouchMetaDropped(Block id, int meta) {
-		if (id == Blocks.torch)
+	private int getSilkTouchMetaDropped(int id, int meta) {
+		if (id == Block.torchWood.blockID)
 			return 0;
-		if (id == Blocks.redstone_torch || id == Blocks.unlit_redstone_torch)
+		if (id == Block.torchRedstoneActive.blockID || id == Block.torchRedstoneIdle.blockID)
 			return 0;
-		if (id == Blocks.leaves || id == Blocks.log || id == Blocks.leaves2 || id == Blocks.log2)
+		if (id == Block.leaves.blockID || id == Block.wood.blockID)
 			return meta&3;
-		if (id == Blocks.sapling)
+		if (id == Block.sapling.blockID)
 			return meta&3;
-		if (id == Blocks.vine)
+		if (id == Block.vine.blockID)
 			return 0;
-		if (id == Blocks.waterlily)
+		if (id == Block.waterlily.blockID)
 			return 0;
-		if (id == Blocks.sticky_piston || id == Blocks.piston)
+		if (id == Block.pistonStickyBase.blockID || id == Block.pistonStickyBase.blockID)
 			return 0;
 		if (ReikaBlockHelper.isStairBlock(id))
 			return 0;
@@ -408,32 +405,35 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 	}
 
 	private boolean canSilk(World world, int x, int y, int z) {
-		Block id = world.getBlock(x, y, z);
-		if (id == Blocks.air)
+		int id = world.getBlockId(x, y, z);
+		if (id == 0)
 			return false;
-		if (id == Blocks.fire)
+		if (id == Block.fire.blockID)
 			return false;
-		if (id == Blocks.cauldron)
+		if (id == Block.cauldron.blockID)
 			return false;
-		if (id == Blocks.reeds)
+		if (id == Block.reed.blockID)
 			return false;
-		if (id == Blocks.powered_comparator || id == Blocks.unpowered_comparator)
+		if (id == Block.redstoneComparatorActive.blockID || id == Block.redstoneComparatorIdle.blockID)
 			return false;
-		if (id == Blocks.powered_repeater || id == Blocks.unpowered_repeater)
+		if (id == Block.redstoneRepeaterActive.blockID || id == Block.redstoneRepeaterIdle.blockID)
 			return false;
-		if (id == Blocks.redstone_wire)
+		if (id == Block.redstoneWire.blockID)
 			return false;
-		if (id == Blocks.piston_extension || id == Blocks.piston_head)
+		if (id == Block.pistonExtension.blockID || id == Block.pistonMoving.blockID)
 			return false;
-		if (id == Blocks.wooden_door || id == Blocks.iron_door)
+		if (id == Block.doorWood.blockID || id == Block.doorIron.blockID)
 			return false;
-		if (BlockRegistry.isTechnicalBlock(id))
+		if (id == RotaryCraft.miningpipe.blockID)
 			return false;
-		if (id.isAir(world, x, y, z))
+		if (BlockRegistry.isMachineBlock(id))
 			return false;
-		if (id instanceof BlockLiquid || id instanceof BlockFluidBase)
+		Block b = Block.blocksList[id];
+		if (b.isAirBlock(world, x, y, z))
 			return false;
-		if (id.hasTileEntity(world.getBlockMetadata(x, y, z)))
+		if (b instanceof BlockFluid || b instanceof BlockFluidBase)
+			return false;
+		if (b.hasTileEntity(world.getBlockMetadata(x, y, z)))
 			return false;
 		return true;
 	}
@@ -486,8 +486,8 @@ public class TileEntityBorer extends TileEntityBeamMachine implements Enchantabl
 					xread = x+step*xstep+a*(i-3);
 					yread = y+step*ystep+(4-j);
 					zread = z+step*zstep+b*(i-3);
-					if (this.dropBlocks(xread, yread, zread, world, x, y, z, world.getBlock(xread, yread, zread), world.getBlockMetadata(xread, yread, zread)))
-						world.setBlock(xread, yread, zread, BlockRegistry.MININGPIPE.getBlockInstance(), pipemeta, 3);
+					if (this.dropBlocks(xread, yread, zread, world, x, y, z, world.getBlockId(xread, yread, zread), world.getBlockMetadata(xread, yread, zread)))
+						world.setBlock(xread, yread, zread, RotaryCraft.miningpipe.blockID, pipemeta, 3);
 					else {
 						step--;
 					}

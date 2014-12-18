@@ -9,17 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Weaponry;
 
-import Reika.DragonAPI.ModList;
-import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
-import Reika.DragonAPI.ModInteract.ModExplosiveHandler;
-import Reika.MeteorCraft.Entity.EntityMeteor;
-import Reika.RotaryCraft.Auxiliary.Interfaces.EnchantableMachine;
-import Reika.RotaryCraft.Base.TileEntity.TileEntityProtectionDome;
-import Reika.RotaryCraft.Entities.EntityRailGunShot;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-
 import icbm.api.IMissile;
 
 import java.util.ArrayList;
@@ -44,7 +33,7 @@ import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.entity.projectile.EntityPotion;
 import net.minecraft.entity.projectile.EntitySnowball;
 import net.minecraft.entity.projectile.EntityWitherSkull;
-import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
@@ -52,6 +41,16 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import Reika.DragonAPI.ModList;
+import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaVectorHelper;
+import Reika.DragonAPI.ModInteract.ModExplosiveHandler;
+import Reika.MeteorCraft.Entity.EntityMeteor;
+import Reika.RotaryCraft.Auxiliary.Interfaces.EnchantableMachine;
+import Reika.RotaryCraft.Base.TileEntity.TileEntityProtectionDome;
+import Reika.RotaryCraft.Entities.EntityRailGunShot;
+import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityForceField extends TileEntityProtectionDome implements EnchantableMachine {
 
@@ -131,7 +130,7 @@ public class TileEntityForceField extends TileEntityProtectionDome implements En
 			}
 			if (threat instanceof EntityPotion) {
 				if (!threat.isDead) {
-					List var2 = Items.potionitem.getEffects(((EntityPotion)threat).getPotionDamage());
+					List var2 = Item.potion.getEffects(((EntityPotion)threat).getPotionDamage());
 					if (var2 != null && !var2.isEmpty()) {
 						AxisAlignedBB var3 = ((EntityPotion)threat).boundingBox.expand(4.0D, 2.0D, 4.0D);
 						List var4 = ((EntityPotion)threat).worldObj.getEntitiesWithinAABB(EntityLivingBase.class, var3);

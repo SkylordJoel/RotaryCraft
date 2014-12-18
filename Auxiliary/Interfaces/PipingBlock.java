@@ -9,12 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary.Interfaces;
 
-import net.minecraft.util.IIcon;
+import net.minecraft.util.Icon;
 
 public interface PipingBlock {
 
-	public IIcon getBodyIcon(int meta);
+	public Icon getBodyIcon(int meta);
 
-	public IIcon getGlassIcon(int meta);
+	public Icon getGlassIcon(int meta);
 
 }

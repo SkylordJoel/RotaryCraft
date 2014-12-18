@@ -9,18 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Farming;
 
-import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
-import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
-import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.Registry.MobBait;
-
 import java.util.Iterator;
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -36,13 +28,20 @@ import net.minecraft.entity.passive.EntityBat;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityWaterMob;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.pathfinding.PathEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
+import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
+import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.Registry.MobBait;
 
 public class TileEntityBaitBox extends InventoriedPowerReceiver implements RangedEffect, ConditionalOperation {
 
@@ -73,7 +72,7 @@ public class TileEntityBaitBox extends InventoriedPowerReceiver implements Range
 		if (!inbox.isEmpty() && (world.getTotalWorldTime()&3) == 0) {
 			for (int i = 0; i < Math.min(1, inbox.size()); i++) {
 				EntityLiving ent = (EntityLiving)inbox.get(rand.nextInt(inbox.size()));
-				//ReikaChatHelper.write(this.canAttract(ent)+"  "+ent.getCommandSenderName());
+				//ReikaChatHelper.write(this.canAttract(ent)+"  "+ent.getEntityName());
 				//ReikaJavaLibrary.pConsole(this.canRepel(ent), ent instanceof EntityPigZombie);
 				if (this.canRepel(ent)) {
 					this.applyEffect(world, x, y, z, ent, false);
@@ -103,8 +102,8 @@ public class TileEntityBaitBox extends InventoriedPowerReceiver implements Range
 		for (int i = x-5; i <= x+5; i++) {
 			for (int j = y-5; j <= y+5; j++) {
 				for (int k = z-5; z <= z+5; k++) {
-					if (world.getBlock(i, j, k) == Blocks.monster_egg) {
-						world.setBlockToAir(i, j, k);
+					if (world.getBlockId(i, j, k) == Block.silverfish.blockID) {
+						world.setBlock(i, j, k, 0);
 						world.playSoundEffect(i+0.5, j+0.5, k+0.5, "step.stone", 0.5F+0.5F*rand.nextFloat(), 0.8F+0.2F*rand.nextFloat());
 					}
 				}
@@ -148,7 +147,7 @@ public class TileEntityBaitBox extends InventoriedPowerReceiver implements Range
 	private void applyEffect(World world, int x, int y, int z, EntityLiving ent, boolean attract) {
 		if (world.isRemote)
 			;//return;
-		//ReikaChatHelper.write(attract+" for "+ent.getCommandSenderName());
+		//ReikaChatHelper.write(attract+" for "+ent.getEntityName());
 		int r = this.getRange();
 		PathEntity path = null;
 		int[] xyz = new int[3];
@@ -175,7 +174,7 @@ public class TileEntityBaitBox extends InventoriedPowerReceiver implements Range
 				ReikaChatHelper.write(path.getFinalPathPoint().xCoord+", "+path.getFinalPathPoint().yCoord+", "+path.getFinalPathPoint().zCoord);
 			else
 				ReikaChatHelper.write(null);
-			//ReikaChatHelper.write(ent.getCommandSenderName());
+			//ReikaChatHelper.write(ent.getEntityName());
 			}
 			if (ent instanceof EntityCreeper && ent.getNavigator().getPath() != null)
 			ReikaChatHelper.write(ent.getNavigator().getPath().isSamePath(path));

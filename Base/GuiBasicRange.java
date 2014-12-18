@@ -9,6 +9,11 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.entity.player.EntityPlayer;
+
+import org.lwjgl.input.Mouse;
+
 import Reika.DragonAPI.Base.CoreContainer;
 import Reika.DragonAPI.Instantiable.GUI.ImagedGuiButton;
 import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
@@ -18,11 +23,6 @@ import Reika.RotaryCraft.Base.TileEntity.TileEntityPowerReceiver;
 import Reika.RotaryCraft.Registry.PacketRegistry;
 import Reika.RotaryCraft.TileEntities.Weaponry.TileEntityContainment;
 import Reika.RotaryCraft.TileEntities.Weaponry.TileEntityForceField;
-
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.entity.player.EntityPlayer;
-
-import org.lwjgl.input.Mouse;
 
 public class GuiBasicRange extends GuiPowerOnlyMachine
 {
@@ -47,7 +47,7 @@ public class GuiBasicRange extends GuiPowerOnlyMachine
 		super.initGui();
 		int j = (width - xSize) / 2+8;
 		int k = (height - ySize) / 2 - 12;
-		input = new GuiTextField(fontRendererObj, j+xSize/2-6, k+33, 26, 16);
+		input = new GuiTextField(fontRenderer, j+xSize/2-6, k+33, 26, 16);
 		input.setFocused(false);
 		input.setMaxStringLength(3);
 	}
@@ -97,9 +97,9 @@ public class GuiBasicRange extends GuiPowerOnlyMachine
 	protected void drawGuiContainerForegroundLayer(int a, int b)
 	{
 		super.drawGuiContainerForegroundLayer(a, b);
-		fontRendererObj.drawString("Field Radius:", xSize/2-72, 25, 4210752);
+		fontRenderer.drawString("Field Radius:", xSize/2-72, 25, 4210752);
 		if (!input.isFocused()) {
-			fontRendererObj.drawString(String.format("%d", ((RangedEffect)pwr).getRange()), xSize/2+6, 25, 0xffffffff);
+			fontRenderer.drawString(String.format("%d", ((RangedEffect)pwr).getRange()), xSize/2+6, 25, 0xffffffff);
 		}
 	}
 
@@ -117,7 +117,7 @@ public class GuiBasicRange extends GuiPowerOnlyMachine
 		int color = 4210752;
 		if (range > ((RangedEffect)pwr).getMaxRange())
 			color = 0xff0000;
-		ImagedGuiButton.drawCenteredStringNoShadow(fontRendererObj, String.format("(%d)", ((RangedEffect)pwr).getRange()), j+xSize/2+58, k+25, color);
+		ImagedGuiButton.drawCenteredStringNoShadow(fontRenderer, String.format("(%d)", ((RangedEffect)pwr).getRange()), j+xSize/2+58, k+25, color);
 	}
 
 	@Override

@@ -9,6 +9,20 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Weaponry;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.inventory.Container;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.DragonAPI.DragonAPICore;
 import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
 import Reika.DragonAPI.Libraries.ReikaEntityHelper;
@@ -21,21 +35,6 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.EnchantableMachine;
 import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
 import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityArrow;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.Container;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityMachineGun extends InventoriedPowerReceiver implements RangedEffect, EnchantableMachine, DiscreteFunction {
 
@@ -52,12 +51,12 @@ public class TileEntityMachineGun extends InventoriedPowerReceiver implements Ra
 			return;
 
 		if (DragonAPICore.debugtest) {
-			ReikaInventoryHelper.addToIInv(Items.arrow, this);
+			ReikaInventoryHelper.addToIInv(Item.arrow, this);
 		}
 
-		//ReikaJavaLibrary.pConsole(tickcount+"/"+this.getFireRate()+":"+ReikaInventoryHelper.checkForItem(Items.arrow.itemID, inv));
+		//ReikaJavaLibrary.pConsole(tickcount+"/"+this.getFireRate()+":"+ReikaInventoryHelper.checkForItem(Item.arrow.itemID, inv));
 
-		if (tickcount >= this.getOperationTime() && ReikaInventoryHelper.checkForItem(Items.arrow, inv)) {
+		if (tickcount >= this.getOperationTime() && ReikaInventoryHelper.checkForItem(Item.arrow.itemID, inv)) {
 			AxisAlignedBB box = this.drawAABB(world, x, y, z, meta);
 			List<EntityLivingBase> li = world.getEntitiesWithinAABB(EntityLivingBase.class, box);
 			if (li.size() > 0 && !ReikaEntityHelper.allAreDead(li, false) && !this.isReikaOnly(li)) {
@@ -73,7 +72,7 @@ public class TileEntityMachineGun extends InventoriedPowerReceiver implements Ra
 		EntityLivingBase e = li.get(0);
 		if (!(e instanceof EntityPlayer))
 			return false;
-		if (e.getCommandSenderName().equals("Reika_Kalseki")) {
+		if (e.getEntityName().equals("Reika_Kalseki")) {
 			return !((EntityPlayer)e).capabilities.isCreativeMode;
 		}
 		return false;
@@ -102,12 +101,12 @@ public class TileEntityMachineGun extends InventoriedPowerReceiver implements Ra
 	}
 
 	private int getArrowSlot() {
-		return ReikaInventoryHelper.locateIDInInventory(Items.arrow, this);
+		return ReikaInventoryHelper.locateIDInInventory(Item.arrow.itemID, this);
 	}
 
 	@Override
 	public boolean isItemValidForSlot(int i, ItemStack is) {
-		return is.getItem() == Items.arrow;
+		return is.itemID == Item.arrow.itemID;
 	}
 
 	public int getSizeInventory() {
@@ -159,7 +158,7 @@ public class TileEntityMachineGun extends InventoriedPowerReceiver implements Ra
 
 	private AxisAlignedBB drawAABB(World world, int x, int y, int z, int meta) {
 		double d = 0.1;
-		AxisAlignedBB box = AxisAlignedBB.getBoundingBox(x, y, z, x+1, y+1, z+1).contract(d, d, d);
+		AxisAlignedBB box = AxisAlignedBB.getAABBPool().getAABB(x, y, z, x+1, y+1, z+1).contract(d, d, d);
 		int r = this.getRange();
 		switch(meta) {
 		case 1:

@@ -9,23 +9,23 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
-import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
+import static codechicken.core.gui.GuiDraw.drawTexturedModalRect;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+
+import org.lwjgl.opengl.GL11;
+
 import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiFractionator;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityFractionator;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-
-import org.lwjgl.opengl.GL11;
-
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 
@@ -56,7 +56,7 @@ public class FractionHandler extends TemplateRecipeHandler {
 			for (int i = 0; i < in.length; i++) {
 				stacks.add(new PositionedStack(in[i], 21+(i%2)*18, 7+i/2*18));
 			}
-			stacks.add(new PositionedStack(new ItemStack(Items.ghast_tear), 93, 25));
+			stacks.add(new PositionedStack(new ItemStack(Item.ghastTear), 93, 25));
 			return stacks;
 		}
 	}
@@ -76,7 +76,7 @@ public class FractionHandler extends TemplateRecipeHandler {
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		ReikaTextureHelper.bindTexture(RotaryCraft.class, this.getGuiTexture());
-		ReikaGuiAPI.instance.drawTexturedModalRect(0, 0, 5, 11, 166, 70);
+		drawTexturedModalRect(0, 0, 5, 11, 166, 70);
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class FractionHandler extends TemplateRecipeHandler {
 	public void loadUsageRecipes(ItemStack ingredient) {
 		if (TileEntityFractionator.isJetFuelIngredient(ingredient))
 			arecipes.add(new FractionatorRecipe());
-		if (ingredient.getItem() == Items.ghast_tear)
+		if (ingredient.itemID == Item.ghastTear.itemID)
 			arecipes.add(new FractionatorRecipe());
 	}
 
@@ -111,7 +111,7 @@ public class FractionHandler extends TemplateRecipeHandler {
 	@Override
 	public void drawExtras(int recipe)
 	{
-		ReikaGuiAPI.instance.drawTexturedModalRect(134, 7, 177, 45, 6, 50);
+		drawTexturedModalRect(134, 7, 177, 45, 6, 50);
 	}
 
 }

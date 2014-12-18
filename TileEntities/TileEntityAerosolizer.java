@@ -9,20 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities;
 
-import Reika.DragonAPI.Libraries.ReikaPotionHelper;
-import Reika.DragonAPI.Libraries.Java.ReikaArrayHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
-import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
-import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-
 import java.util.Iterator;
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -31,6 +23,14 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionHelper;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+import Reika.DragonAPI.Libraries.ReikaPotionHelper;
+import Reika.DragonAPI.Libraries.Java.ReikaArrayHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
+import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
+import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 
@@ -121,7 +121,7 @@ public class TileEntityAerosolizer extends InventoriedPowerReceiver implements R
 			ItemStack inslot = this.getStackInSlot(i);
 			if (inslot != null) {
 				int size = inslot.stackSize;
-				if (inslot.getItem() == Items.potionitem && (inslot.getItemDamage() == potionDamage[i] || potionLevel[i] == 0) && potionLevel[i] < CAPACITY) {
+				if (inslot.itemID == Item.potion.itemID && (inslot.getItemDamage() == potionDamage[i] || potionLevel[i] == 0) && potionLevel[i] < CAPACITY) {
 					int potionID = ReikaPotionHelper.getPotionID(inslot.getItemDamage());
 					if (potionID != -1) {
 						if (!Potion.potionTypes[potionID].isInstant()) {
@@ -135,7 +135,7 @@ public class TileEntityAerosolizer extends InventoriedPowerReceiver implements R
 								potionLevel[i] += 2;
 							//this.decrStackSize(i, 1);
 							//ModLoader.getMinecraftInstance().thePlayer.addChatMessage(String.format("+%d", size)+String.valueOf(FMLCommonHandler.instance().getEffectiveSide()));
-							this.setInventorySlotContents(i, new ItemStack(Items.glass_bottle, size, 0));
+							this.setInventorySlotContents(i, new ItemStack(Item.glassBottle.itemID, size, 0));
 							if (potionLevel[i] > CAPACITY)
 								potionLevel[i] = CAPACITY;
 						}
@@ -174,42 +174,42 @@ public class TileEntityAerosolizer extends InventoriedPowerReceiver implements R
 
 		boolean exit = false;
 		for (int i = 1; i < this.getRange() && !exit; i++) {
-			if (world.getBlock(x+i, y, z).isOpaqueCube())
+			if (Block.opaqueCubeLookup[world.getBlockId(x+i, y, z)])
 				exit = true;
 			else
 				maxx = x+i;
 		}
 		exit = false;
 		for (int i = 1; i < this.getRange() && !exit; i++) {
-			if (world.getBlock(x-i, y, z).isOpaqueCube())
+			if (Block.opaqueCubeLookup[world.getBlockId(x-i, y, z)])
 				exit = true;
 			else
 				minx = x-i;
 		}
 		exit = false;
 		for (int i = 1; i < this.getRange() && !exit; i++) {
-			if (world.getBlock(x, y+i, z).isOpaqueCube())
+			if (Block.opaqueCubeLookup[world.getBlockId(x, y+i, z)])
 				exit = true;
 			else
 				maxy = y+i;
 		}
 		exit = false;
 		for (int i = 1; i < this.getRange() && !exit; i++) {
-			if (world.getBlock(x, y-i, z).isOpaqueCube())
+			if (Block.opaqueCubeLookup[world.getBlockId(x, y-i, z)])
 				exit = true;
 			else
 				miny = x-i;
 		}
 		exit = false;
 		for (int i = 1; i < this.getRange() && !exit; i++) {
-			if (world.getBlock(x, y, z+i).isOpaqueCube())
+			if (Block.opaqueCubeLookup[world.getBlockId(x, y, z+i)])
 				exit = true;
 			else
 				maxz = z+i;
 		}
 		exit = false;
 		for (int i = 1; i < this.getRange() && !exit; i++) {
-			if (world.getBlock(x, y, z-i).isOpaqueCube())
+			if (Block.opaqueCubeLookup[world.getBlockId(x, y, z-i)])
 				exit = true;
 			else
 				minz = z-i;
@@ -221,7 +221,7 @@ public class TileEntityAerosolizer extends InventoriedPowerReceiver implements R
 
 	public void dispense2(World world, int x, int y, int z, int meta, AxisAlignedBB room, int i) { // id, duration, amplifier
 		if (!worldObj.isRemote) {
-			List effects = Items.potionitem.getEffects(potionDamage[i]);
+			List effects = Item.potion.getEffects(potionDamage[i]);
 			//ModLoader.getMinecraftInstance().ingameGUI.addChatMessage(String.format("%d", this.potionDamage[i]));
 			if (effects != null && !effects.isEmpty()) {
 				List inroom = worldObj.getEntitiesWithinAABB(EntityLivingBase.class, room);
@@ -321,7 +321,7 @@ public class TileEntityAerosolizer extends InventoriedPowerReceiver implements R
 
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack is) {
-		return is.getItem() == Items.potionitem;
+		return is.itemID == Item.potion.itemID;
 	}
 
 	@Override

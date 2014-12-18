@@ -9,6 +9,26 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Bedrock;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.monster.EntitySilverfish;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumToolMaterial;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemPickaxe;
+import net.minecraft.item.ItemSpade;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityMobSpawner;
+import net.minecraft.util.Icon;
+import net.minecraft.world.World;
 import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Interfaces.IndexedItemSprites;
 import Reika.DragonAPI.Libraries.ReikaEnchantmentHelper;
@@ -32,31 +52,8 @@ import Reika.DragonAPI.ModInteract.TwilightForestHandler;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Base.BlockBasicMachine;
 import Reika.RotaryCraft.Base.BlockBasicMultiTE;
-import Reika.RotaryCraft.Registry.BlockRegistry;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
-import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.monster.EntitySilverfish;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemPickaxe;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityMobSpawner;
-import net.minecraft.util.IIcon;
-import net.minecraft.world.World;
 
 import com.xcompwiz.mystcraft.api.MystObjects;
 
@@ -70,8 +67,8 @@ public final class ItemBedrockPickaxe extends ItemPickaxe implements IndexedItem
 
 	private final ArrayList<Enchantment> forbiddenEnchants = new ArrayList();
 
-	public ItemBedrockPickaxe(int tex) {
-		super(ToolMaterial.EMERALD);
+	public ItemBedrockPickaxe(int ID, int tex) {
+		super(ID, EnumToolMaterial.EMERALD);
 		this.setIndex(tex);
 		maxStackSize = 1;
 		this.setMaxDamage(0);
@@ -83,7 +80,7 @@ public final class ItemBedrockPickaxe extends ItemPickaxe implements IndexedItem
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List) //Adds the metadata blocks to the creative inventory
+	public void getSubItems(int par1, CreativeTabs par2CreativeTabs, List par3List) //Adds the metadata blocks to the creative inventory
 	{
 		ItemStack item = new ItemStack(par1, 1, 0);
 		item.addEnchantment(Enchantment.silkTouch, 1);
@@ -109,7 +106,7 @@ public final class ItemBedrockPickaxe extends ItemPickaxe implements IndexedItem
 	}
 
 	@Override
-	public boolean canHarvestBlock(Block b, ItemStack is) {
+	public boolean canHarvestBlock(Block b) {
 		return true;
 	}
 
@@ -119,7 +116,7 @@ public final class ItemBedrockPickaxe extends ItemPickaxe implements IndexedItem
 		if (ep.capabilities.isCreativeMode)
 			return false;
 		World world = ep.worldObj;
-		Block id = world.getBlock(x, y, z);
+		int id = world.getBlockId(x, y, z);
 		int meta = world.getBlockMetadata(x, y, z);
 		ItemStack block = new ItemStack(id, 1, meta);
 
@@ -145,26 +142,26 @@ public final class ItemBedrockPickaxe extends ItemPickaxe implements IndexedItem
 				return true;
 			}
 		}
-		if (ConfigRegistry.BEDPICKSPAWNERS.getState() && id == Blocks.mob_spawner) {
-			TileEntityMobSpawner spw = (TileEntityMobSpawner)world.getTileEntity(x, y, z);
+		if (ConfigRegistry.BEDPICKSPAWNERS.getState() && id == Block.mobSpawner.blockID) {
+			TileEntityMobSpawner spw = (TileEntityMobSpawner)world.getBlockTileEntity(x, y, z);
 			if (ConfigRegistry.SPAWNERLEAK.getState())
 				ReikaSpawnerHelper.forceSpawn(spw, 12+itemRand.nextInt(25));
-			ItemStack item = ItemRegistry.SPAWNER.getStackOf();
+			ItemStack item = new ItemStack(RotaryCraft.spawner);
 			ReikaSpawnerHelper.addMobNBTToItem(item, spw);
 			ReikaItemHelper.dropItem(world, x+itemRand.nextDouble(), y+itemRand.nextDouble(), z+itemRand.nextDouble(), item);
-			//world.setBlockToAir(x, y, z);
+			//world.setBlock(x, y, z, 0);
 			//world.playSoundEffect(x+0.5, y+0.5, z+0.5, "dig.stone", 1F, 1.25F);
 			if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
-				;//ReikaRenderHelper.spawnDropParticles(world, x, y, z, Blocks.mob_spawner, meta);
+				;//ReikaRenderHelper.spawnDropParticles(world, x, y, z, Block.mobSpawner, meta);
 			}
 			return false;
 		}
-		if (id != Blocks.monster_egg)
+		if (id != Block.silverfish.blockID)
 			return false;
 		world.playSoundEffect(x+0.5, y+0.5, z+0.5, "dig.stone", 1F, 0.85F);
-		world.setBlockToAir(x, y, z);
+		world.setBlock(x, y, z, 0);
 		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
-			ReikaRenderHelper.spawnDropParticles(world, x, y, z, Blocks.monster_egg, meta);
+			ReikaRenderHelper.spawnDropParticles(world, x, y, z, Block.silverfish, meta);
 		}
 		ItemStack drop = new ItemStack(ReikaBlockHelper.getSilverfishImitatedBlock(meta), 1, 0);
 		ReikaItemHelper.dropItem(world, x+itemRand.nextDouble(), y+itemRand.nextDouble(), z+itemRand.nextDouble(), drop);
@@ -179,83 +176,85 @@ public final class ItemBedrockPickaxe extends ItemPickaxe implements IndexedItem
 	}
 
 	private void dropDirectBlock(ItemStack block, World world, int x, int y, int z) {
-		world.setBlockToAir(x, y, z);
+		world.setBlock(x, y, z, 0);
 		world.playSoundEffect(x+0.5, y+0.5, z+0.5, "dig.stone", 1F, 0.85F);
 		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
-			ReikaRenderHelper.spawnDropParticles(world, x, y, z, Block.getBlockFromItem(block.getItem()), block.getItemDamage());
+			ReikaRenderHelper.spawnDropParticles(world, x, y, z, block.itemID, block.getItemDamage());
 		}
 		ReikaItemHelper.dropItem(world, x+itemRand.nextDouble(), y+itemRand.nextDouble(), z+itemRand.nextDouble(), block);
 	}
 
 	@Override
-	public float getDigSpeed(ItemStack is, Block b, int meta) {
+	public float getStrVsBlock(ItemStack is, Block b, int meta) {
 		if (b == null)
 			return 0;
-		if (b == Blocks.obsidian)
+		if (b.blockID == Block.obsidian.blockID)
 			return 48F;
-		if (b == BlockRegistry.BLASTPANE.getBlockInstance())
+		if (b.blockID == RotaryCraft.blastpane.blockID)
 			return 32F;
-		if (b == BlockRegistry.BLASTGLASS.getBlockInstance())
+		if (b.blockID == RotaryCraft.blastglass.blockID)
 			return 48F;
-		if (b == MachineRegistry.SHAFT.getBlock())
+		if (b.blockID == MachineRegistry.SHAFT.getBlockID())
 			return 32F;
-		if (b == MachineRegistry.GEARBOX.getBlock())
+		if (b.blockID == MachineRegistry.GEARBOX.getBlockID())
 			return 32F;
-		if (b == Blocks.mob_spawner)
+		if (b.blockID == Block.mobSpawner.blockID)
 			return 18F;
-		if (b == Blocks.monster_egg)
+		if (b.blockID == Block.silverfish.blockID)
 			return 6F;
-		if (b == Blocks.glowstone)
+		if (b.blockID == Block.glowStone.blockID)
 			return 8F;
-		if (b == Blocks.piston)
+		if (b.blockID == Block.pistonBase.blockID)
 			return 8F;
-		if (b == Blocks.sticky_piston)
+		if (b.blockID == Block.pistonStickyBase.blockID)
 			return 8F;
-		if (b == Blocks.lever)
+		if (b.blockID == Block.lever.blockID)
 			return 18F;
-		if (b == Blocks.stone_button)
+		if (b.blockID == Block.stoneButton.blockID)
 			return 18F;
-		if (b == Blocks.stone_pressure_plate)
+		if (b.blockID == Block.pressurePlateStone.blockID)
 			return 18F;
-		if (b == Blocks.heavy_weighted_pressure_plate)
+		if (b.blockID == Block.pressurePlateIron.blockID)
 			return 18F;
-		if (b == Blocks.light_weighted_pressure_plate)
+		if (b.blockID == Block.pressurePlateGold.blockID)
 			return 18F;
-		if (b == Blocks.lit_redstone_lamp || b == Blocks.redstone_lamp)
+		if (b.blockID == Block.redstoneLampActive.blockID || b.blockID == Block.redstoneLampIdle.blockID)
 			return 10F;
-		if (b == Blocks.iron_door)
+		if (b.blockID == Block.doorIron.blockID)
 			return 18F;
 
-		if (b == ThaumBlockHandler.getInstance().totemID)
+		if (b.blockID == ThaumBlockHandler.getInstance().totemID)
 			return 48F;
-		if (b == MekanismHandler.getInstance().cableID)
+		if (b.blockID == MekanismHandler.getInstance().cableID)
 			return 20F;
-		if (b == MFRHandler.getInstance().cableID)
+		if (b.blockID == MFRHandler.getInstance().cableID)
 			return 15F;
-		if (b == OpenBlockHandler.getInstance().tankID)
+		if (b.blockID == OpenBlockHandler.getInstance().tankID)
 			return 20F;
-		if (b == ThermalHandler.getInstance().ductID) //fails as of newer TE, because is TileMultipart
+		if (b.blockID == ThermalHandler.getInstance().ductID) //fails as of newer TE, because is TileMultipart
 			return 48F;
-		if (MystObjects.crystal != null && b == MystObjects.crystal)
+		if (MystObjects.crystal != null && b.blockID == MystObjects.crystal.blockID)
 			return 20F;
 		if (TwilightForestHandler.getInstance().isMazeStone(b))
 			return 60F;
 
-		if (ReikaBlockHelper.isOre(b, meta))
+		if (ReikaBlockHelper.isOre(b.blockID, meta))
 			return 24F;
-
-		if (field_150914_c.contains(b))
+		for (int i = 0; i < blocksEffectiveAgainst.length; i++) {
+			if (blocksEffectiveAgainst[i] == b)
+				return 12F;
+		}
+		for (int i = 0; i < ItemSpade.blocksEffectiveAgainst.length; i++) { //Also can dig dirt, etc
+			if (ItemSpade.blocksEffectiveAgainst[i] == b)
+				return 6F;
+		}
+		if (b.blockMaterial == Material.rock || b.blockMaterial == Material.iron)
 			return 12F;
-		if (((ItemBedrockShovel)ItemRegistry.BEDSHOVEL.getItemInstance()).isAcceleratedOn(b))
-			return 6F;
-
-		if (b.getMaterial() == Material.rock || b.getMaterial() == Material.iron)
+		if (b.blockMaterial == Material.glass)
 			return 12F;
-		if (b.getMaterial() == Material.glass)
+		if (b.blockMaterial == Material.ice)
 			return 12F;
-		if (b.getMaterial() == Material.ice)
-			return 12F;
-		if (b == BlockRegistry.DECO.getBlockInstance())
+		if (b == RotaryCraft.decoblock)
 			return 12F;
 		if (b instanceof BlockBasicMachine)
 			return 12F;
@@ -278,17 +277,17 @@ public final class ItemBedrockPickaxe extends ItemPickaxe implements IndexedItem
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public final void registerIcons(IIconRegister ico) {}
+	public final void registerIcons(IconRegister ico) {}
 
 	@Override
-	public final IIcon getIconFromDamage(int dmg) { //To get around a bug in backtools
-		return RotaryCraft.instance.isLocked() ? ReikaTextureHelper.getMissingIcon() : Items.stone_pickaxe.getIconFromDamage(0);
+	public final Icon getIconFromDamage(int dmg) { //To get around a bug in backtools
+		return RotaryCraft.instance.isLocked() ? ReikaTextureHelper.getMissingIcon() : Item.pickaxeStone.getIconFromDamage(0);
 	}
 
 	@Override
 	public int getItemEnchantability()
 	{
-		return ConfigRegistry.PREENCHANT.getState() ? 0 : Items.iron_pickaxe.getItemEnchantability();
+		return ConfigRegistry.PREENCHANT.getState() ? 0 : Item.pickaxeIron.getItemEnchantability();
 	}
 
 	@Override
@@ -308,10 +307,5 @@ public final class ItemBedrockPickaxe extends ItemPickaxe implements IndexedItem
 	@Override
 	public String getTexture(ItemStack is) {
 		return "/Reika/RotaryCraft/Textures/Items/items2.png";
-	}
-
-	@Override
-	public String getItemStackDisplayName(ItemStack is) {
-		return ItemRegistry.getEntry(is).getBasicName();
 	}
 }

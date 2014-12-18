@@ -9,6 +9,18 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Auxiliary;
 
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
 import Reika.DragonAPI.Libraries.ReikaEntityHelper;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
@@ -29,20 +41,6 @@ import Reika.RotaryCraft.TileEntities.Production.TileEntityFermenter;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityObsidianMaker;
 import Reika.RotaryCraft.TileEntities.World.TileEntityIgniter;
 
-import java.util.List;
-
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityFurnace;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-
 public class TileEntityHeater extends InventoriedPowerReceiver implements TemperatureTE, DiscreteFunction {
 
 	public int temperature;
@@ -51,7 +49,7 @@ public class TileEntityHeater extends InventoriedPowerReceiver implements Temper
 
 	private int tickcount2 = 0;
 
-	public static final int MAXTEMP = 1000;
+	public static final int MAXTEMP = 1500;
 
 	public boolean idle = false;
 
@@ -137,8 +135,8 @@ public class TileEntityHeater extends InventoriedPowerReceiver implements Temper
 	}
 
 	public void overheat(World world, int x, int y, int z) {
-		ReikaWorldHelper.overheat(world, x, y, z, ItemStacks.scrap.copy(), 0, 17, true, 1.2F, true, true, 1F);
-		world.setBlock(x, y, z, Blocks.flowing_lava);
+		ReikaWorldHelper.overheat(world, x, y, z, ItemStacks.scrap.itemID, ItemStacks.scrap.getItemDamage(), 0, 17, true, 1.2F, true, true, 1F);
+		world.setBlock(x, y, z, Block.lavaMoving.blockID);
 		temperature = 0;
 		setTemperature = 0;
 	}
@@ -159,12 +157,12 @@ public class TileEntityHeater extends InventoriedPowerReceiver implements Temper
 			}
 		}
 		if (slot != -1 && consume) {
-			Item id = inv[slot].getItem();
+			int id = inv[slot].itemID;
 			ReikaInventoryHelper.decrStack(slot, inv);
-			if (id == Items.lava_bucket) {
-				int leftover = ReikaInventoryHelper.addToInventoryWithLeftover(Items.bucket, -1, 1, inv);
+			if (id == Item.bucketLava.itemID) {
+				int leftover = ReikaInventoryHelper.addToInventoryWithLeftover(Item.bucketEmpty.itemID, -1, 1, inv);
 				if (leftover > 0) {
-					EntityItem ei = new EntityItem(worldObj, xCoord+rand.nextFloat(), yCoord+rand.nextFloat(), zCoord+rand.nextFloat(), new ItemStack(Items.lava_bucket, leftover, 0));
+					EntityItem ei = new EntityItem(worldObj, xCoord+rand.nextFloat(), yCoord+rand.nextFloat(), zCoord+rand.nextFloat(), new ItemStack(Item.bucketLava.itemID, leftover, 0));
 					ReikaEntityHelper.addRandomDirVelocity(ei, 0.2);
 					if (!worldObj.isRemote)
 						worldObj.spawnEntityInWorld(ei);
@@ -179,7 +177,7 @@ public class TileEntityHeater extends InventoriedPowerReceiver implements Temper
 		if (!world.isRemote)
 			ReikaWorldHelper.temperatureEnvironment(world, x, y-1, z, temperature);
 		MachineRegistry id = MachineRegistry.getMachine(world, x, y, z);
-		TileEntity te = world.getTileEntity(x, y, z);
+		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if (id == MachineRegistry.PULSEJET) {
 			TileEntityPulseFurnace tile = (TileEntityPulseFurnace)te;
 			if (tile == null)

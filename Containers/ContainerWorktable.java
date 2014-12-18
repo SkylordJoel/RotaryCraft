@@ -9,13 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Containers;
 
-import Reika.DragonAPI.Base.CoreContainer;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.API.Event.WorktableCraftEvent;
-import Reika.RotaryCraft.Auxiliary.WorktableRecipes;
-import Reika.RotaryCraft.Registry.SoundRegistry;
-import Reika.RotaryCraft.TileEntities.Production.TileEntityWorktable;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -26,6 +19,12 @@ import net.minecraft.inventory.SlotFurnace;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import Reika.DragonAPI.Base.CoreContainer;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.API.Event.WorktableCraftEvent;
+import Reika.RotaryCraft.Auxiliary.WorktableRecipes;
+import Reika.RotaryCraft.Registry.SoundRegistry;
+import Reika.RotaryCraft.TileEntities.Production.TileEntityWorktable;
 
 public class ContainerWorktable extends CoreContainer {
 
@@ -94,7 +93,7 @@ public class ContainerWorktable extends CoreContainer {
 		ItemStack is = WorktableRecipes.getInstance().findMatchingRecipe(craftMatrix, world);
 		ItemStack slot13 = tile.getStackInSlot(13);
 		if (slot13 != null)
-			tile.setInventorySlotContents(13, ReikaItemHelper.getSizedItemStack(slot13, slot13.stackSize+is.stackSize));
+			tile.setInventorySlotContents(13, new ItemStack(slot13.itemID, slot13.stackSize+is.stackSize, slot13.getItemDamage()));
 		else
 			tile.setInventorySlotContents(13, is);
 		for (int i = 0; i < 9; ++i) {
@@ -108,7 +107,7 @@ public class ContainerWorktable extends CoreContainer {
 			}
 		}
 		SoundRegistry.CRAFT.playSoundAtBlock(world, tile.xCoord, tile.yCoord, tile.zCoord, 0.3F, 1.5F);
-		MinecraftForge.EVENT_BUS.post(new WorktableCraftEvent(tile, ep.getCommandSenderName(), false, is));
+		MinecraftForge.EVENT_BUS.post(new WorktableCraftEvent(tile, ep.getEntityName(), false, is));
 		this.updateCraftMatrix();
 		tile.craftable = false;
 	}
@@ -131,7 +130,7 @@ public class ContainerWorktable extends CoreContainer {
 		}
 		ItemStack slot13 = tile.getStackInSlot(13);
 		if (slot13 != null) {
-			if (is.getItem() != slot13.getItem())
+			if (is.itemID != slot13.itemID)
 				return;
 			if (is.getItemDamage() != slot13.getItemDamage())
 				return;

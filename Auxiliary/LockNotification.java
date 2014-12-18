@@ -9,13 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
-import Reika.DragonAPI.Auxiliary.PlayerHandler.PlayerTracker;
-import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumChatFormatting;
+import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
+import cpw.mods.fml.common.IPlayerTracker;
 
-public final class LockNotification implements PlayerTracker {
+public final class LockNotification implements IPlayerTracker {
 
 	public static final LockNotification instance = new LockNotification();
 
@@ -52,7 +51,7 @@ public final class LockNotification implements PlayerTracker {
 	}
 
 	@Override
-	public void onPlayerChangedDimension(EntityPlayer player, int from, int to) {
+	public void onPlayerChangedDimension(EntityPlayer player) {
 
 	}
 

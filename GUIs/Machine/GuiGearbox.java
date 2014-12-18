@@ -9,11 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.GUIs.Machine;
 
+import net.minecraft.entity.player.EntityPlayer;
 import Reika.RotaryCraft.Base.GuiNonPoweredMachine;
 import Reika.RotaryCraft.Containers.ContainerGearbox;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityGearbox;
-
-import net.minecraft.entity.player.EntityPlayer;
 
 public class GuiGearbox extends GuiNonPoweredMachine
 {
@@ -35,42 +34,42 @@ public class GuiGearbox extends GuiNonPoweredMachine
 
 		super.drawGuiContainerForegroundLayer(a, b);
 
-		fontRendererObj.drawString("Lubricant", 5, 12, 4210752);
+		fontRenderer.drawString("Lubricant", 5, 12, 4210752);
 
-		fontRendererObj.drawString("Damage:", 68, 60, 0x000000);
+		fontRenderer.drawString("Damage:", 68, 60, 0x000000);
 		int damage = gbx.getDamagePercent();
 		if (damage < 10)
-			fontRendererObj.drawString(String.format("%5d%s", damage, "%"), 122, 60, 0x00ff00);
+			fontRenderer.drawString(String.format("%5d%s", damage, "%"), 122, 60, 0x00ff00);
 		if (damage < 25 && damage >= 10)
-			fontRendererObj.drawString(String.format("%5d%s", damage, "%"), 122, 60, 0x55ff00);
+			fontRenderer.drawString(String.format("%5d%s", damage, "%"), 122, 60, 0x55ff00);
 		if (damage < 50 && damage >= 25)
-			fontRendererObj.drawString(String.format("%5d%s", damage, "%"), 122, 60, 0xffff00);
+			fontRenderer.drawString(String.format("%5d%s", damage, "%"), 122, 60, 0xffff00);
 		if (damage < 80 && damage >= 50)
-			fontRendererObj.drawString(String.format("%5d%s", damage, "%"), 122, 60, 0xff5500);
+			fontRenderer.drawString(String.format("%5d%s", damage, "%"), 122, 60, 0xff5500);
 		if (damage >= 80)
-			fontRendererObj.drawString(String.format("%5d%s", damage, "%"), 122, 60, 0xff0000);
+			fontRenderer.drawString(String.format("%5d%s", damage, "%"), 122, 60, 0xff0000);
 
-		fontRendererObj.drawString("Ratio:", 80, 24, 0x000000);
-		fontRendererObj.drawString("Mode:", 80, 36, 0x000000);
-		fontRendererObj.drawString("Power:", 74, 48, 0x000000);
+		fontRenderer.drawString("Ratio:", 80, 24, 0x000000);
+		fontRenderer.drawString("Mode:", 80, 36, 0x000000);
+		fontRenderer.drawString("Power:", 74, 48, 0x000000);
 
-		fontRendererObj.drawString(String.format("%5d ", gbx.getRatio()), 127, 24, 0x000000);
+		fontRenderer.drawString(String.format("%5d ", gbx.getRatio()), 127, 24, 0x000000);
 		if (gbx.reduction)
-			fontRendererObj.drawString("Torque", 115, 36, 0x000000);
+			fontRenderer.drawString("Torque", 115, 36, 0x000000);
 		else
-			fontRendererObj.drawString(" Speed", 115, 36, 0x000000);
+			fontRenderer.drawString(" Speed", 115, 36, 0x000000);
 
 		if (gbx.power < 1000)
-			fontRendererObj.drawString(String.format("%3d  W", gbx.power), 122, 48, 0x000000);
+			fontRenderer.drawString(String.format("%3d  W", gbx.power), 122, 48, 0x000000);
 		if (gbx.power < 1000000 && gbx.power >= 1000)
-			fontRendererObj.drawString(String.format("%.1f kW", gbx.power/1000D), 112, 48, 0x000000);
+			fontRenderer.drawString(String.format("%.1f kW", gbx.power/1000D), 112, 48, 0x000000);
 		if (gbx.power >= 1000000)
-			fontRendererObj.drawString(String.format("%.1f MW", gbx.power/1000000D), 112, 48, 0x000000);
+			fontRenderer.drawString(String.format("%.1f MW", gbx.power/1000000D), 112, 48, 0x000000);
 
 		if (api.isMouseInBox(j+23, j+32, k+20, k+76)) {
 			int mx = api.getMouseRealX();
 			int my = api.getMouseRealY();
-			api.drawTooltipAt(fontRendererObj, String.format("%.1f/%d", gbx.getLubricant()/1000F, gbx.getMaxLubricant()/1000), mx-j, my-k);
+			api.drawTooltipAt(fontRenderer, String.format("%.1f/%d", gbx.getLubricant()/1000F, gbx.getMaxLubricant()/1000), mx-j, my-k);
 		}
 	}
 

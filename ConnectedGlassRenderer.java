@@ -9,23 +9,21 @@
  ******************************************************************************/
 package Reika.RotaryCraft;
 
-import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
-import Reika.RotaryCraft.Auxiliary.Interfaces.ConnectedTextureGlass;
-import Reika.RotaryCraft.Registry.BlockRegistry;
-import Reika.RotaryCraft.TileEntities.TileEntityDecoTank;
-
 import java.util.ArrayList;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 
 import org.lwjgl.opengl.GL11;
 
+import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
+import Reika.RotaryCraft.Auxiliary.Interfaces.ConnectedTextureGlass;
+import Reika.RotaryCraft.TileEntities.TileEntityDecoTank;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
 
@@ -51,8 +49,8 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 
 		boolean render5 = b.renderCentralTextureForItem(metadata);
 
-		IIcon ico = b.getIconForEdge(0);
-		IIcon ico2 = b.getIconForEdge(5);
+		Icon ico = b.getIconForEdge(0);
+		Icon ico2 = b.getIconForEdge(5);
 		float u = ico.getMinU();
 		float du = ico.getMaxU();
 		float v = ico.getMinV();
@@ -168,7 +166,7 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 			if (block.shouldSideBeRendered(world, x, y, z, ForgeDirection.UP.ordinal()))
 				for (int i = 0; i < li.size(); i++) {
 					int edge = li.get(i);
-					IIcon ico = b.getIconForEdge(edge);
+					Icon ico = b.getIconForEdge(edge);
 					float u = ico.getMinU();
 					float du = ico.getMaxU();
 					float v = ico.getMinV();
@@ -191,7 +189,7 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 			if (block.shouldSideBeRendered(world, x, y, z, ForgeDirection.DOWN.ordinal()))
 				for (int i = 0; i < li.size(); i++) {
 					int edge = li.get(i);
-					IIcon ico = b.getIconForEdge(edge);
+					Icon ico = b.getIconForEdge(edge);
 					float u = ico.getMinU();
 					float du = ico.getMaxU();
 					float v = ico.getMinV();
@@ -213,7 +211,7 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 			if (block.shouldSideBeRendered(world, x, y, z, ForgeDirection.EAST.ordinal()))
 				for (int i = 0; i < li.size(); i++) {
 					int edge = li.get(i);
-					IIcon ico = b.getIconForEdge(edge);
+					Icon ico = b.getIconForEdge(edge);
 					float u = ico.getMinU();
 					float du = ico.getMaxU();
 					float v = ico.getMinV();
@@ -234,7 +232,7 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 			if (block.shouldSideBeRendered(world, x, y, z, ForgeDirection.WEST.ordinal()))
 				for (int i = 0; i < li.size(); i++) {
 					int edge = li.get(i);
-					IIcon ico = b.getIconForEdge(edge);
+					Icon ico = b.getIconForEdge(edge);
 					float u = ico.getMinU();
 					float du = ico.getMaxU();
 					float v = ico.getMinV();
@@ -255,7 +253,7 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 			if (block.shouldSideBeRendered(world, x, y, z, ForgeDirection.SOUTH.ordinal()))
 				for (int i = 0; i < li.size(); i++) {
 					int edge = li.get(i);
-					IIcon ico = b.getIconForEdge(edge);
+					Icon ico = b.getIconForEdge(edge);
 					float u = ico.getMinU();
 					float du = ico.getMaxU();
 					float v = ico.getMinV();
@@ -276,7 +274,7 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 			if (block.shouldSideBeRendered(world, x, y, z, ForgeDirection.NORTH.ordinal()))
 				for (int i = 0; i < li.size(); i++) {
 					int edge = li.get(i);
-					IIcon ico = b.getIconForEdge(edge);
+					Icon ico = b.getIconForEdge(edge);
 					float u = ico.getMinU();
 					float du = ico.getMaxU();
 					float v = ico.getMinV();
@@ -292,10 +290,10 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 					v5.addVertexWithUV(1, 0, 0, du, dv);
 				}
 		}
-		else if (block == BlockRegistry.DECOTANK.getBlockInstance()) {
+		else if (block.blockID == RotaryCraft.decoTank.blockID) {
 			double d = 0.001;
 
-			TileEntityDecoTank tile = (TileEntityDecoTank)world.getTileEntity(x, y, z);
+			TileEntityDecoTank tile = (TileEntityDecoTank)world.getBlockTileEntity(x, y, z);
 			if (tile != null) {
 				Fluid f = tile.getFluid();
 				if (f != null) {
@@ -311,7 +309,7 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 					else {
 						v5.setBrightness(mix);
 					}
-					IIcon ico = f.getIcon();
+					Icon ico = f.getIcon();
 					float u = ico.getMinU();
 					float du = ico.getMaxU();
 					float v = ico.getMinV();
@@ -385,7 +383,7 @@ public class ConnectedGlassRenderer implements ISimpleBlockRenderingHandler {
 	}
 
 	@Override
-	public boolean shouldRender3DInInventory(int model) {
+	public boolean shouldRender3DInInventory() {
 		return true;
 	}
 

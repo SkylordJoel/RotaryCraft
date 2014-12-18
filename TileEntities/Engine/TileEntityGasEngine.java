@@ -9,6 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Engine;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidContainerRegistry;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Auxiliary.Interfaces.UpgradeableMachine;
@@ -18,11 +22,6 @@ import Reika.RotaryCraft.Registry.EngineType;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidContainerRegistry;
-
 public class TileEntityGasEngine extends TileEntityEngine implements UpgradeableMachine {
 
 	@Override
@@ -30,9 +29,9 @@ public class TileEntityGasEngine extends TileEntityEngine implements Upgradeable
 		NBTTagCompound NBT = new NBTTagCompound();
 		type = EngineType.SPORT;
 		this.writeToNBT(NBT);
-		worldObj.setBlockToAir(xCoord, yCoord, zCoord);
+		worldObj.setBlock(xCoord, yCoord, zCoord, 0);
 		worldObj.setBlock(xCoord, yCoord, zCoord, this.getTileEntityBlockID(), type.ordinal(), 3);
-		TileEntityEngine te = (TileEntityEngine)worldObj.getTileEntity(xCoord, yCoord, zCoord);
+		TileEntityEngine te = (TileEntityEngine)worldObj.getBlockTileEntity(xCoord, yCoord, zCoord);
 		te.readFromNBT(NBT);
 		this.syncAllData(true);
 		te.syncAllData(true);
@@ -40,7 +39,7 @@ public class TileEntityGasEngine extends TileEntityEngine implements Upgradeable
 	}
 
 	public boolean canUpgradeWith(ItemStack item) {
-		return item.getItem() == ItemRegistry.UPGRADE.getItemInstance() && item.getItemDamage() == 0;
+		return item.itemID == ItemRegistry.UPGRADE.getShiftedID() && item.getItemDamage() == 0;
 	}
 
 	@Override
@@ -51,7 +50,7 @@ public class TileEntityGasEngine extends TileEntityEngine implements Upgradeable
 	@Override
 	protected void internalizeFuel() {
 		if (inv[0] != null && fuel.getLevel()+FluidContainerRegistry.BUCKET_VOLUME <= FUELCAP) {
-			if (inv[0].getItem() == ItemRegistry.ETHANOL.getItemInstance()) {
+			if (inv[0].itemID == ItemRegistry.ETHANOL.getShiftedID()) {
 				ReikaInventoryHelper.decrStack(0, inv);
 				fuel.addLiquid(1000, RotaryCraft.ethanolFluid);
 			}

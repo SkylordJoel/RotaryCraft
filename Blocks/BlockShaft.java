@@ -9,7 +9,24 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
+import java.util.ArrayList;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.RotaryNames;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import Reika.RotaryCraft.Base.BlockModelledMachine;
 import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
@@ -20,27 +37,11 @@ import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MaterialRegistry;
 import Reika.RotaryCraft.TileEntities.Transmission.TileEntityShaft;
 
-import java.util.ArrayList;
-
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-
 public class BlockShaft extends BlockModelledMachine {
 
 
-	public BlockShaft(Material mat) {
-		super(mat);
+	public BlockShaft(int ID, Material mat) {
+		super(ID, mat);
 	}
 
 	@Override
@@ -50,8 +51,8 @@ public class BlockShaft extends BlockModelledMachine {
 	}
 
 	@Override
-	public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face) {
-		TileEntityShaft ts = (TileEntityShaft)world.getTileEntity(x, y, z);
+	public int getFlammability(IBlockAccess world, int x, int y, int z, int metadata, ForgeDirection face) {
+		TileEntityShaft ts = (TileEntityShaft)world.getBlockTileEntity(x, y, z);
 		if (ts == null)
 			return 0;
 		if (ts.getShaftType().isFlammable())
@@ -62,7 +63,7 @@ public class BlockShaft extends BlockModelledMachine {
 	@Override
 	public float getExplosionResistance(Entity ent, World world, int x, int y, int z, double eX, double eY, double eZ)
 	{
-		TileEntityShaft sha = (TileEntityShaft)world.getTileEntity(x, y, z);
+		TileEntityShaft sha = (TileEntityShaft)world.getBlockTileEntity(x, y, z);
 		if (sha == null)
 			return 0;
 		MaterialRegistry type = sha.getShaftType();
@@ -82,12 +83,12 @@ public class BlockShaft extends BlockModelledMachine {
 	@Override
 	public float getPlayerRelativeBlockHardness(EntityPlayer ep, World world, int x, int y, int z)
 	{
-		TileEntityShaft sha = (TileEntityShaft)world.getTileEntity(x, y, z);
+		TileEntityShaft sha = (TileEntityShaft)world.getBlockTileEntity(x, y, z);
 		if (sha == null)
 			return 0.01F;
 		int mult = 1;
 		if (ep.inventory.getCurrentItem() != null) {
-			if (ep.inventory.getCurrentItem().getItem() == ItemRegistry.BEDPICK.getItemInstance())
+			if (ep.inventory.getCurrentItem().itemID == ItemRegistry.BEDPICK.getShiftedID())
 				mult = 4;
 		}
 		if (this.canHarvest(world, ep, x, y, z))
@@ -96,11 +97,11 @@ public class BlockShaft extends BlockModelledMachine {
 	}
 
 	@Override
-	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z, boolean harv)
+	public boolean removeBlockByPlayer(World world, EntityPlayer player, int x, int y, int z)
 	{
 		if (this.canHarvest(world, player, x, y, z))
 			this.harvestBlock(world, player, x, y, z, 0);
-		return world.setBlockToAir(x, y, z);
+		return world.setBlock(x, y, z, 0);
 	}
 
 	@Override
@@ -111,14 +112,14 @@ public class BlockShaft extends BlockModelledMachine {
 		if (ep.getCurrentEquippedItem() != null && (ep.getCurrentEquippedItem().getItem() instanceof ItemScrewdriver || ep.getCurrentEquippedItem().getItem() instanceof ItemMeter || ep.getCurrentEquippedItem().getItem() instanceof ItemDebug)) {
 			return false;
 		}
-		TileEntityShaft tile = (TileEntityShaft)world.getTileEntity(x, y, z);
+		TileEntityShaft tile = (TileEntityShaft)world.getBlockTileEntity(x, y, z);
 		if (tile != null) {
 			ItemStack fix;
 			if (tile.getShaftType() == null)
 				return false;
 			switch(tile.getShaftType()) {
 			case WOOD:
-				fix = new ItemStack(Items.stick);
+				fix = new ItemStack(Item.stick);
 				break;
 			case STONE:
 				fix = ItemStacks.stonerod;
@@ -133,15 +134,15 @@ public class BlockShaft extends BlockModelledMachine {
 				fix = ItemStacks.bedrockshaft;
 				break;
 			default:
-				fix = new ItemStack(Blocks.stone);
+				fix = new ItemStack(Block.stone);
 				break;
 			}
-			if (ep.getCurrentEquippedItem() != null && ReikaItemHelper.matchStacks(fix, ep.getCurrentEquippedItem())) {
+			if (ep.getCurrentEquippedItem() != null && (ep.getCurrentEquippedItem().itemID == fix.itemID && ep.getCurrentEquippedItem().getItemDamage() == fix.getItemDamage())) {
 				tile.repair();
 				if (!ep.capabilities.isCreativeMode) {
 					int num = ep.getCurrentEquippedItem().stackSize;
 					if (num > 1)
-						ep.inventory.setInventorySlotContents(ep.inventory.currentItem, ReikaItemHelper.getSizedItemStack(fix, num-1));
+						ep.inventory.setInventorySlotContents(ep.inventory.currentItem, new ItemStack(fix.itemID, num-1, fix.getItemDamage()));
 					else
 						ep.inventory.setInventorySlotContents(ep.inventory.currentItem, null);
 				}
@@ -155,26 +156,26 @@ public class BlockShaft extends BlockModelledMachine {
 	public void harvestBlock(World world, EntityPlayer ep, int x, int y, int z, int meta) {
 		if (!this.canHarvest(world, ep, x, y, z))
 			return;
-		TileEntityShaft sha = (TileEntityShaft)world.getTileEntity(x, y, z);
+		TileEntityShaft sha = (TileEntityShaft)world.getBlockTileEntity(x, y, z);
 		if (sha != null) {
 			if (sha.failed()) {
 				ItemStack todrop = null;
 				if (par5Random.nextInt(8) == 0) {
 					switch(sha.getShaftType()) {
 					case WOOD:
-						todrop = new ItemStack(Blocks.planks, 5, 0);
+						todrop = new ItemStack(Block.planks.blockID, 5, 0);
 						break;
 					case STONE:
-						todrop = ReikaItemHelper.getSizedItemStack(ReikaItemHelper.cobbleSlab, 5);
+						todrop = new ItemStack(ReikaItemHelper.cobbleSlab.itemID, 5, ReikaItemHelper.cobbleSlab.getItemDamage());
 						break;
 					case STEEL:
-						todrop = ItemStacks.mount.copy();	//drop mount
+						todrop = new ItemStack(ItemStacks.mount.itemID, 1, ItemStacks.mount.getItemDamage());	//drop mount
 						break;
 					case DIAMOND:
-						todrop = ItemStacks.mount.copy();	//drop mount
+						todrop = new ItemStack(ItemStacks.mount.itemID, 1, ItemStacks.mount.getItemDamage());	//drop mount
 						break;
 					case BEDROCK:
-						todrop = ItemStacks.mount.copy();	//drop mount
+						todrop = new ItemStack(ItemStacks.mount.itemID, 1, ItemStacks.mount.getItemDamage());	//drop mount
 						break;
 					}
 					EntityItem item = new EntityItem(world, x + 0.5F, y + 0.5F, z + 0.5F, todrop);
@@ -184,19 +185,20 @@ public class BlockShaft extends BlockModelledMachine {
 				}
 			}
 			else if (sha.getBlockMetadata() < 6) {
-				ItemStack todrop = ItemRegistry.SHAFT.getStackOfMetadata(sha.getShaftType().ordinal()); //drop shaft item
+				int metat = sha.getShaftType().ordinal();
+				ItemStack todrop = new ItemStack(RotaryCraft.shaftitems.itemID, 1, metat); //drop shaft item
 				EntityItem item = new EntityItem(world, x + 0.5F, y + 0.5F, z + 0.5F, todrop);
 				item.delayBeforeCanPickup = 10;
 				if (!world.isRemote && !ep.capabilities.isCreativeMode)
 					world.spawnEntityInWorld(item);
 			}
 			else {/*
-				ItemStack todrop = new ItemStack(MachineRegistry.SHAFT.getBlock(), 1, 6); //drop shaft block (cross)
+				ItemStack todrop = new ItemStack(MachineRegistry.SHAFT.getBlockID(), 1, 6); //drop shaft block (cross)
 				EntityItem item = new EntityItem(world, x + 0.5F, y + 0.5F, z + 0.5F, todrop);
-				Items.delayBeforeCanPickup = 10;
+				item.delayBeforeCanPickup = 10;
 				if (!world.isRemote && !ep.capabilities.isCreativeMode)
 					world.spawnEntityInWorld(item);*/
-				ItemStack todrop = ItemStacks.shaftcross.copy(); //drop shaft cross
+				ItemStack todrop = new ItemStack(RotaryCraft.shaftitems.itemID, 1, RotaryNames.getNumberShaftTypes()-1); //drop shaft cross
 				EntityItem item = new EntityItem(world, x + 0.5F, y + 0.5F, z + 0.5F, todrop);
 				item.delayBeforeCanPickup = 10;
 				if (!world.isRemote && !ep.capabilities.isCreativeMode)
@@ -249,7 +251,7 @@ public class BlockShaft extends BlockModelledMachine {
 	{
 		if (player.capabilities.isCreativeMode)
 			return false;
-		TileEntityShaft ts = (TileEntityShaft)world.getTileEntity(x, y, z);
+		TileEntityShaft ts = (TileEntityShaft)world.getBlockTileEntity(x, y, z);
 		if (ts == null)
 			return false;
 		MaterialRegistry type = ts.getShaftType();
@@ -260,7 +262,7 @@ public class BlockShaft extends BlockModelledMachine {
 	public void setBlockBoundsBasedOnState(IBlockAccess iba, int x, int y, int z)
 	{
 		this.setFullBlockBounds();
-		RotaryCraftTileEntity te = (RotaryCraftTileEntity)iba.getTileEntity(x, y, z);
+		RotaryCraftTileEntity te = (RotaryCraftTileEntity)iba.getBlockTileEntity(x, y, z);
 		if (te.getBlockMetadata() < 6)
 			return;
 		this.setBlockBounds(0F, 0F, 0F, 1F, 1F, 1F);
@@ -276,13 +278,13 @@ public class BlockShaft extends BlockModelledMachine {
 	}
 
 	@Override
-	public final ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+	public final ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune)
 	{
 		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-		TileEntityShaft tile = (TileEntityShaft)world.getTileEntity(x, y, z);
+		TileEntityShaft tile = (TileEntityShaft)world.getBlockTileEntity(x, y, z);
 		if (tile == null)
 			return ret;
-		ret.add(ItemRegistry.SHAFT.getStackOfMetadata(tile.getShaftType().ordinal()));
+		ret.add(new ItemStack(RotaryCraft.shaftitems.itemID, 1, tile.getShaftType().ordinal()));
 		return ret;
 	}
 }

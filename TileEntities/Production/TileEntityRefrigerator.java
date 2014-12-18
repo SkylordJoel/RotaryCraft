@@ -9,9 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Production;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.FluidRegistry;
 import Reika.DragonAPI.Instantiable.StepTimer;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import Reika.RotaryCraft.Auxiliary.RotaryAux;
 import Reika.RotaryCraft.Auxiliary.Interfaces.DiscreteFunction;
@@ -19,13 +24,6 @@ import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerLiquidProducer;
 import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
-
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidRegistry;
 
 public class TileEntityRefrigerator extends InventoriedPowerLiquidProducer implements DiscreteFunction {
 
@@ -82,7 +80,7 @@ public class TileEntityRefrigerator extends InventoriedPowerLiquidProducer imple
 			return false;
 		if (tank.isFull())
 			return false;
-		return ReikaItemHelper.matchStackWithBlock(inv[0], Blocks.ice) && (inv[1] == null || inv[1].stackSize < inv[1].getMaxStackSize());
+		return inv[0].itemID == Block.ice.blockID && (inv[1] == null || inv[1].stackSize < inv[1].getMaxStackSize());
 	}
 
 	private void cycle() {
@@ -118,7 +116,7 @@ public class TileEntityRefrigerator extends InventoriedPowerLiquidProducer imple
 
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack is) {
-		return slot == 0 && ReikaItemHelper.matchStackWithBlock(is, Blocks.ice);
+		return slot == 0 && is.itemID == Block.ice.blockID;
 	}
 
 	@Override

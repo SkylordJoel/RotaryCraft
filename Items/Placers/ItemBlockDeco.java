@@ -7,11 +7,8 @@
  * Distribution of the software in any form is only allowed with
  * explicit, prior permission from the owner.
  ******************************************************************************/
-package Reika.RotaryCraft.Items;
+package Reika.RotaryCraft.Items.Placers;
 
-import Reika.RotaryCraft.Registry.BlockRegistry;
-
-import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
@@ -23,8 +20,8 @@ public class ItemBlockDeco extends ItemBlock {
 		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"
 		};
 
-	public ItemBlockDeco(Block b) {
-		super(b);
+	public ItemBlockDeco(int id) {
+		super(id);
 		this.setHasSubtypes(true);
 		//setItemName("machine");
 	}
@@ -41,9 +38,10 @@ public class ItemBlockDeco extends ItemBlock {
 		return this.getUnlocalizedName() + d;
 	}
 
-	@Override
-	public String getItemStackDisplayName(ItemStack itemstack) {
-		return BlockRegistry.DECO.getMultiValuedName(itemstack.getItemDamage());
+	public String getItemNameIS(ItemStack itemstack){
+		//this returns a string with the block name
+		//example: blockXXX
+		return new StringBuilder().append("machineblock").append(subNames[itemstack.getItemDamage()]).toString();
 	}
 
 	public String getTextureFile() {

@@ -9,14 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
-import Reika.DragonAPI.ModRegistry.ModOreList;
-import Reika.RotaryCraft.Auxiliary.RecipeManagers.ExtractorModOres;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import Reika.DragonAPI.ModRegistry.ModOreList;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Auxiliary.RecipeManagers.ExtractorModOres;
 
 public class SlotExtractor4 extends Slot {
 
@@ -36,7 +35,7 @@ public class SlotExtractor4 extends Slot {
 	@Override
 	public boolean isItemValid(ItemStack is)
 	{
-		return (ItemRegistry.EXTRACTS.matchItem(is) && is.getItemDamage() < 24 && is.getItemDamage() >= 16) || (ExtractorModOres.isModOreIngredient(is) && ExtractorModOres.isSolution(ModOreList.getEntryFromDamage(is.getItemDamage()/4), is.getItemDamage()));
+		return (is.itemID == RotaryCraft.extracts.itemID && is.getItemDamage() < 24 && is.getItemDamage() >= 16) || (ExtractorModOres.isModOreIngredient(is) && ExtractorModOres.isSolution(ModOreList.getEntryFromDamage(is.getItemDamage()/4), is.getItemDamage()));
 	}
 
 	/**

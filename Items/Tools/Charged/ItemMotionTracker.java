@@ -9,11 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Tools.Charged;
 
-import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.Base.ItemChargedTool;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-
 import java.util.List;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -34,6 +29,10 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.Base.ItemChargedTool;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
 
 public class ItemMotionTracker extends ItemChargedTool {
 
@@ -43,8 +42,8 @@ public class ItemMotionTracker extends ItemChargedTool {
 	double lastdist;
 	String lastmobname;
 
-	public ItemMotionTracker(int tex) {
-		super(tex);
+	public ItemMotionTracker(int ID, int tex) {
+		super(ID, tex);
 	}
 
 	@Override
@@ -79,7 +78,7 @@ public class ItemMotionTracker extends ItemChargedTool {
 					EntityLivingBase ent = (EntityLivingBase)infov.get(k);
 					double dist = ReikaMathLibrary.py3d(dx-ent.posX, dy-ent.posY-ent.getEyeHeight(), dz-ent.posZ);
 					EnumChatFormatting color;
-					String mobname = ent.getCommandSenderName();
+					String mobname = ent.getEntityName();
 					if (ent instanceof EntityMob || ent instanceof EntitySlime || ent instanceof EntityGhast)
 						color = EnumChatFormatting.RED;
 					else if (ent instanceof EntityAnimal || ent instanceof EntityBat || ent instanceof EntitySquid)
@@ -128,7 +127,7 @@ public class ItemMotionTracker extends ItemChargedTool {
 				}
 			}
 		}
-		return new ItemStack(is.getItem(), is.stackSize, is.getItemDamage()-1);
+		return new ItemStack(is.itemID, is.stackSize, is.getItemDamage()-1);
 	}
 
 }

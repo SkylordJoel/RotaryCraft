@@ -9,12 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.RotaryCraft;
-import Reika.RotaryCraft.API.BlowableCrop;
-import Reika.RotaryCraft.Base.BlockBasic;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -24,21 +18,23 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.Icon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.IPlantable;
-import net.minecraftforge.common.util.ForgeDirection;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.API.BlowableCrop;
+import Reika.RotaryCraft.Base.BlockBasic;
+import Reika.RotaryCraft.Registry.ItemRegistry;
 
 public final class BlockCanola extends BlockBasic implements IPlantable, BlowableCrop, IWailaBlock {
 
@@ -48,24 +44,19 @@ public final class BlockCanola extends BlockBasic implements IPlantable, Blowabl
 
 	public static final int GROWN = 9;
 
-	public BlockCanola() {
-		super(Material.plants);
+	public BlockCanola(int ID) {
+		super(ID, Material.plants);
 		this.setHardness(0F);
 		this.setResistance(0F);
-		this.setLightLevel(0F);
-		this.setStepSound(soundTypeGrass);
+		this.setLightValue(0F);
+		this.setStepSound(soundGrassFootstep);
 		this.setTickRandomly(true);
 	}
 
 	@Override
-	protected boolean isAvailableInCreativeMode() {
-		return false;
-	}
-
-	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
+	public int idDropped(int par1, Random par2Random, int par3)
 	{
-		return null;
+		return 0;
 	}
 
 	@Override
@@ -75,13 +66,13 @@ public final class BlockCanola extends BlockBasic implements IPlantable, Blowabl
 	}
 
 	@Override
-	public boolean isFoliage(IBlockAccess world, int x, int y, int z)
+	public boolean isBlockFoliage(World world, int x, int y, int z)
 	{
 		return true;
 	}
 
 	@Override
-	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+	public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune)
 	{
 		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
 		ret.add(this.getDrops(metadata));
@@ -107,10 +98,7 @@ public final class BlockCanola extends BlockBasic implements IPlantable, Blowabl
 
 	@Override
 	public void updateTick(World world, int x, int y, int z, Random par5Random) {
-		if (world.getBlockLightValue(x, y, z) < GROWN && !world.canBlockSeeTheSky(x, y, z)) {
-			this.die(world, x, y, z);
-		}
-		if (!world.getBlock(x, y-1, z).canSustainPlant(world, x, y-1, z, ForgeDirection.UP, this)) {
+		if ((world.getBlockLightValue(x, y, z) < GROWN && !world.canBlockSeeTheSky(x, y, z)) || world.getBlockId(x, y-1, z) != Block.tilledField.blockID) {
 			this.die(world, x, y, z);
 		}
 		else if (world.getBlockLightValue(x, y, z) >= 9)  {
@@ -125,7 +113,7 @@ public final class BlockCanola extends BlockBasic implements IPlantable, Blowabl
 	}
 
 	public void die(World world, int x, int y, int z) {
-		world.setBlockToAir(x, y, z);
+		world.setBlock(x, y, z, 0);
 		ReikaItemHelper.dropItem(world, x, y, z, ItemRegistry.CANOLA.getStackOf());
 	}
 
@@ -161,12 +149,12 @@ public final class BlockCanola extends BlockBasic implements IPlantable, Blowabl
 	}
 
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, Block changedid) {
+	public void onNeighborBlockChange(World world, int x, int y, int z, int changedid) {
 		this.testStable(world, x, y, z);
 	}
 
 	public void testStable(World world, int x, int y, int z) {
-		Block idbelow = world.getBlock(x, y-1, z);
+		int idbelow = world.getBlockId(x, y-1, z);
 		if ((world.getBlockLightValue(x, y, z) < 9 && !world.canBlockSeeTheSky(x, y, z)) || !this.isValidFarmBlock(world, x, y, z, idbelow)) {
 			this.die(world, x, y, z);
 		}
@@ -218,12 +206,12 @@ public final class BlockCanola extends BlockBasic implements IPlantable, Blowabl
 	}
 
 	@Override
-	public IIcon getIcon(int s, int meta) {
+	public Icon getIcon(int s, int meta) {
 		return icons[meta][s];
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister) {
+	public void registerIcons(IconRegister par1IconRegister) {
 		if (RotaryCraft.instance.isLocked())
 			return;
 		for (int j = 0; j <= GROWN; j++) {
@@ -234,29 +222,30 @@ public final class BlockCanola extends BlockBasic implements IPlantable, Blowabl
 	}
 
 	@Override
-	public EnumPlantType getPlantType(IBlockAccess world, int x, int y, int z) {
+	public EnumPlantType getPlantType(World world, int x, int y, int z) {
 		return EnumPlantType.Crop;
 	}
 
 	@Override
-	public Block getPlant(IBlockAccess world, int x, int y, int z) {
-		return this;
+	public int getPlantID(World world, int x, int y, int z) {
+		return blockID;
 	}
 
 	/** What is this <u>for?</u> Nothing calls it... */
 	@Override
-	public int getPlantMetadata(IBlockAccess world, int x, int y, int z) {
+	public int getPlantMetadata(World world, int x, int y, int z) {
 		return GROWN;
 	}
 
-	public static boolean isValidFarmBlock(World world, int x, int y, int z, Block id) {
-		if (id == Blocks.farmland)
+	public static boolean isValidFarmBlock(World world, int x, int y, int z, int id) {
+		if (id == Block.tilledField.blockID)
 			return true;
-		if (id == Blocks.air)
+		if (id == 0)
 			return false;
-		if (id == null)
+		Block b = Block.blocksList[id];
+		if (b == null)
 			return false;
-		return id.isFertile(world, x, y, z);
+		return b.isFertile(world, x, y, z);
 		//return farmBlocks.contains(id);
 	}
 
@@ -267,9 +256,9 @@ public final class BlockCanola extends BlockBasic implements IPlantable, Blowabl
 
 	@Override
 	public boolean isReadyToHarvest(World world, int x, int y, int z) {
-		Block b = world.getBlock(x, y, z);
+		int id = world.getBlockId(x, y, z);
 		int meta = world.getBlockMetadata(x, y, z);
-		return b == this && meta == GROWN;
+		return id == blockID && meta == GROWN;
 	}
 
 	@Override

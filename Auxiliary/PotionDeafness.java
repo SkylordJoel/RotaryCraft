@@ -9,9 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.RotaryCraft.RotaryCraft;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,7 +17,9 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.client.event.sound.PlaySoundSourceEvent;
 import net.minecraftforge.common.MinecraftForge;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.event.ForgeSubscribe;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.RotaryCraft.RotaryCraft;
 
 public class PotionDeafness extends Potion {
 
@@ -35,16 +34,16 @@ public class PotionDeafness extends Potion {
 		//no-op
 	}
 
-	@SubscribeEvent
+	@ForgeSubscribe
 	public void soundMufflerPlay(PlaySoundSourceEvent event)
 	{
 		if (Minecraft.getMinecraft().thePlayer.isPotionActive(RotaryCraft.deafness)) {
-			//	event.manager.sndSystem.setVolume(event.name, 0.003125F);
-			//ReikaJavaLibrary.pConsole(Minecraft.getMinecraft().thePlayer.getCommandSenderName()+" is deaf.");
+			event.manager.sndSystem.setVolume(event.name, 0.003125F);
+			//ReikaJavaLibrary.pConsole(Minecraft.getMinecraft().thePlayer.getEntityName()+" is deaf.");
 		}
 	}
 
-	@SubscribeEvent
+	@ForgeSubscribe
 	public void soundMufflerPlay(PlaySoundEvent event)
 	{
 		if (event.name.startsWith("Reika.RotaryCraft") && event.name.endsWith("engine")) {

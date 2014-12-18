@@ -9,12 +9,27 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Registry;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 import Reika.DragonAPI.DragonAPICore;
 import Reika.DragonAPI.DragonOptions;
 import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Exception.RegistrationException;
 import Reika.DragonAPI.Instantiable.WorldLocation;
-import Reika.DragonAPI.Instantiable.Data.BlockMap;
 import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.RotaryCraft.RotaryCraft;
@@ -177,22 +192,6 @@ import Reika.RotaryCraft.TileEntities.World.TileEntityLineBuilder;
 import Reika.RotaryCraft.TileEntities.World.TileEntityPileDriver;
 import Reika.RotaryCraft.TileEntities.World.TileEntitySonicBorer;
 import Reika.RotaryCraft.TileEntities.World.TileEntityTerraformer;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.item.EntityXPOrb;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 /** ONLY ADD NEW MACHINES TO THE BOTTOM OF THIS LIST */
@@ -327,27 +326,26 @@ public enum MachineRegistry {
 
 	private final String name;
 	private final Class te;
-	private final BlockRegistry block;
 	private final Class blockClass;
 	private final int meta;
 	private boolean hasRender = false;
 	private String renderClass;
+	private int rollover;
 	private ModList requirement;
+	private static final HashMap<List<Integer>, MachineRegistry> machineMappings = new HashMap();
 	private PowerReceivers receiver;
 	private TileEntity renderInstance;
 
 	public static final MachineRegistry[] machineList = values();
-	private static final BlockMap<MachineRegistry> machineMappings = new BlockMap();
 
 	private MachineRegistry(String n, Class<? extends Block> b, Class<? extends RotaryCraftTileEntity> tile, int m) {
 		name = n;
 		blockClass = b;
-		block = BlockRegistry.getBlockFromClassAndOffset(b, m/16);
-		if (block == null) {
-			throw new RegistrationException(RotaryCraft.instance, "Machine "+this.name()+" registered with a null block!");
-		}
+		meta = m;
 		te = tile;
-		meta = m%16;
+		if (meta > 15)
+			//	throw new RegistrationException(RotaryCraft.instance, "Machine "+name+" assigned to metadata > 15 for Block "+blockClass);
+			rollover = m/16;
 
 		receiver = PowerReceivers.initialize(this);
 	}
@@ -374,7 +372,7 @@ public enum MachineRegistry {
 		receiver = PowerReceivers.initialize(this);
 	}
 
-	public static TileEntity createTEFromIDAndMetadata(Block id, int metad) {
+	public static TileEntity createTEFromIDAndMetadata(int id, int metad) {
 		int index = getMachineIndexFromIDandMetadata(id, metad);
 		if (index == -1) {
 			RotaryCraft.logger.logError("ID "+id+" and metadata "+metad+" are not a valid machine identification pair!");
@@ -436,8 +434,12 @@ public enum MachineRegistry {
 		return blockClass.getSimpleName().replaceAll("Block", "").replaceAll("Machine", "");
 	}
 
-	public Block getBlock() {
-		return this.getBlockRegistryEntry().getBlockInstance();
+	public int getBlockOffset() {
+		return rollover;
+	}
+
+	public int getBlockID() {
+		return this.getBlockVariable().blockID;
 	}
 
 	public int getNumberDirections() {
@@ -454,9 +456,15 @@ public enum MachineRegistry {
 		return receiver;
 	}
 
-	public static int getMachineIndexFromIDandMetadata(Block id, int metad) {
+	public static int getMachineIndexFromIDandMetadata(int id, int metad) {
+		BlockRegistry r = BlockRegistry.getMachineBlock(id);
+		if (r == null)
+			return -1;
+		metad += BlockRegistry.getOffsetFromBlockID(id)*16;
 		MachineRegistry m = getMachineMapping(id, metad);
-		return m != null ? m.ordinal() : -1;
+		if (m == null)
+			return -1;
+		return m.ordinal();
 	}
 
 	public static MachineRegistry getMachine(WorldLocation loc) {
@@ -464,11 +472,15 @@ public enum MachineRegistry {
 	}
 
 	public static MachineRegistry getMachine(IBlockAccess world, int x, int y, int z) {
-		Block b = world.getBlock(x, y, z);
+		int id = world.getBlockId(x, y, z);
 		int meta = world.getBlockMetadata(x, y, z);
-		if (b == Blocks.air)
+		if (id == 0)
 			return null;
-		return getMachineMapping(b, meta);
+		BlockRegistry r = BlockRegistry.getMachineBlock(id);
+		if (r == null)
+			return null;
+		meta += BlockRegistry.getOffsetFromBlockID(id)*16;
+		return getMachineMapping(id, meta);
 	}
 
 	/** A convenience feature */
@@ -476,24 +488,29 @@ public enum MachineRegistry {
 		return getMachine(world, (int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 	}
 
-	public static MachineRegistry getMachineFromIDandMetadata(Block id, int metad) {
+	public static MachineRegistry getMachineFromIDandMetadata(int id, int metad) {
+		BlockRegistry r = BlockRegistry.getMachineBlock(id);
+		if (r == null)
+			return null;
+		metad += BlockRegistry.getOffsetFromBlockID(id)*16;
 		return getMachineMapping(id, metad);
 	}
 
-	private static MachineRegistry getMachineMapping(Block id, int meta) {
-		if (id == BlockRegistry.GPR.getBlockInstance())
+	public static MachineRegistry getMachineMapping(int id, int meta) {
+		if (id == BlockRegistry.GPR.getBlockID())
 			return GPR;
-		if (id == BlockRegistry.SHAFT.getBlockInstance())
+		if (id == BlockRegistry.SHAFT.getBlockID())
 			return SHAFT;
-		if (id == BlockRegistry.ENGINE.getBlockInstance())
+		if (id == BlockRegistry.ENGINE.getBlockID())
 			return ENGINE;
-		if (id == BlockRegistry.GEARBOX.getBlockInstance())
+		if (id == BlockRegistry.GEARBOX.getBlockID())
 			return GEARBOX;
-		return machineMappings.get(id, meta);
+		List li = Arrays.asList(id, meta);
+		return machineMappings.get(li);
 	}
 
 	public int getMachineMetadata() {
-		return meta;
+		return meta%16;
 	}
 
 	public String getName() {
@@ -677,8 +694,12 @@ public enum MachineRegistry {
 		}
 	}
 
-	public BlockRegistry getBlockRegistryEntry() {
-		return block;
+	public Block getBlockVariable() {
+		return BlockRegistry.blockList[this.getBlockVariableIndex()].getBlockVariable();
+	}
+
+	public int getBlockVariableIndex() {
+		return BlockRegistry.getBlockVariableIndexFromClassAndMetadata(blockClass, meta);
 	}
 
 	public boolean isPipe() {
@@ -883,38 +904,38 @@ public enum MachineRegistry {
 
 	public ItemStack getCraftedProduct() {
 		if (this == ADVANCEDGEARS) {
-			return ItemRegistry.ADVGEAR.getStackOf();
+			return new ItemStack(RotaryCraft.advgearitems.itemID, 1, 0);
 		}
 		if (this == FLYWHEEL) {
-			return ItemRegistry.FLYWHEEL.getStackOf();
+			return new ItemStack(RotaryCraft.flywheelitems.itemID, 1, 0);
 		}
 		if (this == ENGINE) {
-			return ItemRegistry.ENGINE.getStackOf();
+			return new ItemStack(RotaryCraft.engineitems.itemID, 1, 0);
 		}
 		if (this == SHAFT) {
-			return ItemRegistry.SHAFT.getStackOf();
+			return new ItemStack(RotaryCraft.shaftitems.itemID, 1, 0);
 		}
 		if (this == GEARBOX) {
-			return ItemRegistry.GEARBOX.getStackOf();
+			return new ItemStack(RotaryCraft.gbxitems.itemID, 1, 0);
 		}
-		return ItemRegistry.MACHINE.getStackOfMetadata(this.ordinal());
+		return new ItemStack(RotaryCraft.machineplacer.itemID, 1, this.ordinal());
 	}
 
 	public ItemStack getCraftedMetadataProduct(int metadata) {
 		if (this == ADVANCEDGEARS) {
-			return ItemRegistry.ADVGEAR.getStackOfMetadata(metadata);
+			return new ItemStack(RotaryCraft.advgearitems.itemID, 1, metadata);
 		}
 		if (this == FLYWHEEL) {
-			return ItemRegistry.FLYWHEEL.getStackOfMetadata(metadata);
+			return new ItemStack(RotaryCraft.flywheelitems.itemID, 1, metadata);
 		}
 		if (this == ENGINE) {
-			return ItemRegistry.ENGINE.getStackOfMetadata(metadata);
+			return new ItemStack(RotaryCraft.engineitems.itemID, 1, metadata);
 		}
 		if (this == SHAFT) {
-			return ItemRegistry.SHAFT.getStackOfMetadata(metadata);
+			return new ItemStack(RotaryCraft.shaftitems.itemID, 1, metadata);
 		}
 		if (this == GEARBOX) {
-			return ItemRegistry.GEARBOX.getStackOfMetadata(metadata);
+			return new ItemStack(RotaryCraft.gbxitems.itemID, 1, metadata);
 		}
 		return this.getCraftedProduct();
 	}
@@ -1405,9 +1426,9 @@ public enum MachineRegistry {
 	static {
 		for (int i = 0; i < machineList.length; i++) {
 			MachineRegistry m = machineList[i];
-			Block id = m.getBlock();
+			int id = m.getBlockID();
 			int meta = m.meta;
-			machineMappings.put(id, meta, m);
+			machineMappings.put(Arrays.asList(id, meta), m);
 		}
 	}
 }

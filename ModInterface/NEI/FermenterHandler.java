@@ -9,7 +9,19 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface.NEI;
 
-import Reika.DragonAPI.Libraries.IO.ReikaGuiAPI;
+import static codechicken.core.gui.GuiDraw.drawTexturedModalRect;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidRegistry;
+
+import org.lwjgl.opengl.GL11;
+
 import Reika.DragonAPI.Libraries.IO.ReikaLiquidRenderer;
 import Reika.DragonAPI.Libraries.IO.ReikaTextureHelper;
 import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
@@ -19,18 +31,6 @@ import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import Reika.RotaryCraft.GUIs.Machine.Inventory.GuiFermenter;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.TileEntities.Production.TileEntityFermenter;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.FluidRegistry;
-
-import org.lwjgl.opengl.GL11;
-
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 
@@ -53,7 +53,7 @@ public class FermenterHandler extends TemplateRecipeHandler {
 		@Override
 		public PositionedStack getResult() {
 			ItemStack in = input != null ? input : this.getEntry(this.getBottomSlot());
-			ItemStack is = output.getItem() == ItemRegistry.YEAST.getItemInstance() ? output : ReikaItemHelper.getSizedItemStack(output, TileEntityFermenter.getPlantValue(in));
+			ItemStack is = output.itemID == ItemRegistry.YEAST.getShiftedID() ? output : ReikaItemHelper.getSizedItemStack(output, TileEntityFermenter.getPlantValue(in));
 			return new PositionedStack(is, 111, 36);
 		}
 
@@ -74,11 +74,11 @@ public class FermenterHandler extends TemplateRecipeHandler {
 		}
 
 		private ItemStack getTopSlot() {
-			return output.getItem() == ItemRegistry.YEAST.getItemInstance() ? new ItemStack(Items.sugar) : ItemRegistry.YEAST.getStackOf();
+			return output.itemID == ItemRegistry.YEAST.getShiftedID() ? new ItemStack(Item.sugar) : ItemRegistry.YEAST.getStackOf();
 		}
 
 		private List<ItemStack> getBottomSlot() {
-			return output.getItem() == ItemRegistry.YEAST.getItemInstance() ? ReikaJavaLibrary.makeListFrom(new ItemStack(Blocks.dirt)) : TileEntityFermenter.getAllValidPlants();
+			return output.itemID == ItemRegistry.YEAST.getShiftedID() ? ReikaJavaLibrary.makeListFrom(new ItemStack(Block.dirt)) : TileEntityFermenter.getAllValidPlants();
 		}
 
 		public ItemStack getEntry(List<ItemStack> li) {
@@ -101,7 +101,7 @@ public class FermenterHandler extends TemplateRecipeHandler {
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		ReikaTextureHelper.bindTexture(RotaryCraft.class, this.getGuiTexture());
-		ReikaGuiAPI.instance.drawTexturedModalRect(0, 6, 5, 5, 166, 76);
+		drawTexturedModalRect(0, 6, 5, 5, 166, 76);
 	}
 
 	@Override
@@ -112,12 +112,12 @@ public class FermenterHandler extends TemplateRecipeHandler {
 		ReikaTextureHelper.bindTexture(RotaryCraft.class, this.getGuiTexture());
 		this.drawExtras(recipe);
 		ReikaLiquidRenderer.bindFluidTexture(FluidRegistry.WATER);
-		//ReikaGuiAPI.instance.drawTexturedModalRect(0, 0, (int)(ico.getMinU()*16), (int)(ico.getMinV()*16), 16, 16);
+		//drawTexturedModalRect(0, 0, (int)(ico.getMinU()*16), (int)(ico.getMinV()*16), 16, 16);
 	}
 
 	@Override
 	public void loadCraftingRecipes(ItemStack result) {
-		if (result.getItem() == ItemRegistry.YEAST.getItemInstance() || ReikaItemHelper.matchStacks(result, ItemStacks.sludge)) {
+		if (result.itemID == ItemRegistry.YEAST.getShiftedID() || ReikaItemHelper.matchStacks(result, ItemStacks.sludge)) {
 			arecipes.add(new FermenterRecipe(result));
 		}
 		if (ReikaItemHelper.matchStacks(result, ItemStacks.ethanolbucket))
@@ -125,19 +125,19 @@ public class FermenterHandler extends TemplateRecipeHandler {
 	}
 
 	public boolean isEthanolIngredient(ItemStack is) {
-		if (is.getItem() == ItemRegistry.YEAST.getItemInstance())
+		if (is.itemID == ItemRegistry.YEAST.getShiftedID())
 			return true;
-		if (is.getItem() == Items.water_bucket)
+		if (is.itemID == Item.bucketWater.itemID)
 			return true;
 		return TileEntityFermenter.getPlantValue(is) > 0;
 	}
 
 	public boolean isYeastIngredient(ItemStack is) {
-		if (ReikaItemHelper.matchStackWithBlock(is, Blocks.dirt))
+		if (is.itemID == Block.dirt.blockID)
 			return true;
-		if (is.getItem() == Items.sugar)
+		if (is.itemID == Item.sugar.itemID)
 			return true;
-		if (is.getItem() == Items.water_bucket)
+		if (is.itemID == Item.bucketWater.itemID)
 			return true;
 		return false;
 	}
@@ -162,7 +162,7 @@ public class FermenterHandler extends TemplateRecipeHandler {
 	public void drawExtras(int recipe)
 	{
 		int l = 27;
-		ReikaGuiAPI.instance.drawTexturedModalRect(18, 16+l, 176, 31+l, 11, 56-l);
+		drawTexturedModalRect(18, 16+l, 176, 31+l, 11, 56-l);
 	}
 
 }

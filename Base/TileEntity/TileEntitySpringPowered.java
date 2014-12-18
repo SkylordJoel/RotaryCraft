@@ -9,13 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base.TileEntity;
 
-import Reika.DragonAPI.DragonAPICore;
-import Reika.RotaryCraft.API.TensionStorage;
-import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import Reika.DragonAPI.DragonAPICore;
+import Reika.RotaryCraft.API.TensionStorage;
+import Reika.RotaryCraft.Auxiliary.Interfaces.ConditionalOperation;
 
 public abstract class TileEntitySpringPowered extends InventoriedRCTileEntity implements ConditionalOperation {
 
@@ -51,7 +50,7 @@ public abstract class TileEntitySpringPowered extends InventoriedRCTileEntity im
 		ItemStack in = inv[this.getCoilSlot()];
 		if (isCreativeMode)
 			return in;
-		return new ItemStack(in.getItem(), in.stackSize, in.getItemDamage()-1);
+		return new ItemStack(in.itemID, in.stackSize, in.getItemDamage()-1);
 	}
 
 	protected final boolean hasCoil() {

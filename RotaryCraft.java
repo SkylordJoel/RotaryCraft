@@ -9,8 +9,24 @@
  ******************************************************************************/
 package Reika.RotaryCraft;
 
-import Reika.ChromatiCraft.API.AcceleratorBlacklist;
-import Reika.ChromatiCraft.API.AcceleratorBlacklist.BlacklistReason;
+import java.net.URL;
+import java.util.Random;
+
+import net.minecraft.block.Block;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.EnumArmorMaterial;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.stats.Achievement;
+import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.common.EnumHelper;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import thaumcraft.api.aspects.Aspect;
 import Reika.DragonAPI.DragonAPICore;
 import Reika.DragonAPI.ModList;
 import Reika.DragonAPI.Auxiliary.CommandableUpdateChecker;
@@ -18,22 +34,22 @@ import Reika.DragonAPI.Auxiliary.CompatibilityTracker;
 import Reika.DragonAPI.Auxiliary.DonatorController;
 import Reika.DragonAPI.Auxiliary.IntegrityChecker;
 import Reika.DragonAPI.Auxiliary.PlayerFirstTimeTracker;
-import Reika.DragonAPI.Auxiliary.PlayerHandler;
 import Reika.DragonAPI.Auxiliary.PotionCollisionTracker;
 import Reika.DragonAPI.Auxiliary.SuggestedModsTracker;
 import Reika.DragonAPI.Auxiliary.VanillaIntegrityTracker;
 import Reika.DragonAPI.Base.DragonAPIMod;
+import Reika.DragonAPI.Extras.ItemSpawner;
 import Reika.DragonAPI.Instantiable.CustomStringDamageSource;
 import Reika.DragonAPI.Instantiable.EnhancedFluid;
 import Reika.DragonAPI.Instantiable.IO.ModLogger;
 import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
-import Reika.DragonAPI.Libraries.ReikaRegistryHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaPacketHelper;
 import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.DragonAPI.ModInteract.BannedItemReader;
 import Reika.DragonAPI.ModInteract.ReikaMystcraftHelper;
 import Reika.DragonAPI.ModInteract.ReikaThaumHelper;
+import Reika.GeoStrata.API.AcceleratorBlacklist;
+import Reika.GeoStrata.API.AcceleratorBlacklist.BlacklistReason;
 import Reika.RotaryCraft.Auxiliary.FreezePotion;
 import Reika.RotaryCraft.Auxiliary.HandbookTracker;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
@@ -48,7 +64,25 @@ import Reika.RotaryCraft.Auxiliary.TabRotaryItems;
 import Reika.RotaryCraft.Auxiliary.TabRotaryTools;
 import Reika.RotaryCraft.Auxiliary.TabSpawner;
 import Reika.RotaryCraft.Auxiliary.RecipeManagers.RecipesGrinder;
+import Reika.RotaryCraft.Base.ItemMulti;
+import Reika.RotaryCraft.Blocks.BlockBeam;
+import Reika.RotaryCraft.Blocks.BlockBedrockSlice;
+import Reika.RotaryCraft.Blocks.BlockBlastGlass;
+import Reika.RotaryCraft.Blocks.BlockCanola;
+import Reika.RotaryCraft.Blocks.BlockDeco;
+import Reika.RotaryCraft.Blocks.BlockDecoTank;
+import Reika.RotaryCraft.Blocks.BlockLightBridge;
+import Reika.RotaryCraft.Blocks.BlockLightblock;
+import Reika.RotaryCraft.Blocks.BlockMiningPipe;
+import Reika.RotaryCraft.Blocks.BlockObsidianGlass;
 import Reika.RotaryCraft.Items.ItemFuelTank;
+import Reika.RotaryCraft.Items.ItemModOre;
+import Reika.RotaryCraft.Items.Placers.ItemAdvGearPlacer;
+import Reika.RotaryCraft.Items.Placers.ItemEnginePlacer;
+import Reika.RotaryCraft.Items.Placers.ItemFlywheelPlacer;
+import Reika.RotaryCraft.Items.Placers.ItemGearPlacer;
+import Reika.RotaryCraft.Items.Placers.ItemMachinePlacer;
+import Reika.RotaryCraft.Items.Placers.ItemShaftPlacer;
 import Reika.RotaryCraft.ModInterface.CanolaBee;
 import Reika.RotaryCraft.ModInterface.MachineAspectMapper;
 import Reika.RotaryCraft.ModInterface.OreForcer;
@@ -70,26 +104,6 @@ import Reika.RotaryCraft.Registry.RotaryAchievements;
 import Reika.RotaryCraft.Registry.SoundRegistry;
 import Reika.RotaryCraft.TileEntities.Storage.TileEntityFluidCompressor;
 import Reika.RotaryCraft.TileEntities.Storage.TileEntityReservoir;
-
-import java.net.URL;
-import java.util.Random;
-
-import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor.ArmorMaterial;
-import net.minecraft.item.ItemStack;
-import net.minecraft.stats.Achievement;
-import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.EnumHelper;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import thaumcraft.api.aspects.Aspect;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -100,7 +114,8 @@ import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -109,6 +124,9 @@ import forestry.api.recipes.RecipeManagers;
 
 
 @Mod( modid = "RotaryCraft", name="RotaryCraft", version="Gamma", certificateFingerprint = "@GET_FINGERPRINT@", dependencies="required-after:DragonAPI")
+@NetworkMod(clientSideRequired = true, serverSideRequired = true,
+clientPacketHandlerSpec = @SidedPacketHandler(channels = { "RotaryCraftData" }, packetHandler = ClientPackets.class),
+serverPacketHandlerSpec = @SidedPacketHandler(channels = { "RotaryCraftData" }, packetHandler = ServerPackets.class))
 
 public class RotaryCraft extends DragonAPIMod {
 	public static final String packetChannel = "RotaryCraftData";
@@ -120,20 +138,24 @@ public class RotaryCraft extends DragonAPIMod {
 	public static final CreativeTabs tabSpawner = new TabSpawner(CreativeTabs.getNextID(), "Spawners");
 
 	private static final int[] dmgs = {
-		ArmorMaterial.DIAMOND.getDamageReductionAmount(0),
-		ArmorMaterial.DIAMOND.getDamageReductionAmount(1),
-		ArmorMaterial.DIAMOND.getDamageReductionAmount(2),
-		ArmorMaterial.DIAMOND.getDamageReductionAmount(3)
+		EnumArmorMaterial.DIAMOND.getDamageReductionAmount(0),
+		EnumArmorMaterial.DIAMOND.getDamageReductionAmount(1),
+		EnumArmorMaterial.DIAMOND.getDamageReductionAmount(2),
+		EnumArmorMaterial.DIAMOND.getDamageReductionAmount(3)
 	};
 
-	public static final ArmorMaterial NVHM = EnumHelper.addArmorMaterial("NVHelmet", ArmorMaterial.DIAMOND.getDurability(0), dmgs, ArmorMaterial.GOLD.getEnchantability());
-	public static final ArmorMaterial NVGM = EnumHelper.addArmorMaterial("NVGoggles", 65536, new int[]{0, 0, 0, 0}, 0);
-	public static final ArmorMaterial IOGM = EnumHelper.addArmorMaterial("IOGoggles", 65536, new int[]{0, 0, 0, 0}, 0);
-	public static final ArmorMaterial JETPACK = EnumHelper.addArmorMaterial("Jetpack", 65536, new int[]{0, 0, 0, 0}, 0);
-	public static final ArmorMaterial JUMP = EnumHelper.addArmorMaterial("Jump", 65536, new int[]{0, 0, 0, 0}, 0);
+	public static final EnumArmorMaterial NVHM = EnumHelper.addArmorMaterial("NVHelmet", EnumArmorMaterial.DIAMOND.getDurability(0), dmgs, EnumArmorMaterial.GOLD.getEnchantability());
+	public static final EnumArmorMaterial NVGM = EnumHelper.addArmorMaterial("NVGoggles", 65536, new int[]{0, 0, 0, 0}, 0);
+	public static final EnumArmorMaterial IOGM = EnumHelper.addArmorMaterial("IOGoggles", 65536, new int[]{0, 0, 0, 0}, 0);
+	public static final EnumArmorMaterial JETPACK = EnumHelper.addArmorMaterial("Jetpack", 65536, new int[]{0, 0, 0, 0}, 0);
+	public static final EnumArmorMaterial JUMP = EnumHelper.addArmorMaterial("Jump", 65536, new int[]{0, 0, 0, 0}, 0);
 
-	public static final ArmorMaterial BEDROCK = EnumHelper.addArmorMaterial("Bedrock", Integer.MAX_VALUE, new int[]{6, 12, 10, 5}, 18);
-	public static final ArmorMaterial HSLA = EnumHelper.addArmorMaterial("HSLA", 24, new int[]{3, 7, 5, 3}, ArmorMaterial.IRON.getEnchantability());
+	public static final EnumArmorMaterial BEDROCK = EnumHelper.addArmorMaterial("Bedrock", Integer.MAX_VALUE, new int[]{6, 12, 10, 5}, 18);
+	public static final EnumArmorMaterial HSLA = EnumHelper.addArmorMaterial("HSLA", 24, new int[]{3, 7, 5, 3}, EnumArmorMaterial.IRON.getEnchantability());
+
+	public static Block decoblock;
+	public static Block blastpane;
+	public static Block blastglass;
 
 	public static final EnhancedFluid jetFuelFluid = (EnhancedFluid)new EnhancedFluid("jet fuel").setColor(0xFB5C90).setDensity(810).setViscosity(800);
 	public static final EnhancedFluid lubeFluid = (EnhancedFluid)new EnhancedFluid("lubricant").setColor(0xE4E18E).setDensity(750).setViscosity(1200);
@@ -149,8 +171,35 @@ public class RotaryCraft extends DragonAPIMod {
 
 	private boolean isLocked = false;
 
-	public static final Block[] blocks = new Block[BlockRegistry.blockList.length];
-	public static final Item[] items = new Item[ItemRegistry.itemList.length];
+	public static Item shaftcraft;
+	public static Item enginecraft;
+	public static Item misccraft;
+	public static Item borecraft;
+	public static Item extracts;
+	public static Item compacts;
+	public static Item engineitems;
+	public static Item powders;
+	public static Item shaftitems;
+	public static Item gbxitems;
+	public static Item gearunits;
+	public static Item machineplacer;
+	public static Item flywheelitems;
+	public static Item advgearitems;
+	public static Item modextracts;
+	public static Item modingots;
+	public static Item spawner;
+	public static Item modinterface;
+
+	public static Block canola;
+	public static Block miningpipe;
+	public static Block bedrockslice;
+	public static Block lightblock;
+	public static Block beamblock;
+	public static Block lightbridge;
+	public static Block decoTank;
+
+	public static final Block[] machineBlocks = new Block[BlockRegistry.blockList.length];
+	public static final Item[] basicItems = new Item[ItemRegistry.itemList.length];
 
 	public static Achievement[] achievements;
 	public static Entity fallblock;
@@ -162,7 +211,7 @@ public class RotaryCraft extends DragonAPIMod {
 	@Instance("RotaryCraft")
 	public static RotaryCraft instance = new RotaryCraft();
 
-	public static final RotaryConfig config = new RotaryConfig(instance, ConfigRegistry.optionList, ExtraConfigIDs.idList, 0);
+	public static final RotaryConfig config = new RotaryConfig(instance, ConfigRegistry.optionList, BlockRegistry.blockList, ItemRegistry.itemList, ExtraConfigIDs.idList, 0);
 
 	public static ModLogger logger;
 
@@ -179,7 +228,7 @@ public class RotaryCraft extends DragonAPIMod {
 		for (int i = 0; i < ItemRegistry.itemList.length; i++) {
 			ItemRegistry r = ItemRegistry.itemList[i];
 			if (!r.isDummiedOut()) {
-				Item id = r.getItemInstance();
+				int id = r.getShiftedID();
 				if (BannedItemReader.instance.containsID(id))
 					return true;
 			}
@@ -187,11 +236,11 @@ public class RotaryCraft extends DragonAPIMod {
 		for (int i = 0; i < BlockRegistry.blockList.length; i++) {
 			BlockRegistry r = BlockRegistry.blockList[i];
 			if (!r.isDummiedOut()) {
-				Block id = r.getBlockInstance();
+				int id = r.getBlockID();
 				if (BannedItemReader.instance.containsID(id))
 					return true;
 			}
-		}/*
+		}
 		for (int i = 0; i < ExtraConfigIDs.idList.length; i++) {
 			ExtraConfigIDs entry = ExtraConfigIDs.idList[i];
 			if (entry.isBlock()) {
@@ -204,7 +253,7 @@ public class RotaryCraft extends DragonAPIMod {
 				if (BannedItemReader.instance.containsID(id))
 					return true;
 			}
-		}*/
+		}
 		return false;
 	}
 
@@ -254,8 +303,6 @@ public class RotaryCraft extends DragonAPIMod {
 		PotionCollisionTracker.instance.addPotionID(instance, id, PotionGrowthHormone.class);
 		growth = (PotionGrowthHormone)new PotionGrowthHormone(id).setPotionName("Growth Hormone");
 
-		ReikaPacketHelper.registerPacketHandler(instance, packetChannel, new PacketHandlerCore());
-
 		//id = ExtraConfigIDs.DEAFID.getValue();
 		//PotionCollisionTracker.instance.addPotionID(instance, id, PotionDeafness.class);
 		//deafness = (PotionDeafness)new PotionDeafness(id).setPotionName("Deafness");
@@ -272,13 +319,15 @@ public class RotaryCraft extends DragonAPIMod {
 	@EventHandler
 	public void load(FMLInitializationEvent event) {
 		if (this.isLocked())
-			PlayerHandler.instance.registerTracker(LockNotification.instance);
+			GameRegistry.registerPlayerTracker(LockNotification.instance);
 		if (!this.isLocked()) {
 			proxy.addArmorRenders();
 			proxy.registerRenderers();
 		}
-
-		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
+		RotaryRegistration.addBlocks();
+		if (!this.isLocked())
+			RotaryNames.addNames();
+		NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
 		RotaryRegistration.addTileEntities();
 		RotaryRegistration.addEntities();
 
@@ -293,24 +342,24 @@ public class RotaryCraft extends DragonAPIMod {
 
 		float iron = ConfigRegistry.EXTRAIRON.getFloat();
 		if (iron > 1) {
-			GameRegistry.registerWorldGenerator(new ExtraIronGenerator(iron), 3000);
+			GameRegistry.registerWorldGenerator(new ExtraIronGenerator(iron));
 			logger.log(String.format("Extra iron ore gen enabled, with a scaling factor of %.1fx.", iron));
 		}
 
-		BlockRegistry.BLASTPANE.getBlockInstance().setHarvestLevel("pickaxe", 3);
-		BlockRegistry.BLASTGLASS.getBlockInstance().setHarvestLevel("pickaxe", 3);
+		MinecraftForge.setBlockHarvestLevel(blastpane, "pickaxe", 3);
+		MinecraftForge.setBlockHarvestLevel(blastglass, "pickaxe", 3);
 		MinecraftForge.addGrassSeed(ItemRegistry.CANOLA.getStackOf(), 2);
 
-		//MinecraftForge.setToolClass(ItemRegistry.STEELAXE.getItemInstance(), "axe", 2);
-		//MinecraftForge.setToolClass(ItemRegistry.STEELPICK.getItemInstance(), "pickaxe", 2);
-		//MinecraftForge.setToolClass(ItemRegistry.STEELSHOVEL.getItemInstance(), "shovel", 2);
+		MinecraftForge.setToolClass(ItemRegistry.STEELAXE.getItemInstance(), "axe", 2);
+		MinecraftForge.setToolClass(ItemRegistry.STEELPICK.getItemInstance(), "pickaxe", 2);
+		MinecraftForge.setToolClass(ItemRegistry.STEELSHOVEL.getItemInstance(), "shovel", 2);
 
-		FMLInterModComms.sendMessage(ModList.THAUMCRAFT.modLabel, "harvestStandardCrop", BlockRegistry.CANOLA.getStackOfMetadata(9));
+		FMLInterModComms.sendMessage(ModList.THAUMCRAFT.modLabel, "harvestStandardCrop", new ItemStack(RotaryCraft.canola, 1, 9));
 		for (int i = 0; i < RotaryNames.blockNames.length; i++) {
-			ItemStack is = BlockRegistry.DECO.getStackOfMetadata(i);
+			ItemStack is = new ItemStack(decoblock, 1, i);
 			FMLInterModComms.sendMessage("ForgeMicroblock", "microMaterial", is);
 		}
-		FMLInterModComms.sendMessage("ForgeMicroblock", "microMaterial", BlockRegistry.BLASTGLASS.getStackOf());
+		FMLInterModComms.sendMessage("ForgeMicroblock", "microMaterial", new ItemStack(blastglass));
 
 		DonatorController.instance.addDonation(instance, "sys64738", 25.00F);
 		DonatorController.instance.addDonation(instance, "Zerotheliger", 50.00F);
@@ -340,17 +389,17 @@ public class RotaryCraft extends DragonAPIMod {
 		if (!this.isLocked())
 			IntegrityChecker.instance.addMod(instance, BlockRegistry.blockList, ItemRegistry.itemList);
 
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.redstone_block);
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.lapis_block);
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.planks);
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.stone);
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.nether_brick);
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.emerald_block);
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.obsidian);
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.sandstone);
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.quartz_block);
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.wool);
-		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Blocks.glass);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.blockRedstone);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.blockLapis);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.planks);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.stone);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.netherBrick);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.blockEmerald);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.obsidian);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.sandStone);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.blockNetherQuartz);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.cloth);
+		VanillaIntegrityTracker.instance.addWatchedBlock(instance, Block.glass);
 
 		if (ConfigRegistry.HANDBOOK.getState())
 			PlayerFirstTimeTracker.addTracker(new HandbookTracker());
@@ -460,29 +509,60 @@ public class RotaryCraft extends DragonAPIMod {
 	public void overrideRecipes(FMLServerStartedEvent evt) {
 		if (!this.isLocked()) {
 			if (!ReikaRecipeHelper.isCraftable(MachineRegistry.BLASTFURNACE.getCraftedProduct())) {
-				GameRegistry.addRecipe(MachineRegistry.BLASTFURNACE.getCraftedProduct(), "SSS", "SrS", "SSS", 'r', Items.redstone, 'S', ReikaItemHelper.stoneBricks);
+				GameRegistry.addRecipe(MachineRegistry.BLASTFURNACE.getCraftedProduct(), "SSS", "SrS", "SSS", 'r', Item.redstone, 'S', ReikaItemHelper.stoneBricks);
 			}
 			if (!ReikaRecipeHelper.isCraftable(MachineRegistry.WORKTABLE.getCraftedProduct())) {
-				GameRegistry.addRecipe(MachineRegistry.WORKTABLE.getCraftedProduct(), " C ", "SBS", "srs", 'r', Items.redstone, 'S', ItemStacks.steelingot, 'B', Blocks.brick_block, 'C', Blocks.crafting_table, 's', ReikaItemHelper.stoneSlab);
+				GameRegistry.addRecipe(MachineRegistry.WORKTABLE.getCraftedProduct(), " C ", "SBS", "srs", 'r', Item.redstone, 'S', ItemStacks.steelingot, 'B', Block.brick, 'C', Block.workbench, 's', ReikaItemHelper.stoneSlab);
 			}
 		}
 	}
 
 	private static void setupClassFiles() {
-		ReikaRegistryHelper.instantiateAndRegisterItems(RotaryCraft.instance, ItemRegistry.itemList, RotaryCraft.items);
-		ItemRegistry.SPAWNER.getItemInstance().setCreativeTab(tabSpawner);
-		ReikaRegistryHelper.instantiateAndRegisterBlocks(RotaryCraft.instance, BlockRegistry.blockList, RotaryCraft.blocks);
+		RotaryRegistration.instantiateItems();
+
+		shaftcraft = new ItemMulti(ExtraConfigIDs.SHAFTCRAFT.getValue(), 0).setUnlocalizedName("shaftcraft");
+		enginecraft = new ItemMulti(ExtraConfigIDs.ENGINECRAFT.getValue(), 1).setUnlocalizedName("enginecraft");
+		misccraft = new ItemMulti(ExtraConfigIDs.MISCCRAFT.getValue(), 2).setUnlocalizedName("misccraft");
+		borecraft = new ItemMulti(ExtraConfigIDs.BORECRAFT.getValue(), 3).setUnlocalizedName("borecraft");
+		extracts = new ItemMulti(ExtraConfigIDs.EXTRACTS.getValue(), 4).setUnlocalizedName("extracts");
+		compacts = new ItemMulti(ExtraConfigIDs.COMPACTS.getValue(), 6).setUnlocalizedName("compacts");
+		engineitems = new ItemEnginePlacer(ExtraConfigIDs.ENGINEITEMS.getValue()).setUnlocalizedName("engines");
+		powders = new ItemMulti(ExtraConfigIDs.POWDERS.getValue(), 8).setUnlocalizedName("powder");
+		modinterface = new ItemMulti(ExtraConfigIDs.INTERFACE.getValue(), 14).setUnlocalizedName("modinterface");
+
+		shaftitems = new ItemShaftPlacer(ExtraConfigIDs.SHAFTITEMS.getValue()).setUnlocalizedName("shafts");
+		gbxitems = new ItemGearPlacer(ExtraConfigIDs.GEARBOXITEMS.getValue()).setUnlocalizedName("gbxs");
+		gearunits = new ItemMulti(ExtraConfigIDs.GEARUNITS.getValue(), 23).setUnlocalizedName("gearunits");
+		machineplacer = new ItemMachinePlacer(ExtraConfigIDs.MACHINEPLACER.getValue()).setUnlocalizedName("machineplacer");
+		advgearitems = new ItemAdvGearPlacer(ExtraConfigIDs.ADVGEARITEMS.getValue()).setUnlocalizedName("advgearitem");
+		flywheelitems = new ItemFlywheelPlacer(ExtraConfigIDs.FLYWHEELITEMS.getValue()).setUnlocalizedName("flywheelitem");
+		//hydraulicitems = new ItemHydraulicPlacer(ExtraConfigIDs.HYDRAULICITEMS.getValue()).setUnlocalizedName("hydraulicitem");
+
+		modextracts = new ItemModOre(ExtraConfigIDs.MODEXTRACTS.getValue()).setUnlocalizedName("modextracts");
+		modingots = new ItemModOre(ExtraConfigIDs.MODINGOTS.getValue()).setUnlocalizedName("modingots");
+
+		decoblock = new BlockDeco(ExtraConfigIDs.DECOBLOCKS.getValue()).setUnlocalizedName("decoblock");
+		blastpane = new BlockBlastGlass(ExtraConfigIDs.BLASTPANE.getValue()).setUnlocalizedName("BlastGlassPane");
+		blastglass = new BlockObsidianGlass(ExtraConfigIDs.BLASTGLASS.getValue()).setUnlocalizedName("BlastGlass");
+		canola = new BlockCanola(ExtraConfigIDs.CANOLA.getValue()).setUnlocalizedName("Canola");
+
+		spawner = new ItemSpawner(ExtraConfigIDs.SPAWNERS.getValue()).setUnlocalizedName("spawner").setCreativeTab(instance.isLocked() ? null : tabSpawner);
+
+		RotaryRegistration.instantiateMachines();
+
+		miningpipe = new BlockMiningPipe(ExtraConfigIDs.MININGPIPE.getValue()).setUnlocalizedName("MiningPipe");
+		//gravlog = new BlockGravLog(ExtraConfigIDs.GRAVLOG.getValue()).setUnlocalizedName("GravLog");
+		//gravleaves = new BlockGravLeaves(ExtraConfigIDs.GRAVLEAVES.getValue()).setUnlocalizedName("GravLeaves");
+		lightblock = new BlockLightblock(ExtraConfigIDs.LIGHTBLOCK.getValue()).setUnlocalizedName("LightBlock");
+		beamblock = new BlockBeam(ExtraConfigIDs.BEAMBLOCK.getValue()).setUnlocalizedName("BeamBlock");
+		lightbridge = new BlockLightBridge(ExtraConfigIDs.BRIDGEBLOCK.getValue()).setUnlocalizedName("Bridge");
+		bedrockslice = new BlockBedrockSlice(ExtraConfigIDs.BEDROCKSLICE.getValue()).setUnlocalizedName("BedrockSlice");
+		decoTank = new BlockDecoTank(ExtraConfigIDs.DECOTANK.getValue()).setUnlocalizedName("DecoTank");
 
 		RotaryRegistration.setupLiquids();
-
-		BlockRegistry.loadMappings();
 	}
 
-	private static void registerBlock(Block b) {
-		GameRegistry.registerBlock(b, b.getUnlocalizedName());
-	}
-
-	@SubscribeEvent
+	@ForgeSubscribe
 	@SideOnly(Side.CLIENT)
 	public void textureHook(TextureStitchEvent.Pre event) {
 		if (!this.isLocked())

@@ -9,23 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Entities;
 
-import Reika.DragonAPI.Libraries.ReikaAABBHelper;
-import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
-import Reika.DragonAPI.Libraries.ReikaSpawnerHelper;
-import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.TileEntities.World.TileEntitySonicBorer;
-
 import java.util.List;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.BlockFluid;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityFireball;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.AxisAlignedBB;
@@ -33,20 +23,30 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
+import Reika.DragonAPI.Libraries.ReikaAABBHelper;
+import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
+import Reika.DragonAPI.Libraries.ReikaSpawnerHelper;
+import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.TileEntities.World.TileEntitySonicBorer;
 
 public class EntitySonicShot extends EntityFireball {
 
 	private final TileEntitySonicBorer te;
+	private final String player;
 
 	public EntitySonicShot(World par1World) {
 		super(par1World);
 		te = null;
+		player = null;
 	}
 
 	public EntitySonicShot(World world, TileEntitySonicBorer tile, String player) {
 		super(world, tile.xCoord, tile.yCoord, tile.zCoord, 0, 0, 0);
 		te = tile;
+		this.player = player;
 		this.setPosition(tile.xCoord+0.5+tile.xstep, tile.yCoord+0.5+tile.ystep, tile.zCoord+0.5+tile.zstep);
 
 		double dd = 2;
@@ -113,7 +113,7 @@ public class EntitySonicShot extends EntityFireball {
 			int d = te.xstep*(x-te.xCoord)+te.ystep*(y-te.yCoord)+te.zstep*(z-te.zCoord);
 			int r = this.getRange();
 			if (d >= r) {
-				Vec3 vec = Vec3.createVectorHelper(0, 0, 0);
+				Vec3 vec = Vec3.fakePool.getVecFromPool(0, 0, 0);
 				int[] tg = te.getTargetPosn();
 				MovingObjectPosition mov = new MovingObjectPosition(tg[0], tg[1], tg[2], -1, vec);
 				this.onImpact(mov);
@@ -184,23 +184,24 @@ public class EntitySonicShot extends EntityFireball {
 	private void dropBlockAt(World world, int x, int y, int z) {
 		if (y == 0)
 			return;
-		Block b = world.getBlock(x, y, z);
-		if (b == Blocks.air)
+		int id = world.getBlockId(x, y, z);
+		if (id == 0)
 			return;
 		int meta = world.getBlockMetadata(x, y, z);
-		if (!world.isRemote && !ReikaPlayerAPI.playerCanBreakAt((WorldServer)world, x, y, z, b, meta, te.getPlacer()))
+		if (!ReikaPlayerAPI.playerCanBreakAt(world, x, y, z, id, meta, player))
 			return;
-		if (!TileEntitySonicBorer.canDrop(world, x, y, z) && !(b instanceof BlockLiquid))
+		Block b = Block.blocksList[id];
+		if (!TileEntitySonicBorer.canDrop(world, x, y, z) && !(b instanceof BlockFluid))
 			return;
-		List<ItemStack> li = b.getDrops(world, x, y, z, meta, 0);
-		if (b == Blocks.mob_spawner) {
-			ItemStack is = ItemRegistry.SPAWNER.getStackOf();
-			TileEntityMobSpawner te = (TileEntityMobSpawner)world.getTileEntity(x, y, z);
+		List<ItemStack> li = b.getBlockDropped(world, x, y, z, meta, 0);
+		if (b.blockID == Block.mobSpawner.blockID) {
+			ItemStack is = new ItemStack(RotaryCraft.spawner);
+			TileEntityMobSpawner te = (TileEntityMobSpawner)world.getBlockTileEntity(x, y, z);
 			ReikaSpawnerHelper.addMobNBTToItem(is, te);
 			li.add(is);
 		}
 		ReikaItemHelper.dropItems(world, x+0.5, y+0.5, z+0.5, li);
-		world.setBlockToAir(x, y, z);
+		world.setBlock(x, y, z, 0);
 	}
 
 	@Override

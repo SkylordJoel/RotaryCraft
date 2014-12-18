@@ -9,39 +9,30 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
-import Reika.RotaryCraft.Base.BlockBasic;
-import Reika.RotaryCraft.Registry.ConfigRegistry;
-
 import java.util.ArrayList;
 import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import Reika.RotaryCraft.Base.BlockBasic;
+import Reika.RotaryCraft.Registry.ConfigRegistry;
 
 public class BlockBeam extends BlockBasic {
 
-	public BlockBeam() {
-		super(Material.circuits);	// no pistons, breaks with water
+	public BlockBeam(int ID) {
+		super(ID, Material.circuits);	// no pistons, breaks with water
 		this.setResistance(3600000F);
-		this.setStepSound(soundTypeGlass);
-		this.setLightLevel(1F);
+		this.setStepSound(soundGlassFootstep);
+		this.setLightValue(1F);
 	}
 
 	@Override
-	protected boolean isAvailableInCreativeMode() {
-		return false;
-	}
-
-	@Override
-	public boolean isAir(IBlockAccess world, int x, int y, int z) {
+	public boolean isAirBlock(World world, int x, int y, int z) {
 		return true;
 	}
 
@@ -52,9 +43,9 @@ public class BlockBeam extends BlockBasic {
 	}
 
 	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
+	public int idDropped(int par1, Random par2Random, int par3)
 	{
-		return null;
+		return 0;
 	}
 
 	@Override
@@ -70,7 +61,7 @@ public class BlockBeam extends BlockBasic {
 	}
 
 	@Override
-	public final ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+	public final ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune)
 	{
 		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
 		return ret;
@@ -104,10 +95,10 @@ public class BlockBeam extends BlockBasic {
 
 
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, Block id)
+	public void onNeighborBlockChange(World world, int x, int y, int z, int id)
 	{
-		if (id != Blocks.air) {
-			world.setBlockToAir(x, y, z);
+		if (id != 0) {
+			world.setBlock(x, y, z, 0);
 			/*
     		boolean px = true;
     		boolean py = true;
@@ -119,26 +110,26 @@ public class BlockBeam extends BlockBasic {
 			//(px || py || pz || nx || ny || nz) &&
 			while (i <= Math.max(64, ConfigRegistry.FLOODLIGHTRANGE.getValue())) {
 				//if (px)
-				world.notifyBlocksOfNeighborChange(x + i, y, z, Blocks.air);
+				world.notifyBlocksOfNeighborChange(x + i, y, z, 0);
 				//if (nx)
-				world.notifyBlocksOfNeighborChange(x - i, y, z, Blocks.air);
+				world.notifyBlocksOfNeighborChange(x - i, y, z, 0);
 				//if (nz)
-				world.notifyBlocksOfNeighborChange(x, y, z - i, Blocks.air);
+				world.notifyBlocksOfNeighborChange(x, y, z - i, 0);
 				//if (pz)
-				world.notifyBlocksOfNeighborChange(x, y, z + i, Blocks.air);
+				world.notifyBlocksOfNeighborChange(x, y, z + i, 0);
 				//if (ny)
-				world.notifyBlocksOfNeighborChange(x, y - i, z, Blocks.air);
+				world.notifyBlocksOfNeighborChange(x, y - i, z, 0);
 				//if (py)
-				world.notifyBlocksOfNeighborChange(x, y + i, z, Blocks.air);
+				world.notifyBlocksOfNeighborChange(x, y + i, z, 0);
 				i += 16;
 			}
-			world.notifyBlocksOfNeighborChange(x, y, z, Blocks.air);
+			world.notifyBlocksOfNeighborChange(x, y, z, 0);
 		}
 	}
 
 	@Override
 	public void updateTick(World world, int x, int y, int z, Random par5) {
-		world.setBlockToAir(x, y, z);
+		world.setBlock(x, y, z, 0);
 	}
 
 	/**
@@ -151,7 +142,7 @@ public class BlockBeam extends BlockBasic {
 	}
 
 	@Override
-	public boolean isReplaceable(IBlockAccess world, int x, int y, int z)
+	public boolean isBlockReplaceable(World world, int x, int y, int z)
 	{
 		return true;
 	}
@@ -171,12 +162,12 @@ public class BlockBeam extends BlockBasic {
 	}
 
 	@Override
-	public IIcon getIcon(int s, int meta) {
+	public Icon getIcon(int s, int meta) {
 		return icons[0][s];
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister) {
+	public void registerIcons(IconRegister par1IconRegister) {
 		for (int i = 2; i < 6; i++)
 			icons[0][i] = par1IconRegister.registerIcon("RotaryCraft:beam");
 		icons[0][0] = par1IconRegister.registerIcon("RotaryCraft:trans");

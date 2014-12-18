@@ -9,6 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Auxiliary;
 
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
@@ -18,15 +26,6 @@ import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerLiquidInOut;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityPiping.Flow;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidContainerRegistry;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
 
 public class TileEntityFillingStation extends InventoriedPowerLiquidInOut implements ConditionalOperation {
 
@@ -89,7 +88,7 @@ public class TileEntityFillingStation extends InventoriedPowerLiquidInOut implem
 			return false;
 		FluidStack fs = FluidContainerRegistry.getFluidForFilledItem(inv[FUEL_SLOT]);
 		if (fs == null) {
-			boolean item = inv[FUEL_SLOT].getItem() == ItemRegistry.ETHANOL.getItemInstance();
+			boolean item = inv[FUEL_SLOT].itemID == ItemRegistry.ETHANOL.getShiftedID();
 			boolean space = tank.canTakeIn(FUEL_PER_CRYSTAL) && (tank.isEmpty() || tank.getActualFluid().equals(FluidRegistry.getFluid("rc ethanol")));
 			return item && space;
 		}
@@ -101,14 +100,14 @@ public class TileEntityFillingStation extends InventoriedPowerLiquidInOut implem
 	}
 
 	public void makeFuel() {
-		if (inv[FUEL_SLOT].getItem() == ItemRegistry.ETHANOL.getItemInstance()) {
+		if (inv[FUEL_SLOT].itemID == ItemRegistry.ETHANOL.getShiftedID()) {
 			tank.addLiquid(FUEL_PER_CRYSTAL, FluidRegistry.getFluid("rc ethanol"));
 			ReikaInventoryHelper.decrStack(1, inv);
 			return;
 		}
 		FluidStack fs = FluidContainerRegistry.getFluidForFilledItem(inv[FUEL_SLOT]);
 		tank.addLiquid(fs.amount, fs.getFluid());
-		inv[FUEL_SLOT] = new ItemStack(Items.bucket);
+		inv[FUEL_SLOT] = new ItemStack(Item.bucketEmpty);
 	}
 
 	private void fill() {
@@ -182,7 +181,7 @@ public class TileEntityFillingStation extends InventoriedPowerLiquidInOut implem
 			return itemstack.getItem() instanceof Fillable;
 		if (i == FUEL_SLOT) {
 			boolean container = FluidContainerRegistry.isFilledContainer(itemstack);
-			return container || itemstack.getItem() == ItemRegistry.ETHANOL.getItemInstance();
+			return container || itemstack.itemID == ItemRegistry.ETHANOL.getShiftedID();
 		}
 		return false;
 	}

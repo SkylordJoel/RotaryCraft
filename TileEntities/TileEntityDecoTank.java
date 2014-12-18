@@ -9,24 +9,22 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities;
 
-import Reika.DragonAPI.Base.TileEntityBase;
-import Reika.DragonAPI.Libraries.ReikaNBTHelper;
-import Reika.RotaryCraft.Items.ItemBlockDecoTank;
-import Reika.RotaryCraft.Registry.BlockRegistry;
-
-import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
+import Reika.DragonAPI.Base.TileEntityBase;
+import Reika.DragonAPI.Libraries.ReikaNBTHelper;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Items.ItemBlockDecoTank;
 
 public class TileEntityDecoTank extends TileEntityBase {
 
 	private Fluid f;
 
 	@Override
-	public Block getTileEntityBlockID() {
-		return BlockRegistry.DECOTANK.getBlockInstance();
+	public int getTileEntityBlockID() {
+		return RotaryCraft.decoTank.blockID;
 	}
 
 	@Override
@@ -41,7 +39,7 @@ public class TileEntityDecoTank extends TileEntityBase {
 
 	@Override
 	protected String getTEName() {
-		return BlockRegistry.DECOTANK.getBlockInstance().getLocalizedName();
+		return RotaryCraft.decoTank.getLocalizedName();
 	}
 
 	@Override

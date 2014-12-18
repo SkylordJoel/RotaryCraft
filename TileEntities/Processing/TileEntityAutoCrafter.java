@@ -9,25 +9,26 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Processing;
 
-import Reika.DragonAPI.Instantiable.RecipePattern;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
+import Reika.DragonAPI.Instantiable.RecipePattern;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerReceiver;
+import Reika.RotaryCraft.Registry.ItemRegistry;
+import Reika.RotaryCraft.Registry.MachineRegistry;
 
 public class TileEntityAutoCrafter extends InventoriedPowerReceiver {
 
 	public boolean continuous;
-	private final HashMap<ItemStack, Integer> ingredients = new HashMap();
+	private final HashMap<List<Integer>, Integer> ingredients = new HashMap();
 
 	private static final HashMap<RecipePattern, ItemStack> recipeTable = new HashMap();
 
@@ -41,65 +42,70 @@ public class TileEntityAutoCrafter extends InventoriedPowerReceiver {
 	}
 
 	private void feedInItem(ItemStack is) {
-		Integer num = ingredients.get(is);
+		List<Integer> key = Arrays.asList(is.itemID, is.getItemDamage());
+		Integer num = ingredients.get(key);
 		if (num == null) {
 			num = new Integer(is.stackSize);
 		}
 		else {
 			num = new Integer(num.intValue()+is.stackSize);
 		}
-		ingredients.put(is, num);
+		ingredients.put(key, num);
 	}
 
 	private void removeOneIngredient(ItemStack is) {
-		ItemStack con = is.getItem().getContainerItem(is);
+		ItemStack con = is.getItem().getContainerItemStack(is);
 		if (con != null)
 			this.feedInItem(con);
-		int num = ingredients.get(is);
+		List<Integer> key = Arrays.asList(is.itemID, is.getItemDamage());
+		int num = ingredients.get(key);
 		if (num > 1) {
-			ingredients.put(is, num-1);
+			ingredients.put(key, num-1);
 		}
 		else {
-			ingredients.remove(is);
+			ingredients.remove(key);
 		}
 	}
 
 	private ItemStack getFirstIngredientToRemove() {
 		if (ingredients.isEmpty())
 			return null;
-		ItemStack is = ingredients.keySet().iterator().next();
+		List<Integer> key = ingredients.keySet().iterator().next();
+		ItemStack is = new ItemStack(key.get(0), 1, key.get(1));
 		int max = is.getMaxStackSize();
-		int num = ingredients.get(is);
-		return is.copy();
+		int num = ingredients.get(key);
+		return new ItemStack(key.get(0), Math.min(max, num), key.get(1));
 	}
 
 	private void removeFirstIngredient() {
 		if (ingredients.isEmpty())
 			return;
-		ItemStack is = ingredients.keySet().iterator().next();
+		List<Integer> key = ingredients.keySet().iterator().next();
+		ItemStack is = new ItemStack(key.get(0), 1, key.get(1));
 		int max = is.getMaxStackSize();
-		int num = ingredients.get(is);
+		int num = ingredients.get(key);
 		if (num > max)
-			ingredients.put(is, num-max);
+			ingredients.put(key, num-max);
 		else
-			ingredients.remove(is);
+			ingredients.remove(key);
 	}
 
 	public ArrayList<ItemStack> getAllIngredients() {
 		ArrayList<ItemStack> li = new ArrayList();
-		for (ItemStack is : ingredients.keySet()) {
-			Integer num = ingredients.get(is);
+		for (List<Integer> key : ingredients.keySet()) {
+			Integer num = ingredients.get(key);
 			int items = num.intValue();
+			ItemStack is = new ItemStack(key.get(0), 1, key.get(1));
 			int max = is.getMaxStackSize();
 			if (items > max) {
 				while (items > 0) {
 					int drop = Math.min(items, max);
-					li.add(is.copy());
+					li.add(new ItemStack(key.get(0), drop, key.get(1)));
 					items -= drop;
 				}
 			}
 			else {
-				li.add(is.copy());
+				li.add(new ItemStack(key.get(0), items, key.get(1)));
 			}
 		}
 		return li;
@@ -139,11 +145,11 @@ public class TileEntityAutoCrafter extends InventoriedPowerReceiver {
 	private boolean attemptCrafting() {
 		for (int i = 0; i < 54; i++) {
 			ItemStack is = inv[i];
-			if (is != null && is.getItem() == ItemRegistry.CRAFTPATTERN.getItemInstance() && is.stackTagCompound != null) {
+			if (is != null && is.itemID == ItemRegistry.CRAFTPATTERN.getShiftedID() && is.stackTagCompound != null) {
 				ItemStack[] items = new ItemStack[10];
-				NBTTagList nbttaglist = is.stackTagCompound.getTagList("Items", is.stackTagCompound.getId());
+				NBTTagList nbttaglist = is.stackTagCompound.getTagList("Items");
 				for (int k = 0; k < nbttaglist.tagCount(); k++)				{
-					NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(k);
+					NBTTagCompound nbttagcompound = (NBTTagCompound)nbttaglist.tagAt(k);
 					short byte0 = nbttagcompound.getShort("Slot");
 					items[byte0] = ItemStack.loadItemStackFromNBT(nbttagcompound);
 				}
@@ -161,7 +167,7 @@ public class TileEntityAutoCrafter extends InventoriedPowerReceiver {
 							}
 						}
 						if (!hasno) {
-							inv[56] = ReikaItemHelper.getSizedItemStack(out, size+out.stackSize);
+							inv[56] = new ItemStack(out.itemID, size+out.stackSize, out.getItemDamage());
 							if (out.stackTagCompound != null)
 								inv[56].stackTagCompound = (NBTTagCompound)out.stackTagCompound.copy();
 							return true;
@@ -174,7 +180,8 @@ public class TileEntityAutoCrafter extends InventoriedPowerReceiver {
 	}
 
 	private boolean hasIngredient(ItemStack is) {
-		return ingredients.containsKey(is);
+		List<Integer> key = Arrays.asList(is.itemID, is.getItemDamage());
+		return ingredients.containsKey(key);
 	}
 
 	private void eatIngredients() {

@@ -9,11 +9,10 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
-import Reika.RotaryCraft.Registry.EngineType;
-
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import Reika.RotaryCraft.RotaryCraft;
+import Reika.RotaryCraft.Registry.EngineType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -26,17 +25,11 @@ public class TabRotaryCraft extends CreativeTabs {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public ItemStack getIconItemStack() {
-		return EngineType.JET.getCraftedProduct();
+		return new ItemStack(RotaryCraft.engineitems.itemID, 1, EngineType.JET.ordinal());
 	}
 
 	@Override
 	public String getTranslatedTabLabel() {
 		return "RotaryCraft"; //The name of the tab ingame
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public Item getTabIconItem() {
-		return null;
 	}
 }

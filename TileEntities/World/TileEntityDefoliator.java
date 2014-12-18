@@ -9,6 +9,21 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.World;
 
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import Reika.DragonAPI.Libraries.ReikaAABBHelper;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.ReikaPlayerAPI;
@@ -25,24 +40,6 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.RangedEffect;
 import Reika.RotaryCraft.Base.TileEntity.InventoriedPowerLiquidReceiver;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.PacketRegistry;
-
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.DamageSource;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 
 public class TileEntityDefoliator extends InventoriedPowerLiquidReceiver implements RangedEffect {
 
@@ -94,32 +91,30 @@ public class TileEntityDefoliator extends InventoriedPowerLiquidReceiver impleme
 			if (this.isItemValidForSlot(0, inv[0])) {
 				tank.addLiquid(1000, FluidRegistry.getFluid("poison"));
 				ReikaInventoryHelper.decrStack(0, inv);
-				ReikaInventoryHelper.addOrSetStack(Items.glass_bottle, 1, 0, inv, 1);
+				ReikaInventoryHelper.addOrSetStack(Item.glassBottle.itemID, 1, 0, inv, 1);
 			}
 		}
 	}
 
 	private void decay(World world, int x, int y, int z) {
-		Block id = world.getBlock(x, y, z);
+		int id = world.getBlockId(x, y, z);
 		int meta = world.getBlockMetadata(x, y, z);
-		if (!world.isRemote && !ReikaPlayerAPI.playerCanBreakAt((WorldServer)worldObj, x, y, z, id, meta, this.getPlacer()))
+		if (!ReikaPlayerAPI.playerCanBreakAt(worldObj, x, y, z, id, meta, placer))
 			return;
 		boolean flag = false;
-		if (id != Blocks.air) {
-			Material mat = id.getMaterial();
+		if (id != 0) {
+			Block b = Block.blocksList[id];
+			Material mat = b.blockMaterial;
 			if (mat == Material.leaves) {
 				flag = true;
 			}
 			else if (mat == Material.plants || mat == Material.vine || mat == Material.cactus) {
 				flag = true;
 			}
-			else if (id == Blocks.log) {
+			else if (id == Block.wood.blockID) {
 				flag = true;
 			}
-			else if (id == Blocks.log2) {
-				flag = true;
-			}
-			else if (id == Blocks.sapling) {
+			else if (id == Block.sapling.blockID) {
 				flag = true;
 			}
 			else if (ModWoodList.isModWood(id, meta)) {
@@ -133,9 +128,9 @@ public class TileEntityDefoliator extends InventoriedPowerLiquidReceiver impleme
 			}
 
 			if (flag) {
-				ReikaSoundHelper.playBreakSound(world, x, y, z, id);
-				List<ItemStack> li = id.getDrops(world, x, y, z, meta, 0);
-				world.setBlockToAir(x, y, z);
+				ReikaSoundHelper.playBreakSound(world, x, y, z, b);
+				List<ItemStack> li = b.getBlockDropped(world, x, y, z, meta, 0);
+				world.setBlock(x, y, z, 0);
 				ReikaItemHelper.dropItems(world, x+0.5, y+0.5, z+0.5, li);
 
 				AxisAlignedBB box = ReikaAABBHelper.getBlockAABB(x, y, z).expand(3, 3, 3);
@@ -178,7 +173,7 @@ public class TileEntityDefoliator extends InventoriedPowerLiquidReceiver impleme
 
 	@Override
 	public boolean canExtractItem(int i, ItemStack itemstack, int j) {
-		return itemstack.getItem() == Items.glass_bottle;
+		return itemstack.itemID == Item.glassBottle.itemID;
 	}
 
 	@Override
@@ -188,7 +183,7 @@ public class TileEntityDefoliator extends InventoriedPowerLiquidReceiver impleme
 
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack is) {
-		return is.getItem() == Items.potionitem && ReikaPotionHelper.getPotionDamageValue(Potion.poison) == is.getItemDamage();
+		return is.itemID == Item.potion.itemID && ReikaPotionHelper.getPotionDamageValue(Potion.poison) == is.getItemDamage();
 	}
 
 	@Override

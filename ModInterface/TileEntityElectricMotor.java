@@ -9,6 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.ModInterface;
 
+import java.awt.Color;
+
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import universalelectricity.api.electricity.IVoltageInput;
+import universalelectricity.api.energy.IEnergyInterface;
 import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaParticleHelper;
@@ -17,15 +25,6 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
 import Reika.RotaryCraft.Base.TileEntity.EnergyToPowerBase;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.SoundRegistry;
-
-import java.awt.Color;
-
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import universalelectricity.api.electricity.IVoltageInput;
-import universalelectricity.api.energy.IEnergyInterface;
 
 public class TileEntityElectricMotor extends EnergyToPowerBase implements PowerGenerator, SimpleProvider, IEnergyInterface, IVoltageInput {
 

@@ -9,9 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Entities;
 
-import Reika.RotaryCraft.ClientProxy;
-import Reika.RotaryCraft.Auxiliary.ItemStacks;
-
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
@@ -23,6 +20,8 @@ import net.minecraftforge.client.IItemRenderer.ItemRenderType;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import Reika.RotaryCraft.ClientProxy;
+import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -55,7 +54,7 @@ public class RenderFlakShot extends Render
 		float var25 = 0.8F;
 		GL11.glScalef(var25, var25, var25);
 
-		ClientProxy.getSpritesheetRenderer(0).renderItem(ItemRenderType.ENTITY, ItemStacks.scrap, new Object[]{new RenderBlocks(), e});
+		ClientProxy.items[0].renderItem(ItemRenderType.ENTITY, ItemStacks.scrap, new Object[]{new RenderBlocks(), e});
 
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glDisable(GL12.GL_RESCALE_NORMAL);

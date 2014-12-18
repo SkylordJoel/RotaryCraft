@@ -9,16 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
-import Reika.RotaryCraft.RotaryCraft;
-
 import net.minecraft.creativetab.CreativeTabs;
+import Reika.RotaryCraft.RotaryCraft;
 
 
 
 public abstract class ItemRotaryTool extends ItemBasic {
 
-	public ItemRotaryTool(int index) {
-		super(index);
+	public ItemRotaryTool(int ID, int index) {
+		super(ID, index);
 		maxStackSize = 1;
 		this.setNoRepair();
 	}

@@ -9,13 +9,12 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Blocks;
 
-import Reika.RotaryCraft.Base.BlockModelledMultiTE;
-
 import net.minecraft.block.material.Material;
+import Reika.RotaryCraft.Base.BlockModelledMultiTE;
 
 public class BlockMIMachine extends BlockModelledMultiTE {
 
-	public BlockMIMachine(Material mat) {
-		super(mat);
+	public BlockMIMachine(int id, Material mat) {
+		super(id, mat);
 	}
 }

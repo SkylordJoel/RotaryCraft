@@ -9,25 +9,23 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Weaponry;
 
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.item.EntityTNTPrimed;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
 import Reika.DragonAPI.DragonAPICore;
 import Reika.DragonAPI.Libraries.ReikaInventoryHelper;
 import Reika.DragonAPI.Libraries.IO.ReikaChatHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.MathSci.ReikaPhysicsHelper;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityLaunchCannon;
 import Reika.RotaryCraft.Entities.EntityCustomTNT;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import java.util.List;
-
-import net.minecraft.entity.item.EntityTNTPrimed;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
 
 public class TileEntityTNTCannon extends TileEntityLaunchCannon {
 
@@ -75,7 +73,7 @@ public class TileEntityTNTCannon extends TileEntityLaunchCannon {
 		this.getSummativeSidedPower();
 
 		if (DragonAPICore.debugtest)
-			ReikaInventoryHelper.addToIInv(Blocks.tnt, this);
+			ReikaInventoryHelper.addToIInv(Block.tnt, this);
 
 		if (power < MINPOWER)
 			return;
@@ -153,7 +151,7 @@ public class TileEntityTNTCannon extends TileEntityLaunchCannon {
 	}
 
 	private boolean canFire() {
-		boolean hasTNT = ReikaInventoryHelper.checkForItem(Blocks.tnt, inv);
+		boolean hasTNT = ReikaInventoryHelper.checkForItem(Block.tnt.blockID, inv);
 		return hasTNT;
 	}
 
@@ -161,7 +159,7 @@ public class TileEntityTNTCannon extends TileEntityLaunchCannon {
 	protected boolean fire(World world, int x, int y, int z) {
 		if (ConfigRegistry.ALLOWTNTCANNON.getState()) {
 			for (int i = 0; i < 1; i++) {
-				ReikaInventoryHelper.findAndDecrStack(Blocks.tnt, -1, inv);
+				ReikaInventoryHelper.findAndDecrStack(Block.tnt.blockID, -1, inv);
 				world.playSoundEffect(x+0.5, y+0.5, z+0.5, "random.explode", 0.7F+0.3F*rand.nextFloat()*12, 0.1F*rand.nextFloat());
 				world.spawnParticle("hugeexplosion", x+0.5, y+0.5, z+0.5, 1.0D, 0.0D, 0.0D);
 				EntityCustomTNT tnt = new EntityCustomTNT(world, x+0.5, y+1.5-0.0625, z+0.5, null, this.getFuseTime());
@@ -225,7 +223,7 @@ public class TileEntityTNTCannon extends TileEntityLaunchCannon {
 
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack is) {
-		return ReikaItemHelper.matchStackWithBlock(is, Blocks.tnt);
+		return is.itemID == Block.tnt.blockID;
 	}
 
 	@Override

@@ -9,27 +9,26 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Transmission;
 
+import java.util.HashMap;
+
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.DragonAPI.Interfaces.InertIInv;
 import Reika.DragonAPI.Libraries.IO.ReikaSoundHelper;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
+import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.API.ShaftMerger;
 import Reika.RotaryCraft.Auxiliary.ItemStacks;
 import Reika.RotaryCraft.Auxiliary.PowerSourceList;
 import Reika.RotaryCraft.Auxiliary.ShaftPowerBus;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityInventoryIOMachine;
-import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.MaterialRegistry;
-
-import java.util.HashMap;
-
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityPowerBus extends TileEntityInventoryIOMachine implements InertIInv {
 
@@ -75,7 +74,7 @@ public class TileEntityPowerBus extends TileEntityInventoryIOMachine implements 
 		if (bus == null && this.hasHubCoordinates()) {
 			MachineRegistry m = MachineRegistry.getMachine(world, hubX, hubY, hubZ);
 			if (m == MachineRegistry.BUSCONTROLLER) {
-				TileEntityBusController hub = (TileEntityBusController)world.getTileEntity(hubX, hubY, hubZ);
+				TileEntityBusController hub = (TileEntityBusController)world.getBlockTileEntity(hubX, hubY, hubZ);
 				if (hub != null) {
 					ShaftPowerBus bus = hub.getBus();
 					this.configureBusData(bus);
@@ -110,9 +109,9 @@ public class TileEntityPowerBus extends TileEntityInventoryIOMachine implements 
 			return 8;
 		if (ReikaItemHelper.matchStacks(is, ItemStacks.gearunit16))
 			return 16;
-		if (ItemRegistry.GEARUNITS.matchItem(is))
+		if (is.itemID == RotaryCraft.gearunits.itemID)
 			return ReikaMathLibrary.intpow2(2, 1+is.getItemDamage()%4);
-		if (is.getItem() == Items.stick)
+		if (is.itemID == Item.stick.itemID)
 			return 1;
 		if (ReikaItemHelper.matchStacks(is, ItemStacks.stonerod))
 			return 1;
@@ -279,7 +278,7 @@ public class TileEntityPowerBus extends TileEntityInventoryIOMachine implements 
 			int dz = z+dir.offsetZ;
 			MachineRegistry m = MachineRegistry.getMachine(world, dx, dy, dz);
 			if (m == MachineRegistry.BUSCONTROLLER) {
-				TileEntityBusController te = (TileEntityBusController)world.getTileEntity(dx, dy, dz);
+				TileEntityBusController te = (TileEntityBusController)world.getBlockTileEntity(dx, dy, dz);
 				ShaftPowerBus bus = te.getBus();
 				if (bus != null) {
 					this.configureBusData(bus);
@@ -288,7 +287,7 @@ public class TileEntityPowerBus extends TileEntityInventoryIOMachine implements 
 				}
 			}
 			if (m == MachineRegistry.POWERBUS) {
-				TileEntityPowerBus te = (TileEntityPowerBus)world.getTileEntity(dx, dy, dz);
+				TileEntityPowerBus te = (TileEntityPowerBus)world.getBlockTileEntity(dx, dy, dz);
 				ShaftPowerBus bus = te.getBus();
 				if (bus != null) {
 					this.configureBusData(bus);

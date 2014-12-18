@@ -9,6 +9,14 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import Reika.DragonAPI.Libraries.ReikaAABBHelper;
 import Reika.DragonAPI.Libraries.IO.ReikaRenderHelper;
 import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
@@ -16,21 +24,14 @@ import Reika.RotaryCraft.RotaryCraft;
 import Reika.RotaryCraft.Base.TileEntity.RotaryCraftTileEntity;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.TileEntities.Storage.TileEntityReservoir;
-
-import net.minecraft.block.material.Material;
-import net.minecraft.client.particle.EffectRenderer;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public abstract class BlockModelledMultiTE extends BlockBasicMultiTE {
 
-	public BlockModelledMultiTE(Material mat) {
-		super(mat);
+	public BlockModelledMultiTE(int id, Material mat) {
+		super(id, mat);
+		Block.opaqueCubeLookup[id] = false;
 	}
 
 	@Override
@@ -49,13 +50,13 @@ public abstract class BlockModelledMultiTE extends BlockBasicMultiTE {
 	}
 
 	@Override
-	public int getLightOpacity(IBlockAccess world, int x, int y, int z)
+	public int getLightOpacity(World world, int x, int y, int z)
 	{
 		return 0; //out of 255
 	}
 
 	@Override
-	public final void registerBlockIcons(IIconRegister ico) {
+	public final void registerIcons(IconRegister ico) {
 		blockIcon = ico.registerIcon("rotarycraft:steel");
 	}
 
@@ -64,13 +65,13 @@ public abstract class BlockModelledMultiTE extends BlockBasicMultiTE {
 		MachineRegistry m = MachineRegistry.getMachine(world, x, y, z);
 		if (m == null)
 			return ReikaAABBHelper.getBlockAABB(x, y, z);
-		RotaryCraftTileEntity te = (RotaryCraftTileEntity)world.getTileEntity(x, y, z);
+		RotaryCraftTileEntity te = (RotaryCraftTileEntity)world.getBlockTileEntity(x, y, z);
 		if (m == MachineRegistry.RESERVOIR) {
 			return ((TileEntityReservoir)te).getHitbox();
 		}
-		AxisAlignedBB box = AxisAlignedBB.getBoundingBox(x+m.getMinX(te), y+m.getMinY(te), z+m.getMinZ(te), x+m.getMaxX(te), y+m.getMaxY(te), z+m.getMaxZ(te));
+		AxisAlignedBB box = AxisAlignedBB.getAABBPool().getAABB(x+m.getMinX(te), y+m.getMinY(te), z+m.getMinZ(te), x+m.getMaxX(te), y+m.getMaxY(te), z+m.getMaxZ(te));
 		if (te.isFlipped) {
-			box = AxisAlignedBB.getBoundingBox(x+m.getMinX(te), y+(1-m.getMaxY(te)), z+m.getMinZ(te), x+m.getMaxX(te), y+(1-m.getMinY(te)), z+m.getMaxZ(te));
+			box = AxisAlignedBB.getAABBPool().getAABB(x+m.getMinX(te), y+(1-m.getMaxY(te)), z+m.getMinZ(te), x+m.getMaxX(te), y+(1-m.getMinY(te)), z+m.getMaxZ(te));
 		}
 		this.setBounds(box, x, y, z);
 		return box;
@@ -84,23 +85,23 @@ public abstract class BlockModelledMultiTE extends BlockBasicMultiTE {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public final boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer eff)
+	public final boolean addBlockDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer eff)
 	{
 		return ReikaRenderHelper.addModelledBlockParticles("/Reika/RotaryCraft/Textures/TileEntityTex/", world, x, y, z, this, eff, ReikaJavaLibrary.makeListFrom(new double[]{0,0,1,1}), RotaryCraft.class);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public final boolean addHitEffects(World world, MovingObjectPosition tg, EffectRenderer eff)
+	public final boolean addBlockHitEffects(World world, MovingObjectPosition tg, EffectRenderer eff)
 	{
 		return ReikaRenderHelper.addModelledBlockParticles("/Reika/RotaryCraft/Textures/TileEntityTex/", world, tg, this, eff, ReikaJavaLibrary.makeListFrom(new double[]{0,0,1,1}), RotaryCraft.class);
 	}
-	/*
+
 	@Override
 	public float getBlockBrightness(IBlockAccess iba, int x, int y, int z)
 	{
 		return iba.getBrightness(x, y+1, z, this.getLightValue(iba, x, y+1, z));
-	}*/
+	}
 
 	@Override
 	@SideOnly(Side.CLIENT)

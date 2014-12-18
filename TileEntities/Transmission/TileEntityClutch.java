@@ -9,6 +9,9 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Transmission;
 
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.ChromatiCraft.API.SpaceRift;
 import Reika.DragonAPI.Instantiable.WorldLocation;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
@@ -17,18 +20,13 @@ import Reika.RotaryCraft.Auxiliary.Interfaces.SimpleProvider;
 import Reika.RotaryCraft.Base.TileEntity.TileEntity1DTransmitter;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 
-import net.minecraft.block.Block;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-
 public class TileEntityClutch extends TileEntity1DTransmitter {
 
 	@Override
 	public void updateEntity(World world, int x, int y, int z, int meta)
 	{
 		super.updateTileEntity();
-		Block b = world.getBlock(x, y, z);
+		int id = world.getBlockId(x, y, z);
 
 		this.getIOSides(world, x, y, z, meta, true);
 		this.transferPower(world, x, y, z, meta);
@@ -45,7 +43,7 @@ public class TileEntityClutch extends TileEntity1DTransmitter {
 		int dy = y+read.offsetY;
 		int dz = z+read.offsetZ;
 		MachineRegistry m = isCentered ? this.getMachine(read) : MachineRegistry.getMachine(world, dx, dy, dz);
-		TileEntity te = isCentered ? this.getAdjacentTileEntity(read) : world.getTileEntity(dx, dy, dz);
+		TileEntity te = isCentered ? this.getAdjacentTileEntity(read) : world.getBlockTileEntity(dx, dy, dz);
 		if (world.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord)) {
 			if (this.isProvider(te)) {
 				if (m == MachineRegistry.SHAFT) {

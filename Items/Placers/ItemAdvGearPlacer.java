@@ -9,39 +9,36 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Items.Placers;
 
-import Reika.DragonAPI.Libraries.MathSci.ReikaEngLibrary;
-import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
-import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
-import Reika.RotaryCraft.Auxiliary.RotaryAux;
-import Reika.RotaryCraft.Base.ItemBlockPlacer;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-import Reika.RotaryCraft.Registry.MachineRegistry;
-import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear;
-import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear.GearType;
-
 import java.util.List;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+import Reika.DragonAPI.Libraries.MathSci.ReikaEngLibrary;
+import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
+import Reika.DragonAPI.Libraries.World.ReikaWorldHelper;
+import Reika.RotaryCraft.Auxiliary.RotaryAux;
+import Reika.RotaryCraft.Base.ItemBlockPlacer;
+import Reika.RotaryCraft.Registry.MachineRegistry;
+import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear;
+import Reika.RotaryCraft.TileEntities.Transmission.TileEntityAdvancedGear.GearType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemAdvGearPlacer extends ItemBlockPlacer {
 
-	public ItemAdvGearPlacer() {
-		super();
+	public ItemAdvGearPlacer(int id) {
+		super(id);
 	}
 
 	@Override
 	public boolean onItemUse(ItemStack is, EntityPlayer ep, World world, int x, int y, int z, int side, float par8, float par9, float par10) {
-		if (!ReikaWorldHelper.softBlocks(world, x, y, z) && ReikaWorldHelper.getMaterial(world, x, y, z) != Material.water && ReikaWorldHelper.getMaterial(world, x, y, z) != Material.lava) {
+		if (!ReikaWorldHelper.softBlocks(world, x, y, z) && world.getBlockMaterial(x, y, z) != Material.water && world.getBlockMaterial(x, y, z) != Material.lava) {
 			if (side == 0)
 				--y;
 			if (side == 1)
@@ -54,7 +51,7 @@ public class ItemAdvGearPlacer extends ItemBlockPlacer {
 				--x;
 			if (side == 5)
 				++x;
-			if (!ReikaWorldHelper.softBlocks(world, x, y, z) && ReikaWorldHelper.getMaterial(world, x, y, z) != Material.water && ReikaWorldHelper.getMaterial(world, x, y, z) != Material.lava)
+			if (!ReikaWorldHelper.softBlocks(world, x, y, z) && world.getBlockMaterial(x, y, z) != Material.water && world.getBlockMaterial(x, y, z) != Material.lava)
 				return false;
 		}
 		this.clearBlocks(world, x, y, z);
@@ -70,12 +67,12 @@ public class ItemAdvGearPlacer extends ItemBlockPlacer {
 		{
 			if (!ep.capabilities.isCreativeMode)
 				--is.stackSize;
-			world.setBlock(x, y, z, MachineRegistry.ADVANCEDGEARS.getBlock());
+			world.setBlock(x, y, z, MachineRegistry.ADVANCEDGEARS.getBlockID());
 		}
 		world.playSoundEffect(x+0.5, y+0.5, z+0.5, "step.stone", 1F, 1.5F);
-		TileEntityAdvancedGear adv = (TileEntityAdvancedGear)world.getTileEntity(x, y, z);
+		TileEntityAdvancedGear adv = (TileEntityAdvancedGear)world.getBlockTileEntity(x, y, z);
 		adv.setBlockMetadata(4*is.getItemDamage()+RotaryAux.get4SidedMetadataFromPlayerLook(ep));
-		adv.setPlacer(ep);
+		adv.placer = ep.getEntityName();
 		if (RotaryAux.shouldSetFlipped(world, x, y, z)) {
 			adv.isFlipped = true;
 		}
@@ -94,7 +91,7 @@ public class ItemAdvGearPlacer extends ItemBlockPlacer {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubItems(Item id, CreativeTabs tab, List list) {
+	public void getSubItems(int id, CreativeTabs tab, List list) {
 		if (MachineRegistry.ADVANCEDGEARS.isAvailableInCreativeInventory()) {
 			for (int i = 0; i < TileEntityAdvancedGear.GearType.list.length; i++) {
 				ItemStack item = new ItemStack(id, 1, i);
@@ -142,10 +139,5 @@ public class ItemAdvGearPlacer extends ItemBlockPlacer {
 				li.add("Lubricant: "+lube+" mB");
 			}
 		}
-	}
-
-	@Override
-	public String getItemStackDisplayName(ItemStack is) {
-		return ItemRegistry.getEntry(is).getMultiValuedName(is.getItemDamage());
 	}
 }

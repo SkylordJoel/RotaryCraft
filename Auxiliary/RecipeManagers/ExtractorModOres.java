@@ -9,14 +9,13 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary.RecipeManagers;
 
-import Reika.DragonAPI.Libraries.ReikaRecipeHelper;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.FurnaceRecipes;
+import net.minecraftforge.oredict.OreDictionary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 import Reika.DragonAPI.ModRegistry.ModOreList;
-import Reika.RotaryCraft.Registry.ItemRegistry;
-
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
+import Reika.RotaryCraft.RotaryCraft;
 
 public class ExtractorModOres {
 
@@ -24,14 +23,14 @@ public class ExtractorModOres {
 		for (int i = 0; i < ModOreList.oreList.length; i++) {
 			String[] ingots = ModOreList.oreList[i].getOreDictIngots();
 			for (int j = 0; j < ingots.length; j++) {
-				OreDictionary.registerOre(ingots[j], ItemRegistry.MODINGOTS.getStackOfMetadata(i));
+				OreDictionary.registerOre(ingots[j], new ItemStack(RotaryCraft.modingots.itemID, 1, i));
 			}
 		}
 	}
 
 	public static void addSmelting() {
 		for (int i = 0; i < ModOreList.oreList.length; i++) {
-			ReikaRecipeHelper.addSmelting(ItemRegistry.MODEXTRACTS.getStackOfMetadata(getFlakesIndex(ModOreList.oreList[i])), ReikaItemHelper.getSizedItemStack(getSmeltedIngot(ModOreList.oreList[i]), ModOreList.oreList[i].getDropCount()), 0.7F);
+			FurnaceRecipes.smelting().addSmelting(RotaryCraft.modextracts.itemID, getFlakesIndex(ModOreList.oreList[i]), ReikaItemHelper.getSizedItemStack(getSmeltedIngot(ModOreList.oreList[i]), ModOreList.oreList[i].getDropCount()), 0.7F);
 		}
 	}
 
@@ -42,7 +41,7 @@ public class ExtractorModOres {
 	public static boolean isModOreIngredient(ItemStack is) {
 		if (is == null)
 			return false;
-		if (!ItemRegistry.MODEXTRACTS.matchItem(is))
+		if (is.itemID != RotaryCraft.modextracts.itemID)
 			return false;
 		return ModOreList.getEntryFromDamage(is.getItemDamage()/4) != null;
 	}
@@ -97,63 +96,63 @@ public class ExtractorModOres {
 	}
 
 	public static ItemStack getDustProduct(ModOreList ore) {
-		return ItemRegistry.MODEXTRACTS.getStackOfMetadata(getDustIndex(ore));
+		return new ItemStack(RotaryCraft.modextracts.itemID, 1, getDustIndex(ore));
 	}
 
 	public static ItemStack getSlurryProduct(ModOreList ore) {
-		return ItemRegistry.MODEXTRACTS.getStackOfMetadata(getSlurryIndex(ore));
+		return new ItemStack(RotaryCraft.modextracts.itemID, 1, getSlurryIndex(ore));
 	}
 
 	public static ItemStack getSolutionProduct(ModOreList ore) {
-		return ItemRegistry.MODEXTRACTS.getStackOfMetadata(getSolutionIndex(ore));
+		return new ItemStack(RotaryCraft.modextracts.itemID, 1, getSolutionIndex(ore));
 	}
 
 	public static ItemStack getFlakeProduct(ModOreList ore) {
-		return ItemRegistry.MODEXTRACTS.getStackOfMetadata(getFlakesIndex(ore));
+		return new ItemStack(RotaryCraft.modextracts.itemID, 1, getFlakesIndex(ore));
 	}
 
 	public static ItemStack getSmeltedIngot(ModOreList ore) {
 		switch(ore) {
 		case NETHERCOAL:
-			return new ItemStack(Items.coal);
+			return new ItemStack(Item.coal);
 		case NETHERCOPPER:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.COPPER.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.COPPER.ordinal());
 		case NETHERDIAMOND:
-			return new ItemStack(Items.diamond);
+			return new ItemStack(Item.diamond);
 		case NETHEREMERALD:
-			return new ItemStack(Items.emerald);
+			return new ItemStack(Item.emerald);
 		case NETHERGOLD:
-			return new ItemStack(Items.gold_ingot);
+			return new ItemStack(Item.ingotGold);
 		case NETHERIRON:
-			return new ItemStack(Items.iron_ingot);
+			return new ItemStack(Item.ingotIron);
 		case NETHERLAPIS:
 			return ReikaItemHelper.lapisDye.copy();
 		case NETHERLEAD:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.LEAD.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.LEAD.ordinal());
 		case NETHERNICKEL:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.NICKEL.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.NICKEL.ordinal());
 		case NETHERNIKOLITE:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.NIKOLITE.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.NIKOLITE.ordinal());
 		case NETHERREDSTONE:
-			return new ItemStack(Items.redstone);
+			return new ItemStack(Item.redstone);
 		case NETHERSILVER:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.SILVER.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.SILVER.ordinal());
 		case NETHERTIN:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.TIN.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.TIN.ordinal());
 		case NETHERPLATINUM:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.PLATINUM.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.PLATINUM.ordinal());
 		case NETHERURANIUM:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.URANIUM.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.URANIUM.ordinal());
 		case NETHERIRIDIUM:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.IRIDIUM.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.IRIDIUM.ordinal());
 		case NETHERSULFUR:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.SULFUR.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.SULFUR.ordinal());
 		case NETHERTITANIUM:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.TITANIUM.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.TITANIUM.ordinal());
 		case NETHEROSMIUM:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ModOreList.OSMIUM.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ModOreList.OSMIUM.ordinal());
 		default:
-			return ItemRegistry.MODINGOTS.getStackOfMetadata(ore.ordinal());
+			return new ItemStack(RotaryCraft.modingots.itemID, 1, ore.ordinal());
 		}
 	}
 

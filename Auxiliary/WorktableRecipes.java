@@ -9,10 +9,6 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Auxiliary;
 
-import Reika.DragonAPI.Instantiable.Data.ImmutableList;
-import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
-import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +23,9 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.world.World;
+import Reika.DragonAPI.Instantiable.Data.ImmutableList;
+import Reika.DragonAPI.Libraries.Java.ReikaJavaLibrary;
+import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
 
 public class WorktableRecipes
 {
@@ -190,9 +189,9 @@ public class WorktableRecipes
 			}
 		}
 
-		if (i == 2 && itemstack.getItem() == itemstack1.getItem() && itemstack.stackSize == 1 && itemstack1.stackSize == 1 && itemstack.getItem().isRepairable())
+		if (i == 2 && itemstack.itemID == itemstack1.itemID && itemstack.stackSize == 1 && itemstack1.stackSize == 1 && Item.itemsList[itemstack.itemID].isRepairable())
 		{
-			Item item = itemstack.getItem();
+			Item item = Item.itemsList[itemstack.itemID];
 			int k = item.getMaxDamage() - itemstack.getItemDamageForDisplay();
 			int l = item.getMaxDamage() - itemstack1.getItemDamageForDisplay();
 			int i1 = k + l + item.getMaxDamage() * 5 / 100;
@@ -203,7 +202,7 @@ public class WorktableRecipes
 				j1 = 0;
 			}
 
-			return new ItemStack(itemstack.getItem(), 1, j1);
+			return new ItemStack(itemstack.itemID, 1, j1);
 		}
 		else
 		{

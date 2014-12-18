@@ -9,24 +9,21 @@
  ******************************************************************************/
 package Reika.RotaryCraft.Base;
 
-import Reika.DragonAPI.ModInteract.RailcraftHandler;
-import Reika.RotaryCraft.RotaryCraft;
-
 import java.util.List;
 
-import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import Reika.DragonAPI.ModInteract.RailcraftHandler;
+import Reika.RotaryCraft.RotaryCraft;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public abstract class ItemBlockPlacer extends ItemBasic {
 
-	public ItemBlockPlacer() {
-		super(0);
+	public ItemBlockPlacer(int id) {
+		super(id, 0);
 		this.setHasSubtypes(true); //Marks item as having metadata
 		this.setMaxDamage(0);
 		maxStackSize = 64;
@@ -56,11 +53,11 @@ public abstract class ItemBlockPlacer extends ItemBasic {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public abstract void getSubItems(Item id, CreativeTabs tab, List list);
+	public abstract void getSubItems(int id, CreativeTabs tab, List list);
 
 	protected void clearBlocks(World world, int x, int y, int z) {
-		Block b = world.getBlock(x, y, z);
-		if (b == RailcraftHandler.getInstance().hiddenID)
-			world.setBlockToAir(x, y, z);
+		int id = world.getBlockId(x, y, z);
+		if (id == RailcraftHandler.getInstance().hiddenID)
+			world.setBlock(x, y, z, 0);
 	}
 }

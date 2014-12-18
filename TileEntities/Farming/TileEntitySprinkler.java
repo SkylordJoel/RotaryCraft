@@ -9,17 +9,15 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Farming;
 
+import net.minecraft.block.Block;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import Reika.DragonAPI.Libraries.Registry.ReikaCropHelper;
 import Reika.DragonAPI.ModRegistry.ModCropList;
 import Reika.RotaryCraft.Base.TileEntity.SprinklerBlock;
 import Reika.RotaryCraft.Registry.ConfigRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
 import Reika.RotaryCraft.Registry.RotaryAchievements;
-
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntitySprinkler extends SprinklerBlock {
 
@@ -39,13 +37,13 @@ public class TileEntitySprinkler extends SprinklerBlock {
 					if (rand.nextInt(20) == 0) {
 						boolean top = false;
 						for (int k = y-1; k >= 0 && !top; k--) {
-							Block foundid = world.getBlock(x+i, k, z+j);
-							if (foundid == Blocks.fire) {
+							int foundid = world.getBlockId(x+i, k, z+j);
+							if (foundid == Block.fire.blockID) {
 								world.playSoundEffect(x+i+0.5, k+0.5, z+j+0.5, "random.fizz", 0.6F+0.4F*rand.nextFloat(), 0.5F+0.5F*rand.nextFloat());
-								world.setBlockToAir(x+i, k, z+j);
+								world.setBlock(x+i, k, z+j, 0);
 							}
-							if (foundid != Blocks.air) {
-								if (foundid.isOpaqueCube()) {
+							if (foundid != 0) {
+								if (Block.blocksList[foundid].isOpaqueCube()) {
 									top = true;
 									ytop = -1;
 								}
@@ -55,7 +53,7 @@ public class TileEntitySprinkler extends SprinklerBlock {
 					if (rand.nextInt(240) == 0) {
 						boolean top = false;
 						for (int k = y-1; k >= 0 && !top; k--) {
-							Block foundid = world.getBlock(x+i, k, z+j);
+							int foundid = world.getBlockId(x+i, k, z+j);
 							int meta2 = world.getBlockMetadata(x+i, k, z+j);
 							if (rand.nextInt(15) == 0) {
 								ReikaCropHelper crop = ReikaCropHelper.getCrop(foundid);
@@ -65,17 +63,18 @@ public class TileEntitySprinkler extends SprinklerBlock {
 								}
 								if (modcrop != null && !modcrop.isRipe(world, x+i, k, z+j)) {
 									//world.setBlockMetadataWithNotify(x+i, k, z+j, meta2+1, 3);
-									foundid.updateTick(world, x+i, k, z+j, rand);
+									Block b = Block.blocksList[foundid];
+									b.updateTick(world, x+i, k, z+j, rand);
 									world.markBlockForUpdate(x+i, k, z+j);
 								}
 							}
-							if (foundid == Blocks.farmland) {
+							if (foundid == Block.tilledField.blockID) {
 								top = true;
 								ytop = k;
 								//ModLoader.getMinecraftInstance().thePlayer.addChatMessage(String.format("%d", ytop));
 							}
-							if (foundid != Blocks.air) {
-								if (foundid.isOpaqueCube()) {
+							if (foundid != 0) {
+								if (Block.blocksList[foundid].isOpaqueCube()) {
 									top = true;
 									ytop = -1;
 								}
@@ -86,11 +85,11 @@ public class TileEntitySprinkler extends SprinklerBlock {
 						//ReikaWorldHelper.legacySetBlockWithNotify(world, x+i, 75, z+j, 20);
 						//ModLoader.getMinecraftInstance().thePlayer.addChatMessage(String.format("%d %d %d", x+i, ytop, z+j));
 						int metaf = world.getBlockMetadata(x+i, ytop, z+j);
-						if (metaf < 8 && world.getBlock(x+i, ytop, z+j) == Blocks.farmland) //Wetness maxes at 8
+						if (metaf < 8 && world.getBlockId(x+i, ytop, z+j) == Block.tilledField.blockID) //Wetness maxes at 8
 							world.setBlockMetadataWithNotify(x+i, ytop, z+j, metaf+1, 3);
 					}
 				}
-				if (world.getBlock(x+i, ytop-2, z+j) == Blocks.farmland) {
+				if (world.getBlockId(x+i, ytop-2, z+j) == Block.tilledField.blockID) {
 					int d = Math.max(1, 5-ConfigRegistry.SPRINKLER.getValue());
 					if (rand.nextInt(d) == 0)
 						world.spawnParticle("splash", x+i+0.5, ytop-0.875, z+j+0.5, 0, 0, 0);

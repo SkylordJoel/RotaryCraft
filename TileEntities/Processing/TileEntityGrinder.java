@@ -9,6 +9,20 @@
  ******************************************************************************/
 package Reika.RotaryCraft.TileEntities.Processing;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 import Reika.DragonAPI.Instantiable.HybridTank;
 import Reika.DragonAPI.Libraries.MathSci.ReikaMathLibrary;
 import Reika.DragonAPI.Libraries.Registry.ReikaItemHelper;
@@ -25,21 +39,6 @@ import Reika.RotaryCraft.Registry.DifficultyEffects;
 import Reika.RotaryCraft.Registry.DurationRegistry;
 import Reika.RotaryCraft.Registry.ItemRegistry;
 import Reika.RotaryCraft.Registry.MachineRegistry;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.DamageSource;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
 
 public class TileEntityGrinder extends InventoriedPowerReceiver implements PipeConnector, IFluidHandler, DiscreteFunction,
 ConditionalOperation, DamagingContact {
@@ -75,18 +74,26 @@ ConditionalOperation, DamagingContact {
 	public boolean getReceptor(World world, int x, int y, int z, int metadata) {
 		if (y == 0)
 			return false;
+		int id = 0;
 		switch (metadata) {
 		case 0:
+			id = world.getBlockId(x+1, y, z);
 			read = ForgeDirection.EAST;
 			break;
 		case 1:
+			id = world.getBlockId(x-1, y, z);
 			read = ForgeDirection.WEST;
 			break;
 		case 2:
+			id = world.getBlockId(x, y, z+1);
 			read = ForgeDirection.SOUTH;
 			break;
 		case 3:
+			id = world.getBlockId(x, y, z-1);
 			read = ForgeDirection.NORTH;
+			break;
+		default:
+			id = 0;
 			break;
 		}
 		//ReikaWorldHelper.legacySetBlockWithNotify(world, readx, ready+3, readz, 4);
@@ -164,9 +171,9 @@ ConditionalOperation, DamagingContact {
 		else
 			grinderCookTime = 0;
 		if (flag1)
-			this.markDirty();
+			this.onInventoryChanged();
 		if (inv[2] != null && tank.getLevel() >= 1000 && !world.isRemote) {
-			if (inv[2].getItem() == Items.bucket && inv[2].stackSize == 1) {
+			if (inv[2].itemID == Item.bucketEmpty.itemID && inv[2].stackSize == 1) {
 				inv[2] = ItemStacks.lubebucket.copy();
 				tank.removeLiquid(1000);
 			}
@@ -237,7 +244,7 @@ ConditionalOperation, DamagingContact {
 		{
 			inv[1] = itemstack.copy();
 		}
-		else if (inv[1].getItem() == itemstack.getItem())
+		else if (inv[1].itemID == itemstack.itemID)
 		{
 			inv[1].stackSize += itemstack.stackSize;
 		}
@@ -276,8 +283,8 @@ ConditionalOperation, DamagingContact {
 		if (slot == 1)
 			return false;
 		if (slot == 2)
-			return is.getItem() == Items.bucket;
-		return is.getItem() == ItemRegistry.CANOLA.getItemInstance() || RecipesGrinder.getRecipes().isGrindable(is);
+			return is.itemID == Item.bucketEmpty.itemID;
+		return is.itemID == ItemRegistry.CANOLA.getShiftedID() || RecipesGrinder.getRecipes().isGrindable(is);
 	}
 
 	@Override
